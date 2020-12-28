@@ -1,0 +1,6 @@
+**/*.dll
+**/obj/
+**/bin/
+*.code-workspace
+assets/game/shaders/
+assets/game/shaderincludes/
