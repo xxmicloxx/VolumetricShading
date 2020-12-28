@@ -1,0 +1,25 @@
+--- orig/assets/game/shaders/chunktopsoil.fsh
++++ patched/assets/game/shaders/chunktopsoil.fsh
+@@ -1,4 +1,4 @@
+-#version 330 core
++﻿#version 330 core
+ 
+ uniform sampler2D terrainTex;
+ uniform sampler2D terrainTexLinear;
+@@ -87,12 +87,12 @@
+ 	glow = pow(max(0, dot(normal, lightPosition)), 6) / 10 * shadowIntensity * (1 - fogAmount);
+ #endif	
+ 
+-	
++	float scatterAmt = calculateVolumetricScatter(vertexPosition);
+ 
+ #if SSAOLEVEL > 0
+-	outGPosition = vec4(fragPosition.xyz, fogAmount + glowLevel);
++	outGPosition = vec4(fragPosition.xyz, fogAmount + glowLevel + scatterAmt * VOLUMETRIC_SSAO_DECLINE);
+ 	outGNormal = gnormal;
+ #endif
+ 
+-    outGlow = vec4(glowLevel + glow, 0, 0, outColor.a);
++    outGlow = vec4(glowLevel + glow, scatterAmt, 0, outColor.a);
+ }
+\ No newline at end of file

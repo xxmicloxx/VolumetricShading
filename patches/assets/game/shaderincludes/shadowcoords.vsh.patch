@@ -1,0 +1,32 @@
+--- orig/assets/game/shaderincludes/shadowcoords.vsh
++++ patched/assets/game/shaderincludes/shadowcoords.vsh
+@@ -1,4 +1,4 @@
+-#if SHADOWQUALITY > 0
++﻿#if SHADOWQUALITY > 0
+ uniform float shadowRangeFar;
+ uniform mat4 toShadowMapSpaceMatrixFar;
+ out vec4 shadowCoordsFar;
+@@ -9,6 +9,10 @@
+ out vec4 shadowCoordsNear;
+ #endif
+ 
++#if GODRAYS > 0
++out vec4 shadowRayStart;
++out vec4 shadowLightPos;
++#endif
+ 
+ const float transitionDistance = 10.0;
+ 
+@@ -51,4 +55,11 @@
+ 	//shadowCoordsFar.w = max(0, 1.0 - nearSub);
+ 
+ #endif
++}
++
++void prepareVolumetricLighting(vec3 lightPosition) {
++#if GODRAYS > 0
++	shadowRayStart = toShadowMapSpaceMatrixFar * vec4(0.0, 0.0, 0.0, 1.0);
++	shadowLightPos = toShadowMapSpaceMatrixFar * vec4(lightPosition, 1.0);
++#endif
+ }
+\ No newline at end of file

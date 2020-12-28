@@ -1,0 +1,76 @@
+#version 330 core
+#extension GL_ARB_explicit_attrib_location: enable
+
+layout(location = 0) in vec3 vertexPositionIn;
+layout(location = 1) in vec2 uvIn;
+// rgb = block light, a=sun light level
+layout(location = 2) in vec4 rgbaLightIn;
+// Bits 0-7: Glow level
+// Bits 8-10: Z-Offset
+// Bit 11: Wind waving yes/no
+// Bit 12: Water waving yes/no
+// Bit 13: Exposed to sky
+layout(location = 3) in int renderFlags;
+
+layout(location = 4) in vec2 flowVector;
+
+// Bit 0: Should animate yes/no
+// Bit 1: Should texture fade yes/no
+// Bits 8-15: x-Distance to upper left corner, where 255 = size of the block texture
+// Bits 16-24: y-Distance to upper left corner, where 255 = size of the block texture
+// Bit 25: Lava yes/no
+// Bit 26: Weak foamy yes/no
+// Bit 27: Weak Wavy yes/no
+layout(location = 5) in int waterFlagsIn;
+
+// Bits 0..7 = season map index
+// Bits 8..11 = climate map index
+// Bits 12 = Frostable bit
+// Bits 13, 14, 15 = free \o/
+// Bits 16-23 = temperature
+// Bits 24-31 = rainfall
+layout(location = 6) in int colormapData;
+
+uniform vec3 origin;
+uniform mat4 projectionMatrix;
+uniform mat4 modelViewMatrix;
+
+out vec2 flowVectorf;
+out vec4 worldPos;
+out vec4 fragPosition;
+out vec4 gnormal;
+out vec3 fragWorldPos;
+flat out int waterFlags;
+flat out float alpha;
+flat out int skyExposed;
+
+#include vertexwarp.vsh
+#include fogandlight.vsh
+#include colormap.vsh
+
+void main(void)
+{
+	worldPos = vec4(vertexPositionIn + origin, 1.0);
+	
+	float div = ((waterFlagsIn & (1<<27)) > 0) ? 90 : 10;
+	float yBefore = worldPos.y;
+	
+	worldPos = applyLiquidWarping((waterFlagsIn & 0x2000000) == 0, worldPos, div);
+	
+	vec4 cameraPos = modelViewMatrix * worldPos;
+	
+	gl_Position = projectionMatrix * cameraPos;
+	
+	vec3 fragNormal = unpackNormal(renderFlags >> 15);
+
+	fragWorldPos = worldPos.xyz + playerpos;
+    fragPosition = cameraPos;
+	gnormal = modelViewMatrix * vec4(fragNormal.xyz, 0);
+    waterFlags = waterFlagsIn;
+	skyExposed = (renderFlags >> 13) & 1;
+
+	flowVectorf = flowVector;
+
+	alpha = rgbaLightIn.a > 0.05f ? 0f : 1f;
+	calcColorMapUvs(colormapData, vec4(vertexPositionIn + origin, 1.0) + vec4(playerpos, 1), rgbaLightIn.a, false);
+}

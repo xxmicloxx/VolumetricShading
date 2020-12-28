@@ -1,0 +1,26 @@
+--- orig/assets/game/shaders/clouds.fsh
++++ patched/assets/game/shaders/clouds.fsh
+@@ -1,4 +1,4 @@
+-#version 330 core
++﻿#version 330 core
+ #extension GL_ARB_explicit_attrib_location: enable
+ 
+ in vec4 rgbaCloud;
+@@ -31,8 +31,16 @@
+     // R32F texture (revealage)
+     // Make sure to use the red channel (and GL_RED target in your texture)
+     outReveal.r = color.a;
++
++	float actOut = 0f;
++#if GODRAYS > 0
++	float normalOut = 0.1f;
++	float intensity = dot(normalize(shadowCoordsFar.xyz-shadowRayStart.xyz),  normalize(shadowLightPos.xyz-shadowRayStart.xyz));
++	float phase = 2.5+exp(intensity*3.0)/3.0;
++	actOut = pow(phase * normalOut, VOLUMETRIC_FLATNESS) * (1.0f - color.a * 0.4f);
++#endif
+ 	
+-	outGlow = vec4(glow, 0, 0, min(1, color.a*5 - (flagsf >= 5 ? thinCloudModef : 0)));
++	outGlow = vec4(glow, actOut, 0, min(1, color.a*5 - (flagsf >= 5 ? thinCloudModef : 0)));
+ }
+ 
+ void main()

@@ -1,0 +1,80 @@
+--- orig/assets/game/shaders/chunkliquid.fsh
++++ patched/assets/game/shaders/chunkliquid.fsh
+@@ -1,4 +1,4 @@
+-#version 330 core
++﻿#version 330 core
+ 
+ uniform sampler2D terrainTex;
+ uniform sampler2D depthTex;
+@@ -26,6 +26,7 @@
+ in vec3 fragNormal;
+ flat in int skyExposed;
+ 
++
+ in vec2 flowVectorf;
+ in float glowLevel;
+ 
+@@ -91,7 +92,9 @@
+     // Make sure to use the red channel (and GL_RED target in your texture)
+     outReveal.r = color.a; // Was *1.2 but that made lava more transparent :o
+ 	
+-    outGlow = vec4(glowLevel, 0, 0, color.a);
++	float scatterAmt = calculateVolumetricScatter(fWorldPos);
++	
++    outGlow = vec4(glowLevel, scatterAmt, 0, color.a);
+ }
+ 
+ void main() 
+@@ -192,51 +195,14 @@
+ 			
+ 			texColor.a += max(0, diff/16 + noise/4);
+ 			
+-			
+ 			// Droplet noise
+ 			float f = 0;
+ 			if (skyExposed > 0) {
+ 				vec2 uv = 12.0 * fragWorldPos.xz / (2.0 + noise1/3000.0);
+ 				f = dropletnoise(uv);
+ 			}
+-			
+-			
+-			
+-			// Specular reflection
+-			if (skyExposed > 0) {
+-				vec3 noisepos = vec3(fragWorldPos.x , fragWorldPos.z, waterWaveCounter / 8 + windWaveCounter / 6);
+-				
+-				//float dy = clamp(noise2 / 10, 0, 1) + gnoise(noisepos); - trippy specular rings
+-				
+-				float dy = noise2 / 20 + clamp(gnoise(noisepos) / 10, 0, 0.6);
+-				
+-				vec3 normal = normalize(vec3(dy, 1, -dy));
+-				
+-				float upness = max(0, dot(fragNormal, vec3(0,1,0))); // Only do specular reflections on up faces
+-				
+-				vec3 eye = normalize(vec3(fWorldPos.x, fWorldPos.y - 2, fWorldPos.z));
+-				vec3 reflectionVec = reflect(sunPosRel, normal);
+-				float p = dot(reflectionVec, eye);
+-				if (p > 0) {
+-					float sunb = clamp(sunPosRel.y * 10, 0, 1) * clamp(1.5 - sunPosRel.y, 0, 1) * sunSpecularIntensity;
+-					
+-					float specular = pow(p, 200) * sunb;
+-					
+-					#if SHADOWQUALITY > 0
+-					float weight = upness * clamp(specular * clamp(pow(shadowBright, 4), 0, 1) * clamp(1.5 * shadowIntensity, 0, 1), 0, 1);
+-					#else
+-					float weight = upness * clamp(specular * clamp(pow(shadowBright, 4), 0, 1) * clamp(1.5, 0, 1), 0, 1);
+-					#endif
+-					
+-					vec3 sunColf = applyFog(vec4(sunColor, 1), fogAmount).rgb;
+-					
+-					texColor.rgb = mix(texColor.rgb, sunColf + noise1 * 0.2, weight);
+-					texColor.a = mix(texColor.a, texColor.a + specular/2, weight);
+-				}
+-			}
+-			
++
+ 			texColor.rgb *= 1 + f;
+-			
+ 		}
+ 	}
+ 	

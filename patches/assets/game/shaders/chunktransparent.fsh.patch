@@ -1,0 +1,26 @@
+--- orig/assets/game/shaders/chunktransparent.fsh
++++ patched/assets/game/shaders/chunktransparent.fsh
+@@ -1,4 +1,4 @@
+-#version 330 core
++﻿#version 330 core
+ #extension GL_ARB_explicit_attrib_location: enable
+ 
+ uniform sampler2D terrainTex;
+@@ -27,6 +27,8 @@
+ void drawPixel(vec4 color) {
+ 	float weight = color.a * clamp(0.03 / (1e-5 + pow(gl_FragCoord.z / 200, 4.0)), 1e-2, 3e3);
+ 	
++	float scatterAmt = calculateVolumetricScatter(worldPos.xyz);
++
+     // RGBA32F texture (accumulation)
+     outAccu = vec4(color.rgb * color.a, color.a) * weight;
+ 	
+@@ -34,7 +36,7 @@
+     // Make sure to use the red channel (and GL_RED target in your texture)
+     outReveal.r = color.a;
+ 
+-    outGlow = vec4(glowLevel, 0, 0, color.a);
++    outGlow = vec4(glowLevel, scatterAmt, 0, color.a);
+ }
+ 
+ 

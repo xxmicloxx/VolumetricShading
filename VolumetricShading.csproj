@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="tools\**" />
+    <EmbeddedResource Remove="tools\**" />
+    <None Remove="tools\**" />
+    <PackageReference Include="ILMerge" Version="3.0.41" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="VolumetricShading.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK">
+      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="Vintagestory">
+      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\Vintagestory.exe</HintPath>
+    </Reference>
+    <Reference Include="VintagestoryAPI">
+      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\VintagestoryAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="VintagestoryLib">
+      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\VintagestoryLib.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)&quot;" />
+  </Target>
+
+</Project>

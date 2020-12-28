@@ -1,0 +1,29 @@
+--- orig/assets/game/shaders/chunkopaque.vsh
++++ patched/assets/game/shaders/chunkopaque.vsh
+@@ -1,4 +1,4 @@
+-#version 330 core
++﻿#version 330 core
+ #extension GL_ARB_explicit_attrib_location: enable
+ 
+ layout(location = 0) in vec3 vertexPositionIn;
+@@ -36,6 +36,10 @@
+ uniform mat4 projectionMatrix;
+ uniform mat4 modelViewMatrix;
+ 
++#if GODRAYS > 0
++uniform vec3 lightPosition;
++#endif
++
+ out vec4 rgba;
+ out vec2 uv;
+ out vec4 rgbaFog;
+@@ -94,6 +98,9 @@
+ 	gnormal.w = isLeaves ? 1 : 0; // Cheap hax to make SSAO on leaves less bad looking;
+ #endif
+ 
++#if GODRAYS > 0
++	prepareVolumetricLighting(lightPosition);
++#endif
+ 
+ 	// Now the lowest 3 bits are used as an unsigned number 
+ 	// to fix Z-Fighting on blocks over certain other blocks. 

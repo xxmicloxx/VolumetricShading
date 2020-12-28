@@ -1,0 +1,32 @@
+--- orig/assets/game/shaders/entityanimated.fsh
++++ patched/assets/game/shaders/entityanimated.fsh
+@@ -1,4 +1,4 @@
+-#version 330 core
++﻿#version 330 core
+ #extension GL_ARB_explicit_attrib_location: enable
+ 
+ in vec2 uv;
+@@ -6,6 +6,7 @@
+ in vec4 rgbaFog;
+ in float fogAmount;
+ in float glowLevel;
++in vec3 vertexPosition;
+ 
+ layout(location = 0) out vec4 outColor;
+ layout(location = 1) out vec4 outGlow;
+@@ -59,10 +60,12 @@
+ 	glow = pow(max(0, dot(normal, lightPosition)), 6) / 8 * shadowIntensity * (1 - fogAmount);
+ #endif
+ 
++	float scatterAmt = calculateVolumetricScatter(vertexPosition);
++
+ #if SSAOLEVEL > 0
+-	outGPosition = vec4(fragPosition.xyz, fogAmount + glowLevel);
++	outGPosition = vec4(fragPosition.xyz, fogAmount + glowLevel + scatterAmt * VOLUMETRIC_SSAO_DECLINE);
+ 	outGNormal = vec4(gnormal.xyz, 0);
+ #endif
+ 
+-	outGlow = vec4(glowLevel + glow, 0, 0, color.a);
++	outGlow = vec4(glowLevel + glow, scatterAmt, 0, color.a);
+ }
+\ No newline at end of file

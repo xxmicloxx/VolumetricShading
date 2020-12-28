@@ -1,0 +1,78 @@
+--- orig/assets/game/shaders/final.fsh
++++ patched/assets/game/shaders/final.fsh
+@@ -1,4 +1,4 @@
+-#version 330 core
++﻿#version 330 core
+ 
+ uniform sampler2D primaryScene;
+ uniform sampler2D glowParts;  // The second color buffer (outGlow var)
+@@ -6,6 +6,10 @@
+ uniform sampler2D godrayParts;
+ uniform sampler2D ssaoScene;
+ 
++#if VSMOD_SSR > 0
++uniform sampler2D ssrScene;
++#endif
++
+ uniform float gammaLevel;
+ uniform float brightnessLevel;
+ uniform float sepiaLevel;
+@@ -84,6 +88,7 @@
+ 
+ 	
+ 	
++	
+ 	// Limit brightness
+ 	//float b = (color.r + color.b + color.g) / 3;
+ 	//color.rgb /= max(1, b);
+@@ -104,6 +109,11 @@
+ 		vec4 color = texture(primaryScene, texCoord);
+ 	#endif	
+     
++#if VSMOD_SSR > 0
++	vec4 ssr = texture(ssrScene, texCoord);
++	color.rgb = mix(color.rgb, ssr.rgb, ssr.a);
++#endif
++
+ 	color.a=1;
+ 	float bloomSub = 0;
+ 	#if BLOOM == 1
+@@ -123,24 +133,23 @@
+ 	#if SSAOLEVEL > 0
+ 		color.rgb *= min(1, texture(ssaoScene, texCoord).r + bloomSub);
+ 		//if (texCoord.x < 0.5) {
+-		//color.rgb = texture(ssaoScene, texCoord).rgb;
++		//	color.rgb = texture(ssaoScene, texCoord).rgb;
+ 		//}
+ 	#endif
+ 	
+-	
+ 	#if GODRAYS > 0
+-		vec4 grc = texture(godrayParts, texCoord) * 1;
++		vec4 grc = texture(godrayParts, texCoord);
++		//grc = mix(grc, color, 0.5);
+ 		color.rgb += grc.rgb;
++		//color.rgb = grc.rgb;
+ 		color.rgb = min(color.rgb, vec3(1));
+ 		color.a=1;
+ 	#endif
+-	
++
+ 	vec4 gradedColor = ColorGrade(color);
+-	
+ 	outColor = mix(color, gradedColor, gradedColor.a);
+-	
+-
+ 
++	
+ 	// Vignetting
+ 	vec2 position = (gl_FragCoord.xy * invFrameSize.xy) - vec2(0.5);
+ 	float grayvignette = 1 - smoothstep(1.1, 0.75 - 0.45, length(position));
+@@ -184,4 +193,6 @@
+ 	outColor.rgb = mix(outColor.rgb, vec3(0), grayvignette);
+ 	
+ 	outColor.a=1;
++	
++	//outColor.rg=texCoord.xy;
+ }
+\ No newline at end of file

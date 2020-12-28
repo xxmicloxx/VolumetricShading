@@ -1,0 +1,32 @@
+--- orig/assets/game/shaders/sky.vsh
++++ patched/assets/game/shaders/sky.vsh
+@@ -1,4 +1,4 @@
+-#version 330 core
++﻿#version 330 core
+ #extension GL_ARB_explicit_attrib_location: enable
+ 
+ layout(location = 0) in vec3 vertexPositionIn;
+@@ -9,6 +9,10 @@
+ uniform mat4 projectionMatrix;
+ uniform mat4 modelViewMatrix;
+ 
++#if GODRAYS > 0
++uniform vec3 lightPosition;
++#endif
++
+ out vec3 vertexPosition;
+ flat out vec4 rgbaFog;
+ 
+@@ -21,5 +25,11 @@
+ 	rgbaFog = rgbaFogIn;
+ 	vec4 cameraPos = modelViewMatrix * vec4(vertexPosition, 1.0);
+ 	
++	calcShadowMapCoords(modelViewMatrix, vec4(vertexPosition, 1.0));
++
++#if GODRAYS > 0
++	prepareVolumetricLighting(lightPosition);
++#endif
++
+     gl_Position = projectionMatrix * cameraPos;
+ }
+\ No newline at end of file

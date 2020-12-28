@@ -1,0 +1,12 @@
+﻿{
+  "type": "code",
+  "modid": "volumetricshading",
+  "name": "Volumetric Shading",
+  "authors": [ "xxmicloxx" ],
+  "description": "Adds simple volumetric shading that hopefully looks good.",
+  "version": "1.0.0",
+  "side":  "Client", 
+  "dependency": {
+    "game": ""
+  }
+}

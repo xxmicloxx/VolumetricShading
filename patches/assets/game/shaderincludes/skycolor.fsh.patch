@@ -1,0 +1,22 @@
+--- orig/assets/game/shaderincludes/skycolor.fsh
++++ patched/assets/game/shaderincludes/skycolor.fsh
+@@ -1,4 +1,4 @@
+-uniform float playerToSealevelOffset;
++﻿uniform float playerToSealevelOffset;
+ uniform int ditherSeed;
+ uniform int horizontalResolution;
+ uniform float fogWaveCounter;
+@@ -110,11 +110,11 @@
+ 	skyColor += noiseCol;
+ 	
+ 	#if GODRAYS > 0
+-		float intensity = clamp(V2.y/4 + (vl/2 - 0.3) , 0, 0.5);
++		float intensity = clamp(V2.y/4 + (vl/2 - 0.3) , 0, 0.5) * 0.5f;
+ 		
+ 		skyColor.rgb *= 1 - intensity * 2 * 0.2;
+ 		//skyGlow = vec4(0, vl < 0 ? 0 : min(1, vl*vl), 0, 1);
+-		skyGlow = vec4(0, intensity - fogAmount/2, 0, 1);
++		skyGlow = vec4(intensity - fogAmount/2, intensity - fogAmount/2, 0, 1);
+ 	#else
+ 		skyGlow = vec4(0, 0, 0, 1);
+ 	#endif	

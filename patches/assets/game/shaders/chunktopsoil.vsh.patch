@@ -1,0 +1,30 @@
+--- orig/assets/game/shaders/chunktopsoil.vsh
++++ patched/assets/game/shaders/chunktopsoil.vsh
+@@ -1,4 +1,4 @@
+-#version 330 core
++﻿#version 330 core
+ #extension GL_ARB_explicit_attrib_location: enable
+ 
+ layout(location = 0) in vec3 vertexPositionIn;
+@@ -26,6 +26,10 @@
+ uniform mat4 projectionMatrix;
+ uniform mat4 modelViewMatrix;
+ 
++#if GODRAYS > 0
++uniform vec3 lightPosition;
++#endif
++
+ out vec4 rgba;
+ out vec4 rgbaFog;
+ out float fogAmount;
+@@ -80,6 +84,10 @@
+ 
+ 	normal = unpackNormal(renderFlags >> 7);
+ 	
++#if GODRAYS > 0
++	prepareVolumetricLighting(lightPosition);
++#endif
++	
+ #if SSAOLEVEL > 0
+ 	fragPosition = cameraPos;
+ 	gnormal = modelViewMatrix * vec4(normal, 0);
