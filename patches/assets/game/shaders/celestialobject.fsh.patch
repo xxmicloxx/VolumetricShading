@@ -1,5 +1,5 @@
---- orig/assets/game/shaders/celestialobject.fsh
-+++ patched/assets/game/shaders/celestialobject.fsh
+--- a/assets/game/shaders/celestialobject.fsh
++++ b/assets/game/shaders/celestialobject.fsh
 @@ -1,4 +1,4 @@
 -#version 330 core
 +﻿#version 330 core

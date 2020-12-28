@@ -1,5 +1,5 @@
---- orig/assets/game/shaders/clouds.vsh
-+++ patched/assets/game/shaders/clouds.vsh
+--- a/assets/game/shaders/clouds.vsh
++++ b/assets/game/shaders/clouds.vsh
 @@ -1,4 +1,4 @@
 -#version 330 core
 +﻿#version 330 core

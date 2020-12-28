@@ -59,7 +59,7 @@ vec4 raytrace(vec3 fragpos, vec3 rvector) {
             sr++;
             if(sr >= maxf){
                 float isFurther = (fragpos0.z < start.z) ? 1 : 0;
-                color = pow(texture(primaryScene, pos.st), vec4(1.7));
+                color = pow(texture(primaryScene, pos.st), vec4(VSMOD_SSR_REFLECTION_DIMMING));
                 color.a = clamp(1.0 - pow(cdist(pos.st), 20.0), 0.0, 1.0) * isFurther;
                 break;
             }
@@ -122,8 +122,8 @@ void main(void) {
         
         pivot = (invModelViewMatrix * vec4(pivot, 0.0)).xyz;
         getSkyColorAt(pivot, sunPosition, 0.0, clamp(dayLight, 0, 1), horizonFog, skyColor, outGlow);
-        skyColor.rgb = pow(skyColor.rgb, vec3(1.7));
-        reflection.rgb = mix(reflection.rgb, skyColor.rgb, 0.15 * upness);
+        skyColor.rgb = pow(skyColor.rgb, vec3(VSMOD_SSR_REFLECTION_DIMMING));
+        reflection.rgb = mix(reflection.rgb, skyColor.rgb, VSMOD_SSR_SKY_MIXIN * upness);
         reflection.rgb = mix(skyColor.rgb * upness, reflection.rgb, reflection.a);
 
         reflection.a = 1f;
@@ -137,7 +137,7 @@ void main(void) {
 			  fresnel = mix(0.09,1.0,fresnel);
 
         outColor = reflection;
-        outColor.rgb *= pow(texture(gTint, texcoord).rgb, vec3(0.5));
+        outColor.rgb *= pow(texture(gTint, texcoord).rgb, vec3(VSMOD_SSR_TINT_INFLUENCE));
         outColor.a *= (1.0f - positionFrom.w) * fresnel;
     }
 }

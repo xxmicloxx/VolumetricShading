@@ -3,7 +3,7 @@ using Vintagestory.Client.NoObf;
 
 namespace VolumetricShading
 {
-    class VolumetricLightingGui : GuiDialog
+    class VolumetricLightingGui : AdvancedOptionsDialog
     {
         public VolumetricLightingGui(ICoreClientAPI capi) : base(capi)
         {
@@ -49,7 +49,7 @@ namespace VolumetricShading
             SingleComposer.GetSlider("intensitySlider").TriggerOnlyOnMouseUp();
         }
 
-        private void RefreshValues()
+        protected override void RefreshValues()
         {
             if (!IsOpened()) return;
 
@@ -58,23 +58,6 @@ namespace VolumetricShading
                 ModSettings.VolumetricLightingFlatness, 1, 199, 1);
             SingleComposer.GetSlider("intensitySlider").SetValues(
                 ModSettings.VolumetricLightingIntensity, 1, 100, 1);
-        }
-        
-        private void OnTitleBarCloseClicked()
-        {
-            TryClose();
-            VolumetricShadingMod.Instance.ConfigGui.TryOpen();
-        }
-
-        public override bool TryOpen()
-        {
-            var success = base.TryOpen();
-            if (!success) return false;
-            
-            VolumetricShadingMod.Instance.CurrentDialog = this;
-            RefreshValues();
-
-            return true;
         }
 
         private void ToggleVolumetricLighting(bool on)
@@ -105,7 +88,5 @@ namespace VolumetricShading
             RefreshValues();
             return true;
         }
-        
-        public override string ToggleKeyCombinationCode => null;
     }
 }

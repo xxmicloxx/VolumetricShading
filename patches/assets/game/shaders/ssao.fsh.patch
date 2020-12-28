@@ -1,5 +1,5 @@
---- orig/assets/game/shaders/ssao.fsh
-+++ patched/assets/game/shaders/ssao.fsh
+--- a/assets/game/shaders/ssao.fsh
++++ b/assets/game/shaders/ssao.fsh
 @@ -1,4 +1,4 @@
 -#version 330 core
 +﻿#version 330 core

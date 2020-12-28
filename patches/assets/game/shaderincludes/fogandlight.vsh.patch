@@ -1,5 +1,5 @@
---- orig/assets/game/shaderincludes/fogandlight.vsh
-+++ patched/assets/game/shaderincludes/fogandlight.vsh
+--- a/assets/game/shaderincludes/fogandlight.vsh
++++ b/assets/game/shaderincludes/fogandlight.vsh
 @@ -1,4 +1,4 @@
 -#ifndef DYNLIGHTS
 +﻿#ifndef DYNLIGHTS

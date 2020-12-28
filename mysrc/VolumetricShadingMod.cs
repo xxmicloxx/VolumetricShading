@@ -28,7 +28,7 @@ namespace VolumetricShading
             Instance = this;
             CApi = api;
             
-            ShaderInjector = new ShaderInjector(this);
+            ShaderInjector = new ShaderInjector();
             VolumetricLighting = new VolumetricLighting(this);
             ScreenSpaceReflections = new ScreenSpaceReflections(this);
 
@@ -67,6 +67,26 @@ namespace VolumetricShading
             if (ModSettings.VolumetricLightingIntensity == 0)
             {
                 ModSettings.VolumetricLightingIntensity = 35;
+            }
+
+            if (!ModSettings.SSRWaterTransparencySet)
+            {
+                ModSettings.SSRWaterTransparency = 50;
+            }
+
+            if (ModSettings.SSRReflectionDimming == 0)
+            {
+                ModSettings.SSRReflectionDimming = 170;
+            }
+
+            if (!ModSettings.SSRTintInfluenceSet)
+            {
+                ModSettings.SSRTintInfluence = 50;
+            }
+
+            if (!ModSettings.SSRSkyMixinSet)
+            {
+                ModSettings.SSRSkyMixin = 15;
             }
         }
 

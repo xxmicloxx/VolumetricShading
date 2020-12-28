@@ -1,5 +1,5 @@
---- orig/assets/game/shaders/godrays.vsh
-+++ patched/assets/game/shaders/godrays.vsh
+--- a/assets/game/shaders/godrays.vsh
++++ b/assets/game/shaders/godrays.vsh
 @@ -1,4 +1,4 @@
 -#version 330 core
 +﻿#version 330 core

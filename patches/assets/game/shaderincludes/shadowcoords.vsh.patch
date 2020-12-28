@@ -1,5 +1,5 @@
---- orig/assets/game/shaderincludes/shadowcoords.vsh
-+++ patched/assets/game/shaderincludes/shadowcoords.vsh
+--- a/assets/game/shaderincludes/shadowcoords.vsh
++++ b/assets/game/shaderincludes/shadowcoords.vsh
 @@ -1,4 +1,4 @@
 -#if SHADOWQUALITY > 0
 +﻿#if SHADOWQUALITY > 0

@@ -1,5 +1,5 @@
---- orig/assets/game/shaders/sky.fsh
-+++ patched/assets/game/shaders/sky.fsh
+--- a/assets/game/shaders/sky.fsh
++++ b/assets/game/shaders/sky.fsh
 @@ -1,4 +1,4 @@
 -#version 330 core
 +﻿#version 330 core

@@ -1,5 +1,5 @@
---- orig/assets/game/shaderincludes/fogandlight.fsh
-+++ patched/assets/game/shaderincludes/fogandlight.fsh
+--- a/assets/game/shaderincludes/fogandlight.fsh
++++ b/assets/game/shaderincludes/fogandlight.fsh
 @@ -1,11 +1,16 @@
 -uniform float flatFogDensity;
 +﻿uniform float flatFogDensity;

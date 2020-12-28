@@ -1,5 +1,5 @@
---- orig/assets/game/shaderincludes/skycolor.fsh
-+++ patched/assets/game/shaderincludes/skycolor.fsh
+--- a/assets/game/shaderincludes/skycolor.fsh
++++ b/assets/game/shaderincludes/skycolor.fsh
 @@ -1,4 +1,4 @@
 -uniform float playerToSealevelOffset;
 +﻿uniform float playerToSealevelOffset;

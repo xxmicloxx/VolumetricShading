@@ -1,5 +1,5 @@
---- orig/assets/game/shaders/chunktopsoil.vsh
-+++ patched/assets/game/shaders/chunktopsoil.vsh
+--- a/assets/game/shaders/chunktopsoil.vsh
++++ b/assets/game/shaders/chunktopsoil.vsh
 @@ -1,4 +1,4 @@
 -#version 330 core
 +﻿#version 330 core

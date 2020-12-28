@@ -1,5 +1,5 @@
---- orig/assets/game/shaders/final.fsh
-+++ patched/assets/game/shaders/final.fsh
+--- a/assets/game/shaders/final.fsh
++++ b/assets/game/shaders/final.fsh
 @@ -1,4 +1,4 @@
 -#version 330 core
 +﻿#version 330 core

@@ -1,5 +1,5 @@
---- orig/assets/game/shaders/chunktransparent.fsh
-+++ patched/assets/game/shaders/chunktransparent.fsh
+--- a/assets/game/shaders/chunktransparent.fsh
++++ b/assets/game/shaders/chunktransparent.fsh
 @@ -1,4 +1,4 @@
 -#version 330 core
 +﻿#version 330 core

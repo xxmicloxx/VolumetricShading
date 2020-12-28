@@ -1,5 +1,5 @@
---- orig/assets/game/shaders/entityanimated.vsh
-+++ patched/assets/game/shaders/entityanimated.vsh
+--- a/assets/game/shaders/entityanimated.vsh
++++ b/assets/game/shaders/entityanimated.vsh
 @@ -1,4 +1,4 @@
 -#version 330 core
 +﻿#version 330 core

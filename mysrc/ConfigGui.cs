@@ -41,6 +41,7 @@ namespace VolumetricShading
                 .AddSwitch(ToggleScreenSpaceReflections, (switchBounds = switchBounds.BelowCopy(fixedDeltaY:switchPadding)), "toggleSSR", switchSize)
                 .AddStaticText("Screen Space Reflections", font, (textBounds = textBounds.BelowCopy(fixedDeltaY:switchPadding)))
                 .AddHoverText("Toggles reflections on water.", font, 250, textBounds.FlatCopy())
+                .AddSmallButton("Advanced...", OnSSRAdvancedClicked, (advancedButtonBounds = advancedButtonBounds.BelowCopy(fixedDeltaY:switchPadding)))
                 
                 .AddSwitch(ToggleSSDO, (switchBounds = switchBounds.BelowCopy(fixedDeltaY:switchPadding)), "toggleSSDO", switchSize)
                 .AddStaticText("Improve SSAO", font, (textBounds = textBounds.BelowCopy(fixedDeltaY:switchPadding)))
@@ -110,6 +111,14 @@ namespace VolumetricShading
         {
             TryClose();
             var advancedGui = new VolumetricLightingGui(capi);
+            advancedGui.TryOpen();
+            return true;
+        }
+
+        private bool OnSSRAdvancedClicked()
+        {
+            TryClose();
+            var advancedGui = new ScreenSpaceReflectionsGui(capi);
             advancedGui.TryOpen();
             return true;
         }

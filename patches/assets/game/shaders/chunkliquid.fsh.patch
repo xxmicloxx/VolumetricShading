@@ -1,5 +1,5 @@
---- orig/assets/game/shaders/chunkliquid.fsh
-+++ patched/assets/game/shaders/chunkliquid.fsh
+--- a/assets/game/shaders/chunkliquid.fsh
++++ b/assets/game/shaders/chunkliquid.fsh
 @@ -1,4 +1,4 @@
 -#version 330 core
 +﻿#version 330 core
@@ -25,14 +25,16 @@
  }
  
  void main() 
-@@ -192,51 +195,14 @@
+@@ -191,7 +194,7 @@
+ 			}
  			
  			texColor.a += max(0, diff/16 + noise/4);
- 			
 -			
++			texColor.a *= VSMOD_SSR_WATER_TRANSPARENCY;
+ 			
  			// Droplet noise
  			float f = 0;
- 			if (skyExposed > 0) {
+@@ -199,44 +202,8 @@
  				vec2 uv = 12.0 * fragWorldPos.xz / (2.0 + noise1/3000.0);
  				f = dropletnoise(uv);
  			}
