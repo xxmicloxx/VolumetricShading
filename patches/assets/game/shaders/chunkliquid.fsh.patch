@@ -25,16 +25,18 @@
  }
  
  void main() 
-@@ -191,7 +194,7 @@
+@@ -191,7 +194,9 @@
  			}
  			
  			texColor.a += max(0, diff/16 + noise/4);
 -			
++#if VSMOD_SSR > 0
 +			texColor.a *= VSMOD_SSR_WATER_TRANSPARENCY;
++#endif
  			
  			// Droplet noise
  			float f = 0;
-@@ -199,44 +202,8 @@
+@@ -199,44 +204,8 @@
  				vec2 uv = 12.0 * fragWorldPos.xz / (2.0 + noise1/3000.0);
  				f = dropletnoise(uv);
  			}
