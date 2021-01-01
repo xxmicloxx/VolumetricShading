@@ -119,7 +119,7 @@ void generateBump(inout vec3 normalMap)
     float xDelta = ((val1 - val0) + (val0 - val2));
     float zDelta = ((val3 - val0) + (val0 - val4));
 
-    normalMap += vec3(xDelta * 0.5, zDelta * 0.5, 0);
+    normalMap += vec3(xDelta * 0.5, zDelta * 0.5, 0) * 0.75;
 }
 
 // https://gamedev.stackexchange.com/questions/86530/is-it-possible-to-calculate-the-tbn-matrix-in-the-fragment-shader
