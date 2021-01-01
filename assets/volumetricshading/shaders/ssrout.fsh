@@ -140,4 +140,7 @@ void main(void) {
         outColor.rgb *= pow(texture(gTint, texcoord).rgb, vec3(VSMOD_SSR_TINT_INFLUENCE));
         outColor.a *= (1.0f - positionFrom.w) * fresnel;
     }
+
+    //outColor.rgb = normal;
+    //outColor.a = 1.0f;
 }

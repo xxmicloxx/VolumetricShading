@@ -1,20 +1,36 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <TargetFramework>net462</TargetFramework>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{0B370216-C212-43D1-AB01-72E76DB0EA20}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>volumetricshading</RootNamespace>
+    <AssemblyName>volumetricshading</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Remove="tools\**" />
-    <EmbeddedResource Remove="tools\**" />
-    <None Remove="tools\**" />
-    <PackageReference Include="ILMerge" Version="3.0.41" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="VolumetricShading.dll" />
-  </ItemGroup>
-
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>$(ProjectDir)\bin</OutputPath>
+    <IntermediateOutputPath>..\..\obj\Debug\volumetricshading\</IntermediateOutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>$(ProjectDir)\bin</OutputPath>
+    <IntermediateOutputPath>..\..\obj\Release\volumetricshading\</IntermediateOutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
       <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\0Harmony.dll</HintPath>
@@ -22,19 +38,89 @@
     <Reference Include="OpenTK">
       <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\OpenTK.dll</HintPath>
     </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
     <Reference Include="Vintagestory">
       <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\Vintagestory.exe</HintPath>
     </Reference>
     <Reference Include="VintagestoryAPI">
-      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\VintagestoryAPI.dll</HintPath>
+      <HintPath>$(AppData)\Vintagestory\VintagestoryAPI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="VintagestoryLib">
       <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\VintagestoryLib.dll</HintPath>
     </Reference>
+    <Reference Include="VSSurvivalMod">
+      <HintPath>$(AppData)\Vintagestory\Mods\VSSurvivalMod.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="VSEssentials">
+      <HintPath>$(AppData)\Vintagestory\Mods\VSEssentials.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="VSCreativeMod">
+      <HintPath>$(AppData)\Vintagestory\Mods\VSCreativeMod.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(AppData)\Vintagestory\Lib\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)&quot;" />
-  </Target>
-
+  <ItemGroup>
+    <Content Include="assets\game\shaderincludes\fogandlight.fsh" />
+    <Content Include="assets\game\shaderincludes\fogandlight.vsh" />
+    <Content Include="assets\game\shaderincludes\shadowcoords.vsh" />
+    <Content Include="assets\game\shaderincludes\skycolor.fsh" />
+    <Content Include="assets\game\shaders\celestialobject.fsh" />
+    <Content Include="assets\game\shaders\chunkliquid.fsh" />
+    <Content Include="assets\game\shaders\chunkliquid.vsh" />
+    <Content Include="assets\game\shaders\chunkopaque.fsh" />
+    <Content Include="assets\game\shaders\chunkopaque.vsh" />
+    <Content Include="assets\game\shaders\chunktopsoil.fsh" />
+    <Content Include="assets\game\shaders\chunktopsoil.vsh" />
+    <Content Include="assets\game\shaders\chunktransparent.fsh" />
+    <Content Include="assets\game\shaders\chunktransparent.vsh" />
+    <Content Include="assets\game\shaders\clouds.fsh" />
+    <Content Include="assets\game\shaders\clouds.vsh" />
+    <Content Include="assets\game\shaders\entityanimated.fsh" />
+    <Content Include="assets\game\shaders\entityanimated.vsh" />
+    <Content Include="assets\game\shaders\final.fsh" />
+    <Content Include="assets\game\shaders\godrays.fsh" />
+    <Content Include="assets\game\shaders\godrays.vsh" />
+    <Content Include="assets\game\shaders\sky.fsh" />
+    <Content Include="assets\game\shaders\sky.vsh" />
+    <Content Include="assets\game\shaders\ssao.fsh" />
+    <Content Include="assets\volumetricshading\shaders\ssrliquid.fsh" />
+    <Content Include="assets\volumetricshading\shaders\ssrliquid.vsh" />
+    <Content Include="assets\volumetricshading\shaders\ssropaque.fsh" />
+    <Content Include="assets\volumetricshading\shaders\ssropaque.vsh" />
+    <Content Include="assets\volumetricshading\shaders\ssrout.fsh" />
+    <Content Include="assets\volumetricshading\shaders\ssrout.vsh" />
+    <Content Include="modinfo.json" />
+    <Compile Include="src\AdvancedOptionsDialog.cs" />
+    <Compile Include="src\ConfigGui.cs" />
+    <Compile Include="src\HarmonyPatches.cs" />
+    <Compile Include="src\ModSettings.cs" />
+    <Compile Include="src\ReflectionHelper.cs" />
+    <Compile Include="src\ScreenSpaceReflections.cs" />
+    <Compile Include="src\ScreenSpaceReflectionsGui.cs" />
+    <Compile Include="src\ShaderInjector.cs" />
+    <Compile Include="src\VolumetricLighting.cs" />
+    <Compile Include="src\VolumetricLightingGui.cs" />
+    <Compile Include="src\VolumetricShadingMod.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+copy "$(TargetPath)" "$(ProjectDir)" 
+copy "$(TargetDir)\$(TargetName).pdb" "$(ProjectDir)" 
+    </PostBuildEvent>
+  </PropertyGroup>
 </Project>

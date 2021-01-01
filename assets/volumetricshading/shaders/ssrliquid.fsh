@@ -5,13 +5,16 @@ uniform vec3 playerpos;
 uniform float windWaveCounter;
 uniform float waterWaveCounter;
 uniform float waterFlowCounter;
+uniform mat4 modelViewMatrix;
 uniform float dropletIntensity = 0;
 
 in vec4 worldPos;
 in vec4 fragPosition;
 in vec3 fragWorldPos;
 in vec4 gnormal;
+in vec3 worldNormal;
 in vec2 flowVectorf;
+in vec2 uv;
 flat in int waterFlags;
 flat in float alpha;
 flat in int skyExposed;
@@ -54,7 +57,7 @@ vec2 droplethash3( vec2 p )
 	return fract(sin(q)*43758.5453);
 }
 
-float dropletnoise(in vec2 x)
+float dropletnoise(in vec2 x, in float waveCounter)
 {
 	if (dropletIntensity < 0.001) return 0.;
 	
@@ -73,7 +76,7 @@ float dropletnoise(in vec2 x)
 		vec2 r = ((g - f) + o.xy) / dropletIntensity;
 		float d = sqrt(dot(r,r));
         
-        float a = max(cos(d - waterWaveCounter * 2.7 + (o.x + o.y) * 5.0), 0.);
+        float a = max(cos(d - waveCounter * 2.7 + (o.x + o.y) * 5.0), 0.);
         a = smoothstep(0.99, 0.999, a);
         
 	    float ripple = mix(a, 0., d);
@@ -83,28 +86,80 @@ float dropletnoise(in vec2 x)
     return va;
 }
 
+float generateNoise(vec3 coord1, float div, float wind) {
+    vec3 coord2 = coord1 * 4 + 16;
+
+    vec3 noisepos1 = vec3(coord1.x - windWaveCounter / 6, coord1.z, waterWaveCounter / 12 + wind * windWaveCounter / 6);
+    vec3 noisepos2 = vec3(coord2.x - windWaveCounter / 6, coord2.z, waterWaveCounter / 12 + wind * windWaveCounter / 6);
+
+    return gnoise(noisepos1) / div + gnoise(noisepos2) / div;
+}
+
+float generateSplash(vec3 pos)
+{
+    vec2 uv = 6.0 * pos.xz;
+
+    float totalNoise = 0;
+    for (int i = 0; i < 2; ++i) {
+        totalNoise += dropletnoise(uv, waterWaveCounter - (0.1*i));
+    }
+    return totalNoise;
+}
+
+void generateBump(inout vec3 normalMap)
+{
+    const vec3 deltaPos = vec3(0.01, 0.0, 0.0);
+    
+    float val0 = generateSplash(fragWorldPos.xyz);
+    float val1 = generateSplash(fragWorldPos.xyz + deltaPos.xyz);
+    float val2 = generateSplash(fragWorldPos.xyz - deltaPos.xyz);
+    float val3 = generateSplash(fragWorldPos.xyz + deltaPos.zyx);
+    float val4 = generateSplash(fragWorldPos.xyz - deltaPos.zyx);
+
+    float xDelta = ((val1 - val0) + (val0 - val2));
+    float zDelta = ((val3 - val0) + (val0 - val4));
+
+    normalMap += vec3(xDelta * 0.5, zDelta * 0.5, 0);
+}
+
+// https://gamedev.stackexchange.com/questions/86530/is-it-possible-to-calculate-the-tbn-matrix-in-the-fragment-shader
+mat3 cotangentFrame(vec3 N, vec3 p, vec2 uv) {
+    vec3 dp1 = dFdx(p);
+    vec3 dp2 = dFdy(p);
+    vec2 duv1 = dFdx(uv);
+    vec2 duv2 = dFdy(uv);
+
+    vec3 dp2perp = cross(dp2, N);
+    vec3 dp1perp = cross(N, dp1);
+    vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
+    vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
+
+    float invmax = inversesqrt(max(dot(T, T), dot(B, B)));
+    return transpose(mat3(T * invmax, B * invmax, N));
+}
+
 void main() 
 {
     // apply waves
     float div = ((waterFlags & (1<<27)) > 0) ? 90 : 10;
     float wind = ((waterFlags & 0x2000000) == 0) ? 1 : 0;
-    vec3 noisepos = vec3((worldPos.x + playerpos.x) - windWaveCounter / 6, (worldPos.z + playerpos.z), waterWaveCounter / 12 + wind * windWaveCounter / 6);
-	float noise = gnoise(noisepos) / div;
+	float noise = generateNoise(worldPos.xyz + playerpos.xyz, div, wind);
+
+    mat3 tbn = transpose(cotangentFrame(worldNormal, worldPos.xyz, uv));
+
+    vec3 normalMap = vec3(noise, noise, 0f);
 
     float isWater = ((waterFlags & (1<<25)) > 0) ? 0f : 1f;
 
     if (isWater > 0 && skyExposed > 0) {
-        float a = fragWorldPos.x + fragWorldPos.y - 1.5 * flowVectorf.x * waterFlowCounter;
-        float b = fragWorldPos.z - 1.5 * flowVectorf.y * waterFlowCounter;
-        
-        float noise1 = gnoise(vec3(a*35, b*35, waterFlowCounter));
-
-        vec2 uv = 12.0 * fragWorldPos.xz / (2.0 + noise1/3000.0);
-        noise += dropletnoise(uv);
+        //generateSplash(fragWorldPos.xyz);
+        generateBump(normalMap);
     }
 
+    vec3 worldNormalMap = tbn * normalMap;
+    vec3 camNormalMap = (modelViewMatrix * vec4(worldNormalMap, 0.0)).xyz;
     float myAlpha = alpha * isWater;
 	outGPosition = vec4(fragPosition.xyz, myAlpha);
-	outGNormal = gnormal + vec4(noise, 0f, noise, myAlpha);
+	outGNormal = vec4(normalize(camNormalMap + gnormal.xyz), myAlpha);
     outTint = vec4(getColorMapping(terrainTex).rgb, myAlpha);
 }

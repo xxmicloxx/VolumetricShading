@@ -39,7 +39,9 @@ out vec2 flowVectorf;
 out vec4 worldPos;
 out vec4 fragPosition;
 out vec4 gnormal;
+out vec3 worldNormal;
 out vec3 fragWorldPos;
+out vec2 uv;
 flat out int waterFlags;
 flat out float alpha;
 flat out int skyExposed;
@@ -66,10 +68,12 @@ void main(void)
 	fragWorldPos = worldPos.xyz + playerpos;
     fragPosition = cameraPos;
 	gnormal = modelViewMatrix * vec4(fragNormal.xyz, 0);
+	worldNormal = fragNormal;
     waterFlags = waterFlagsIn;
 	skyExposed = (renderFlags >> 13) & 1;
 
 	flowVectorf = flowVector;
+	uv = uvIn;
 
 	alpha = rgbaLightIn.a > 0.05f ? 0f : 1f;
 	calcColorMapUvs(colormapData, vec4(vertexPositionIn + origin, 1.0) + vec4(playerpos, 1), rgbaLightIn.a, false);
