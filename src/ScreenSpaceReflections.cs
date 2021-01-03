@@ -291,6 +291,7 @@ namespace VolumetricShading
             shader.UniformMatrix("modelViewMatrix", _mod.CApi.Render.CurrentModelviewMatrix);
             shader.Uniform("dropletIntensity", curRainFall);
             shader.Uniform("waterFlowCounter", _platform.ShaderUniforms.WaterFlowCounter);
+            shader.Uniform("windSpeed", _platform.ShaderUniforms.WindSpeed);
             pools = _chunkRenderer.poolsByRenderPass[(int) EnumChunkRenderPass.Liquid];
             for (var i = 0; i < textureIds.Length; ++i)
             {

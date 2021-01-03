@@ -6,6 +6,7 @@ uniform float windWaveCounter;
 uniform float waterWaveCounter;
 uniform float waterFlowCounter;
 uniform mat4 modelViewMatrix;
+uniform float windSpeed;
 uniform float dropletIntensity = 0;
 
 in vec4 worldPos;
@@ -86,13 +87,39 @@ float dropletnoise(in vec2 x, in float waveCounter)
     return va;
 }
 
-float generateNoise(vec3 coord1, float div, float wind) {
+float generateNoise(vec3 coord1, float div) {
     vec3 coord2 = coord1 * 4 + 16;
 
-    vec3 noisepos1 = vec3(coord1.x - windWaveCounter / 6, coord1.z, waterWaveCounter / 12 + wind * windWaveCounter / 6);
-    vec3 noisepos2 = vec3(coord2.x - windWaveCounter / 6, coord2.z, waterWaveCounter / 12 + wind * windWaveCounter / 6);
+    vec3 noisepos1 = vec3(coord1.x - windWaveCounter / 3, coord1.z, waterWaveCounter / 12 + windWaveCounter / 4);
+    vec3 noisepos2 = vec3(coord2.x - windWaveCounter / 4, coord2.z, waterWaveCounter / 12 + windWaveCounter / 4);
 
-    return gnoise(noisepos1) / div + gnoise(noisepos2) / div;
+    return gnoise(noisepos1) / div * ((50 * windSpeed) + 3) + gnoise(noisepos2) / div * ((4 * windSpeed) + 1);
+}
+
+void generateNoiseBump(inout vec3 normalMap, vec3 position, float div) {
+    const vec3 offset = vec3(0.05, 0.0, 0.0);
+    vec3 posCenter = position.xyz;
+    vec3 posNorth = posCenter - offset.zyx;
+    vec3 posEast = posCenter + offset.xzy;
+
+    float val0 = generateNoise(posCenter, div);
+    float val1 = generateNoise(posNorth, div);
+    float val2 = generateNoise(posEast, div);
+
+    float zDelta = (val0 - val1);
+    float xDelta = (val2 - val0);
+
+    normalMap += vec3(xDelta * 0.5, zDelta * 0.5, 0);
+}
+
+void generateNoiseParallax(inout vec3 normalMap, vec3 viewVector, float div, out vec3 parallaxPos) {
+    vec3 targetPos = fragWorldPos.xyz;
+
+    float currentNoise = generateNoise(fragWorldPos.xyz, div);
+    targetPos.xz += (currentNoise * viewVector.xy) * 0.4;
+
+    generateNoiseBump(normalMap, targetPos, div);
+    parallaxPos = targetPos;
 }
 
 float generateSplash(vec3 pos)
@@ -106,15 +133,15 @@ float generateSplash(vec3 pos)
     return totalNoise;
 }
 
-void generateBump(inout vec3 normalMap)
+void generateSplashBump(inout vec3 normalMap, vec3 pos)
 {
     const vec3 deltaPos = vec3(0.01, 0.0, 0.0);
     
-    float val0 = generateSplash(fragWorldPos.xyz);
-    float val1 = generateSplash(fragWorldPos.xyz + deltaPos.xyz);
-    float val2 = generateSplash(fragWorldPos.xyz - deltaPos.xyz);
-    float val3 = generateSplash(fragWorldPos.xyz + deltaPos.zyx);
-    float val4 = generateSplash(fragWorldPos.xyz - deltaPos.zyx);
+    float val0 = generateSplash(pos);
+    float val1 = generateSplash(pos + deltaPos.xyz);
+    float val2 = generateSplash(pos - deltaPos.xyz);
+    float val3 = generateSplash(pos + deltaPos.zyx);
+    float val4 = generateSplash(pos - deltaPos.zyx);
 
     float xDelta = ((val1 - val0) + (val0 - val2));
     float zDelta = ((val3 - val0) + (val0 - val4));
@@ -135,25 +162,30 @@ mat3 cotangentFrame(vec3 N, vec3 p, vec2 uv) {
     vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
 
     float invmax = inversesqrt(max(dot(T, T), dot(B, B)));
-    return transpose(mat3(T * invmax, B * invmax, N));
+    return mat3(T * invmax, B * invmax, N);
 }
 
 void main() 
 {
     // apply waves
     float div = ((waterFlags & (1<<27)) > 0) ? 90 : 10;
-    float wind = ((waterFlags & 0x2000000) == 0) ? 1 : 0;
-	float noise = generateNoise(worldPos.xyz + playerpos.xyz, div, wind);
+	//float noise = generateNoise(worldPos.xyz + playerpos.xyz, div, wind);
 
-    mat3 tbn = transpose(cotangentFrame(worldNormal, worldPos.xyz, uv));
+    mat3 tbn = cotangentFrame(worldNormal, worldPos.xyz, uv);
+    mat3 invTbn = transpose(tbn);
 
-    vec3 normalMap = vec3(noise, noise, 0f);
+    //vec3 normalMap = vec3(noise, noise, 0f);
+    vec3 normalMap = vec3(0);
+    //generateNoiseBump(normalMap, div);
+    vec3 parallaxPos;
+    vec3 viewTangent = normalize(invTbn * worldPos.xyz);
+    generateNoiseParallax(normalMap, viewTangent, div, parallaxPos);
 
     float isWater = ((waterFlags & (1<<25)) > 0) ? 0f : 1f;
 
     if (isWater > 0 && skyExposed > 0) {
         //generateSplash(fragWorldPos.xyz);
-        generateBump(normalMap);
+        generateSplashBump(normalMap, parallaxPos);
     }
 
     vec3 worldNormalMap = tbn * normalMap;

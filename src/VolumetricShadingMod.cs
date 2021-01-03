@@ -71,7 +71,7 @@ namespace VolumetricShading
 
             if (!ModSettings.SSRWaterTransparencySet)
             {
-                ModSettings.SSRWaterTransparency = 50;
+                ModSettings.SSRWaterTransparency = 25;
             }
 
             if (ModSettings.SSRReflectionDimming == 0)
@@ -81,7 +81,7 @@ namespace VolumetricShading
 
             if (!ModSettings.SSRTintInfluenceSet)
             {
-                ModSettings.SSRTintInfluence = 50;
+                ModSettings.SSRTintInfluence = 35;
             }
 
             if (!ModSettings.SSRSkyMixinSet)
