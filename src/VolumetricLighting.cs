@@ -10,9 +10,25 @@ namespace VolumetricShading
         public VolumetricLighting(VolumetricShadingMod mod)
         {
             _mod = mod;
-            
+
             _mod.CApi.Settings.AddWatcher<int>("shadowMapQuality", OnShadowMapChanged);
             _mod.CApi.Settings.AddWatcher<int>("godRays", OnGodRaysChanged);
+
+            RegisterInjectorProperties();
+        }
+
+        private void RegisterInjectorProperties()
+        {
+            var injector = _mod.ShaderInjector;
+
+            injector.RegisterFloatProperty("VOLUMETRIC_FLATNESS", () =>
+            {
+                var volFlatnessInt = ModSettings.VolumetricLightingFlatness;
+                return (200 - volFlatnessInt) * 0.01f;
+            });
+
+            injector.RegisterFloatProperty("VOLUMETRIC_INTENSITY",
+                () => ModSettings.VolumetricLightingIntensity * 0.01f);
         }
 
         private static void OnShadowMapChanged(int quality)
@@ -27,12 +43,12 @@ namespace VolumetricShading
         private void OnGodRaysChanged(int quality)
         {
             if (quality != 1 || ClientSettings.ShadowMapQuality != 0) return;
-            
+
             // turn on shadow mapping
             ClientSettings.ShadowMapQuality = 1;
             _mod.CApi.GetClientPlatformAbstract().RebuildFrameBuffers();
         }
-        
+
         public void OnSetGodrayUniforms(ShaderProgramGodrays rays)
         {
             // custom uniform calls
@@ -48,7 +64,7 @@ namespace VolumetricShading
             }
 
             var dropShadowIntensity = (float) dropShadowIntensityObj;
-            
+
             rays.Uniform("moonLightStrength", calendar.MoonLightStrength);
             rays.Uniform("sunLightStrength", calendar.SunLightStrength);
             rays.Uniform("dayLightStrength", calendar.DayLightStrength);

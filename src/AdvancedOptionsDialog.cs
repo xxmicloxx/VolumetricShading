@@ -20,7 +20,7 @@ namespace VolumetricShading
         {
             var success = base.TryOpen();
             if (!success) return false;
-            
+
             VolumetricShadingMod.Instance.CurrentDialog = this;
             RefreshValues();
 

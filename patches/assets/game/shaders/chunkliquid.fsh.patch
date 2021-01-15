@@ -25,7 +25,7 @@
  }
  
  void main() 
-@@ -191,7 +194,9 @@
+@@ -191,52 +194,21 @@
  			}
  			
  			texColor.a += max(0, diff/16 + noise/4);
@@ -36,9 +36,12 @@
  			
  			// Droplet noise
  			float f = 0;
-@@ -199,44 +204,8 @@
+ 			if (skyExposed > 0) {
  				vec2 uv = 12.0 * fragWorldPos.xz / (2.0 + noise1/5000.0 + noise/600.0);
  				f = dropletnoise(uv);
++#if VSMOD_SSR > 0
++				f *= VSMOD_SSR_SPLASH_TRANSPARENCY;
++#endif
  			}
 -			
 -			

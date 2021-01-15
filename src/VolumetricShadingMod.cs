@@ -13,6 +13,9 @@ namespace VolumetricShading
         public ShaderInjector ShaderInjector;
         public ScreenSpaceReflections ScreenSpaceReflections;
         public VolumetricLighting VolumetricLighting;
+        public OverexposureEffect OverexposureEffect;
+        public ScreenSpaceDirectionalOcclusion ScreenSpaceDirectionalOcclusion;
+
         public ConfigGui ConfigGui;
         public GuiDialog CurrentDialog;
 
@@ -25,16 +28,26 @@ namespace VolumetricShading
 
         public override void StartClientSide(ICoreClientAPI api)
         {
-            Instance = this;
-            CApi = api;
-            
-            ShaderInjector = new ShaderInjector();
-            VolumetricLighting = new VolumetricLighting(this);
-            ScreenSpaceReflections = new ScreenSpaceReflections(this);
-
             PatchGame();
             RegisterHotkeys();
             SetConfigDefaults();
+        }
+
+        public override void StartPre(ICoreAPI api)
+        {
+            if (!(api is ICoreClientAPI))
+            {
+                return;
+            }
+
+            Instance = this;
+            CApi = (ICoreClientAPI) api;
+
+            ShaderInjector = new ShaderInjector();
+            VolumetricLighting = new VolumetricLighting(this);
+            ScreenSpaceReflections = new ScreenSpaceReflections(this);
+            OverexposureEffect = new OverexposureEffect(this);
+            ScreenSpaceDirectionalOcclusion = new ScreenSpaceDirectionalOcclusion(this);
         }
 
         private void RegisterHotkeys()
@@ -56,7 +69,7 @@ namespace VolumetricShading
                 Mod.Logger.Event("Patched " + method.FullDescription());
             }
         }
-        
+
         private static void SetConfigDefaults()
         {
             if (ModSettings.VolumetricLightingFlatness == 0)
@@ -66,7 +79,7 @@ namespace VolumetricShading
 
             if (ModSettings.VolumetricLightingIntensity == 0)
             {
-                ModSettings.VolumetricLightingIntensity = 35;
+                ModSettings.VolumetricLightingIntensity = 45;
             }
 
             if (!ModSettings.SSRWaterTransparencySet)
@@ -87,6 +100,11 @@ namespace VolumetricShading
             if (!ModSettings.SSRSkyMixinSet)
             {
                 ModSettings.SSRSkyMixin = 15;
+            }
+
+            if (!ModSettings.SSRSplashTransparencySet)
+            {
+                ModSettings.SSRSplashTransparency = 65;
             }
         }
 
@@ -110,7 +128,7 @@ namespace VolumetricShading
         public override void Dispose()
         {
             if (CApi == null) return;
-            
+
             _harmony?.UnpatchAll();
 
             Instance = null;

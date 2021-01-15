@@ -1,0 +1,19 @@
+--- a/assets/game/shaders/standard.vsh
++++ b/assets/game/shaders/standard.vsh
+@@ -31,6 +31,7 @@
+ 
+ flat out int renderFlags;
+ out vec3 normal;
++out vec4 vertexPosition;
+ #if SSAOLEVEL > 0
+ out vec4 fragPosition;
+ out vec4 gnormal;
+@@ -49,6 +50,8 @@
+ 		worldPos = applyVertexWarping(flags | addRenderFlags, worldPos);
+ 	}
+ 	
++	vertexPosition = worldPos;
++	
+ 	vec4 camPos = viewMatrix * worldPos;
+ 	
+ 	uv = uvIn;

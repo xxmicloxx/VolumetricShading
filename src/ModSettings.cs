@@ -34,7 +34,17 @@ namespace VolumetricShading
             set => ClientSettings.Inst.Int["volumetricshading_SSRWaterTransparency"] = value;
         }
 
-        public static bool SSRWaterTransparencySet => ClientSettings.Inst.Int.Exists("volumetricshading_SSRWaterTransparency");
+        public static bool SSRWaterTransparencySet =>
+            ClientSettings.Inst.Int.Exists("volumetricshading_SSRWaterTransparency");
+
+        public static int SSRSplashTransparency
+        {
+            get => ClientSettings.Inst.GetIntSetting("volumetricshading_SSRSplashTransparency");
+            set => ClientSettings.Inst.Int["volumetricshading_SSRSplashTransparency"] = value;
+        }
+
+        public static bool SSRSplashTransparencySet =>
+            ClientSettings.Inst.Int.Exists("volumetricshading_SSRSplashTransparency");
 
         public static int SSRReflectionDimming
         {
@@ -57,5 +67,22 @@ namespace VolumetricShading
         }
 
         public static bool SSRSkyMixinSet => ClientSettings.Inst.Int.Exists("volumetricshading_SSRSkyMixin");
+
+        public static int OverexposureIntensity
+        {
+            get => ClientSettings.Inst.GetIntSetting("volumetricshading_overexposureIntensity");
+            set => ClientSettings.Inst.Int["volumetricshading_overexposureIntensity"] = value;
+        }
+
+        public static bool OverexposureIntensitySet => ClientSettings.Inst.Int.Exists("volumetricshading_SSRSkyMixin");
+
+        public static int SunBloomIntensity
+        {
+            get => ClientSettings.Inst.GetIntSetting("volumetricshading_sunBloomIntensity");
+            set => ClientSettings.Inst.Int["volumetricshading_sunBloomIntensity"] = value;
+        }
+
+        public static bool SumBloomIntensitySet =>
+            ClientSettings.Inst.Int.Exists("volumetricshading_sunBloomIntensity");
     }
 }

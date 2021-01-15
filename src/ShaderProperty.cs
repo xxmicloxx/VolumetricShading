@@ -1,0 +1,104 @@
+﻿using System.Globalization;
+
+namespace VolumetricShading
+{
+    public interface IShaderProperty
+    {
+        string GenerateOutput();
+    }
+
+    public class StaticShaderProperty : IShaderProperty
+    {
+        public string Output { get; set; }
+
+        public StaticShaderProperty(string output = null)
+        {
+            Output = output;
+        }
+
+        public string GenerateOutput()
+        {
+            return Output;
+        }
+    }
+
+    public class ValueShaderProperty : IShaderProperty
+    {
+        public delegate string ValueDelegate();
+
+        public string Name { get; set; }
+
+        public ValueDelegate ValueGenerator { get; set; }
+
+        public ValueShaderProperty(string name = null, ValueDelegate valueGenerator = null)
+        {
+            Name = name;
+            ValueGenerator = valueGenerator;
+        }
+
+        public string GenerateOutput()
+        {
+            return $"#define {Name} {ValueGenerator()}\r\n";
+        }
+    }
+
+    public class FloatValueShaderProperty : ValueShaderProperty
+    {
+        public delegate float FloatValueDelegate();
+
+        public FloatValueDelegate FloatValueGenerator { get; set; }
+
+        public FloatValueShaderProperty(string name = null, FloatValueDelegate floatValueGenerator = null)
+        {
+            ValueGenerator = GenerateValue;
+
+            Name = name;
+            FloatValueGenerator = floatValueGenerator;
+        }
+
+        private string GenerateValue()
+        {
+            return FloatValueGenerator().ToString("0.00", CultureInfo.InvariantCulture);
+        }
+    }
+
+    public class BoolValueShaderProperty : ValueShaderProperty
+    {
+        public delegate bool BoolValueDelegate();
+
+        public BoolValueDelegate BoolValueGenerator { get; set; }
+
+        public BoolValueShaderProperty(string name = null, BoolValueDelegate boolValueGenerator = null)
+        {
+            ValueGenerator = GenerateValue;
+
+            Name = name;
+            BoolValueGenerator = boolValueGenerator;
+        }
+
+        private string GenerateValue()
+        {
+            return BoolValueGenerator() ? "1" : "0";
+        }
+    }
+
+    public static class ShaderInjectorExtensions
+    {
+        public static void RegisterStaticProperty(this ShaderInjector injector, string output)
+        {
+            injector.RegisterShaderProperty(new StaticShaderProperty(output));
+        }
+
+        public static void RegisterFloatProperty(this ShaderInjector injector, string name,
+            FloatValueShaderProperty.FloatValueDelegate floatGenerator)
+        {
+            injector.RegisterShaderProperty(new FloatValueShaderProperty(name, floatGenerator));
+        }
+
+        public static void RegisterBoolProperty(this ShaderInjector injector, string name,
+            BoolValueShaderProperty.BoolValueDelegate boolGenerator)
+        {
+            injector.RegisterShaderProperty(new BoolValueShaderProperty(name, boolGenerator));
+        }
+    }
+}

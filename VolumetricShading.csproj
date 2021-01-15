@@ -78,6 +78,7 @@
     <Content Include="assets\game\shaderincludes\fogandlight.vsh" />
     <Content Include="assets\game\shaderincludes\shadowcoords.vsh" />
     <Content Include="assets\game\shaderincludes\skycolor.fsh" />
+    <Content Include="assets\game\shaders\blur.vsh" />
     <Content Include="assets\game\shaders\celestialobject.fsh" />
     <Content Include="assets\game\shaders\chunkliquid.fsh" />
     <Content Include="assets\game\shaders\chunkliquid.vsh" />
@@ -97,6 +98,8 @@
     <Content Include="assets\game\shaders\sky.fsh" />
     <Content Include="assets\game\shaders\sky.vsh" />
     <Content Include="assets\game\shaders\ssao.fsh" />
+    <Content Include="assets\game\shaders\standard.fsh" />
+    <Content Include="assets\game\shaders\standard.vsh" />
     <Content Include="assets\volumetricshading\shaders\ssrliquid.fsh" />
     <Content Include="assets\volumetricshading\shaders\ssrliquid.vsh" />
     <Content Include="assets\volumetricshading\shaders\ssropaque.fsh" />
@@ -108,10 +111,14 @@
     <Compile Include="src\ConfigGui.cs" />
     <Compile Include="src\HarmonyPatches.cs" />
     <Compile Include="src\ModSettings.cs" />
+    <Compile Include="src\OverexposureEffect.cs" />
+    <Compile Include="src\OverexposureGui.cs" />
     <Compile Include="src\ReflectionHelper.cs" />
+    <Compile Include="src\ScreenSpaceDirectionalOcclusion.cs" />
     <Compile Include="src\ScreenSpaceReflections.cs" />
     <Compile Include="src\ScreenSpaceReflectionsGui.cs" />
     <Compile Include="src\ShaderInjector.cs" />
+    <Compile Include="src\ShaderProperty.cs" />
     <Compile Include="src\VolumetricLighting.cs" />
     <Compile Include="src\VolumetricLightingGui.cs" />
     <Compile Include="src\VolumetricShadingMod.cs" />

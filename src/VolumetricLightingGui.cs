@@ -30,18 +30,19 @@ namespace VolumetricShading
                 .AddShadedDialogBG(bgBounds)
                 .AddDialogTitleBar("Volumetric Lighting Options", OnTitleBarCloseClicked)
                 .BeginChildElements(bgBounds)
-
                 .AddSwitch(ToggleVolumetricLighting, switchBounds, "toggleVolumetricLighting", switchSize)
                 .AddStaticText("Enable Volumetric Lighting", font, textBounds)
-                
-                .AddStaticText("Intensity", font, (textBounds = textBounds.BelowCopy(fixedDeltaY:switchPadding)))
+                .AddStaticText("Intensity", font, (textBounds = textBounds.BelowCopy(fixedDeltaY: switchPadding)))
                 .AddHoverText("The intensity of the Volumetric Lighting effect", font, 260, textBounds)
-                .AddSlider(OnIntensitySliderChanged, (switchBounds = switchBounds.BelowCopy(fixedDeltaY:switchPadding)).FlatCopy().WithFixedWidth(sliderWidth), "intensitySlider")
-                
-                .AddStaticText("Flatness", font, (textBounds = textBounds.BelowCopy(fixedDeltaY:switchPadding)))
-                .AddHoverText("Defines how noticeable the difference between low and high scattering is", font, 260, textBounds)
-                .AddSlider(OnFlatnessSliderChanged, (switchBounds = switchBounds.BelowCopy(fixedDeltaY:switchPadding)).FlatCopy().WithFixedWidth(sliderWidth), "flatnessSlider")
-
+                .AddSlider(OnIntensitySliderChanged,
+                    (switchBounds = switchBounds.BelowCopy(fixedDeltaY: switchPadding)).FlatCopy()
+                    .WithFixedWidth(sliderWidth), "intensitySlider")
+                .AddStaticText("Flatness", font, (textBounds = textBounds.BelowCopy(fixedDeltaY: switchPadding)))
+                .AddHoverText("Defines how noticeable the difference between low and high scattering is", font, 260,
+                    textBounds)
+                .AddSlider(OnFlatnessSliderChanged,
+                    (switchBounds = switchBounds.BelowCopy(fixedDeltaY: switchPadding)).FlatCopy()
+                    .WithFixedWidth(sliderWidth), "flatnessSlider")
                 .EndChildElements()
                 .Compose();
 
@@ -68,7 +69,7 @@ namespace VolumetricShading
                 // need shadowmapping
                 ClientSettings.ShadowMapQuality = 1;
             }
-            
+
             capi.Shader.ReloadShaders();
             RefreshValues();
         }
@@ -80,7 +81,7 @@ namespace VolumetricShading
             RefreshValues();
             return true;
         }
-        
+
         private bool OnIntensitySliderChanged(int value)
         {
             ModSettings.VolumetricLightingIntensity = value;

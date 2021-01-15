@@ -25,7 +25,7 @@ namespace VolumetricShading
 
             return platform;
         }
-        
+
         public static ClientPlatformWindows GetClientPlatformWindows(this ClientMain client)
         {
             return (ClientPlatformWindows) client.GetClientPlatformAbstract();
@@ -35,7 +35,7 @@ namespace VolumetricShading
         {
             return api.GetClient().GetClientPlatformAbstract();
         }
-        
+
         public static ClientPlatformWindows GetClientPlatformWindows(this ICoreClientAPI api)
         {
             return api.GetClient().GetClientPlatformWindows();
@@ -71,7 +71,8 @@ namespace VolumetricShading
 
         public static void TriggerOnlyOnMouseUp(this GuiElementSlider slider, bool trigger = true)
         {
-            var method = typeof(GuiElementSlider).GetMethod("TriggerOnlyOnMouseUp", BindingFlags.Instance | BindingFlags.NonPublic);
+            var method = typeof(GuiElementSlider).GetMethod("TriggerOnlyOnMouseUp",
+                BindingFlags.Instance | BindingFlags.NonPublic);
             if (method == null)
             {
                 throw new Exception("Could not get trigger only on mouse up method.");

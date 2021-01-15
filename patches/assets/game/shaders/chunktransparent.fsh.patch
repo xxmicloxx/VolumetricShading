@@ -24,3 +24,12 @@
  }
  
  
+@@ -46,7 +48,7 @@
+ 
+ 	vec4 texColor = texture(terrainTex, uv) * rgba * getColorMapping(terrainTex);
+ 
+-	texColor = applyFogAndShadowWithNormal(texColor, fogAmount, normal, normalShadeIntensity, 0.45);
++	texColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, normalShadeIntensity, 0.45, worldPos.xyz);
+ 
+ #if SHINYEFFECT > 0
+ 	// Shiny bit flag

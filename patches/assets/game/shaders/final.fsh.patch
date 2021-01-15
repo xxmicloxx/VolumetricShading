@@ -6,7 +6,7 @@
  
  uniform sampler2D primaryScene;
  uniform sampler2D glowParts;  // The second color buffer (outGlow var)
-@@ -6,6 +6,10 @@
+@@ -6,12 +6,16 @@
  uniform sampler2D godrayParts;
  uniform sampler2D ssaoScene;
  
@@ -17,6 +17,31 @@
  uniform float gammaLevel;
  uniform float brightnessLevel;
  uniform float sepiaLevel;
+ uniform float damageVignetting;
+ uniform float frostVignetting;
+-uniform float extraGamma = 1.0;
++uniform float extraGamma = 1;
+ uniform float windWaveCounter;
+ uniform float glitchEffectStrength;
+ 
+@@ -35,7 +39,7 @@
+ 
+ vec4 ColorGrade(vec4 color) {
+ 	// I don't know why, but this seems to make the scene look a lot better
+-	color.a = dot(color.rgb, vec3(0.299, 0.587, 0.114)); 
++	color.a = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+ 	
+ 	vec3 hsl = rgb2hsl(color.rgb);
+ 
+@@ -47,7 +51,7 @@
+ 	
+ 	
+ 	color.rgb = hsl2rgb(hsl);
+-
++	
+ 	color.rgb = pow(color.rgb, vec3(1.0 / extraGamma));
+ 
+ 	color.rgb *= brightnessLevel;
 @@ -84,6 +88,7 @@
  
  	
