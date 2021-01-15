@@ -14,7 +14,7 @@
  
  layout(location = 0) out vec4 outColor;
  layout(location = 1) out vec4 outGlow;
-@@ -37,7 +38,7 @@
+@@ -38,7 +39,7 @@
  	float intensity = 0.45;
  	#endif
  
@@ -23,7 +23,7 @@
  
  	//outColor.r = normal.x;
  	//outColor.g = normal.y;
-@@ -59,10 +60,12 @@
+@@ -60,10 +61,12 @@
  	glow = pow(max(0, dot(normal, lightPosition)), 6) / 8 * shadowIntensity * (1 - fogAmount);
  #endif
  
