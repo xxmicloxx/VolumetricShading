@@ -23,7 +23,7 @@
 -	
 -	outColor = applyFogAndShadowWithNormal(texColor, fogAmount, normal, 1, intensity); 
 +
-+	outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1, intensity, vertexPosition);
++	outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1, intensity, vertexPosition, fogDensityIn);
  	
  	float glow = 0;
  	

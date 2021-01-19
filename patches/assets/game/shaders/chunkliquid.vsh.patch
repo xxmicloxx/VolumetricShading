@@ -17,7 +17,7 @@
  out vec2 flowVectorf;
  out vec4 rgba;
  out vec4 rgbaFog;
-@@ -87,11 +91,6 @@
+@@ -88,11 +92,6 @@
  		waterStillCounterOff = 1;
  	}
  	
@@ -29,7 +29,7 @@
  	fragWorldPos = worldPos.xyz + playerpos;
  	fWorldPos = worldPos.xyz;
  	
-@@ -132,6 +131,9 @@
+@@ -133,6 +132,9 @@
  	calcShadowMapCoords(modelViewMatrix, worldPos);
  	calcColorMapUvs(colormapData, vec4(vertexPositionIn + origin, 1.0) + vec4(playerpos, 1), rgbaLightIn.a, false);
  	

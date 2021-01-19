@@ -14,16 +14,25 @@
  
  layout(location = 0) out vec4 outColor;
  layout(location = 1) out vec4 outGlow;
-@@ -38,7 +39,7 @@
+@@ -17,6 +18,8 @@
+ #endif
+ 
+ 
++uniform float fogDensityIn;
++
+ uniform sampler2D entityTex;
+ uniform float alphaTest = 0.001;
+ uniform float windWaveCounter;
+@@ -38,7 +41,7 @@
  	float intensity = 0.45;
  	#endif
  
 -	outColor = applyFogAndShadowWithNormal(texColor, fogAmount, normal, 1, intensity); // was 0.35. Made it match whats in chunkopaque.fsh so animated blocks don't change brightness
-+	outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1, intensity, vertexPosition); // was 0.35. Made it match whats in chunkopaque.fsh so animated blocks don't change brightness
++	outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1, intensity, vertexPosition, fogDensityIn); // was 0.35. Made it match whats in chunkopaque.fsh so animated blocks don't change brightness
  
  	//outColor.r = normal.x;
  	//outColor.g = normal.y;
-@@ -60,10 +61,12 @@
+@@ -60,10 +63,12 @@
  	glow = pow(max(0, dot(normal, lightPosition)), 6) / 8 * shadowIntensity * (1 - fogAmount);
  #endif
  

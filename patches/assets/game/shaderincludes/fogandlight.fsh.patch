@@ -59,16 +59,20 @@
  
  	
  	b -=  shadowIntensity * totalNear * shadowCoordsNear.w * 0.5;
-@@ -86,7 +91,7 @@
+@@ -86,7 +91,11 @@
  	
  	// Let's also define that diffuse light from the sky provides an additional brightness boost for up facing stuff
  	// because the top side of blocks being darker than the sides is uncanny o__O
 -	nb = max(nb, dot(normalize(normal), vec3(0, 1, 0)) * 0.95);
-+	nb = max(nb, dot(normalize(normal), vec3(0, 1, 0)) * 0.6);
++	float factor = 0.95f;
++	
++	factor = clamp(factor - 0.35f * VSMOD_OVEREXPOSURE, 0f, 1f);
++	
++	nb = max(nb, dot(normalize(normal), vec3(0, 1, 0)) * factor);
  	
  	return mix(1, nb, normalShadeIntensity);
  }
-@@ -96,24 +101,66 @@
+@@ -96,24 +105,67 @@
  vec4 applyFogAndShadow(vec4 rgbaPixel, float fogWeight) {
  	float b = getBrightnessFromShadowMap();
  	rgbaPixel *= vec4(b, b, b, 1);
@@ -89,13 +93,14 @@
  	return applyFog(rgbaPixel, fogWeight);
  }
  
-+void applyOverexposure(inout vec4 rgbaPixel, float b, vec3 normal, vec3 worldPos) {
++void applyOverexposure(inout vec4 rgbaPixel, float b, vec3 normal, vec3 worldPos, float fogDensity) {
 +#if VSMOD_OVEREXPOSURE_ENABLED > 0
 +	float dot = dot(normal, lightPosition);
 +	float orientation = dot > 0.05 ? 0.5 + 0.5 * dot : 0.5 * (clamp(dot - 0.025, 0, 0.025) / 0.025);
 +
-+	if (flatFogDensity < 0.01) {
-+		float densityModifier = clamp((0.01 - flatFogDensity) * 100, 0, 1);
++	float fDensity = max(fogDensity, flatFogDensity);
++	if (fDensity < 0.01) {
++		float densityModifier = clamp((0.01 - fDensity) * 100, 0, 1);
 +		float sunHeight = pow(min(max(lightPosition.y*2.5f, 0.0f), 1f), 1f);
 +		float playerDistance = length(worldPos);
 +		float distScaling = clamp((300 - playerDistance) / 300, 0, 1);
@@ -110,17 +115,17 @@
 +#endif
 +}
 +
-+vec4 applyOverexposedFogAndShadowFlat(vec4 rgbaPixel, float fogWeight, vec3 normal, vec3 worldPos) {
++vec4 applyOverexposedFogAndShadowFlat(vec4 rgbaPixel, float fogWeight, vec3 normal, vec3 worldPos, float fogDensity) {
 +	float b = getBrightnessFromShadowMap();
 +	rgbaPixel *= vec4(b, b, b, 1);
 +	
-+	applyOverexposure(rgbaPixel, b, normal, worldPos);
++	applyOverexposure(rgbaPixel, b, normal, worldPos, fogDensity);
 +
 +	return applyFog(rgbaPixel, fogWeight*1);
 +}
 +
 +vec4 applyOverexposedFogAndShadow(vec4 rgbaPixel, float fogWeight, vec3 normal, float normalShadeIntensity,
-+	float minNormalShade, vec3 worldPos) {
++	float minNormalShade, vec3 worldPos, float fogDensity) {
  
 +	float b = getBrightnessFromShadowMap();
 +	float nb = getBrightnessFromNormal(normal, normalShadeIntensity, minNormalShade);
@@ -128,7 +133,7 @@
 +	float outB = min(b * (1.0), nb);
 +	rgbaPixel *= vec4(outB, outB, outB, 1);
 +	
-+	applyOverexposure(rgbaPixel, b, normal, worldPos);
++	applyOverexposure(rgbaPixel, b, normal, worldPos, fogDensity);
 +
 +	return applyFog(rgbaPixel, fogWeight);
 +}
@@ -139,7 +144,7 @@
  	float clampedDepth = min(250, depth);
  	float heightDiff = worldPosY - flatFogStart;
  	
-@@ -133,4 +180,33 @@
+@@ -133,4 +185,33 @@
  	val += fogMin; 
  	
  	return clamp(val, 0, 1);

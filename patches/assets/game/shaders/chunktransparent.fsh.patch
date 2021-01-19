@@ -1,12 +1,16 @@
 --- a/assets/game/shaders/chunktransparent.fsh
 +++ b/assets/game/shaders/chunktransparent.fsh
-@@ -1,4 +1,4 @@
+@@ -1,7 +1,8 @@
 -#version 330 core
 +﻿#version 330 core
  #extension GL_ARB_explicit_attrib_location: enable
  
  uniform sampler2D terrainTex;
-@@ -27,6 +27,8 @@
++uniform float fogDensityIn;
+ 
+ in vec4 rgba;
+ in vec4 rgbaFog;
+@@ -27,6 +28,8 @@
  void drawPixel(vec4 color) {
  	float weight = color.a * clamp(0.03 / (1e-5 + pow(gl_FragCoord.z / 200, 4.0)), 1e-2, 3e3);
  	
@@ -15,7 +19,7 @@
      // RGBA32F texture (accumulation)
      outAccu = vec4(color.rgb * color.a, color.a) * weight;
  	
-@@ -34,7 +36,7 @@
+@@ -34,7 +37,7 @@
      // Make sure to use the red channel (and GL_RED target in your texture)
      outReveal.r = color.a;
  
@@ -24,12 +28,12 @@
  }
  
  
-@@ -46,7 +48,7 @@
+@@ -46,7 +49,7 @@
  
  	vec4 texColor = texture(terrainTex, uv) * rgba * getColorMapping(terrainTex);
  
 -	texColor = applyFogAndShadowWithNormal(texColor, fogAmount, normal, normalShadeIntensity, 0.45);
-+	texColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, normalShadeIntensity, 0.45, worldPos.xyz);
++	texColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, normalShadeIntensity, 0.45, worldPos.xyz, fogDensityIn);
  
  #if SHINYEFFECT > 0
  	// Shiny bit flag
