@@ -128,16 +128,18 @@ void main(void) {
 
         reflection.a = 1f;
 
-        vec4 positionFromWorldSpace = invModelViewMatrix * vec4(positionFrom.xyz, 1.0);
-        float fogLevel = getFogLevelCustom(-positionFrom.z, fogMinIn, fogDensityIn, positionFromWorldSpace.y);
-        reflection = applyFog(reflection, fogLevel);
-
         float normalDotEye = dot(normal, unitPositionFrom);
 		float fresnel = pow(clamp(1.0 + normalDotEye,0.0,1.0), 4.0);
 			  fresnel = mix(0.09,1.0,fresnel);
 
         outColor = reflection;
+        
         outColor.rgb *= pow(texture(gTint, texcoord).rgb, vec3(VSMOD_SSR_TINT_INFLUENCE));
+
+        vec4 positionFromWorldSpace = invModelViewMatrix * vec4(positionFrom.xyz, 1.0);
+        float fogLevel = getFogLevelCustom(-positionFrom.z, fogMinIn, fogDensityIn, positionFromWorldSpace.y);
+        outColor = applyFog(outColor, fogLevel);
+        
         outColor.a *= (1.0f - positionFrom.w) * fresnel;
     }
 

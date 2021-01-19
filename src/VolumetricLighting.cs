@@ -69,6 +69,7 @@ namespace VolumetricShading
             rays.Uniform("sunLightStrength", calendar.SunLightStrength);
             rays.Uniform("dayLightStrength", calendar.DayLightStrength);
             rays.Uniform("shadowIntensity", dropShadowIntensity);
+            rays.Uniform("flatFogDensity", _mod.CApi.Ambient.BlendedFlatFogDensity);
         }
     }
 }
