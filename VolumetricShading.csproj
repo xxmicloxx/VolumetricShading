@@ -111,6 +111,8 @@
     <Compile Include="src\ScreenSpaceReflectionsGui.cs" />
     <Compile Include="src\ShaderInjector.cs" />
     <Compile Include="src\ShaderProperty.cs" />
+    <Compile Include="src\ShadowTweaks.cs" />
+    <Compile Include="src\ShadowTweaksGui.cs" />
     <Compile Include="src\VolumetricLighting.cs" />
     <Compile Include="src\VolumetricLightingGui.cs" />
     <Compile Include="src\VolumetricShadingMod.cs" />

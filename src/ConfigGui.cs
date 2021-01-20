@@ -1,66 +1,96 @@
-﻿using Vintagestory.API.Client;
+﻿using System.Collections.Generic;
+using Vintagestory.API.Client;
+using Vintagestory.API.Common;
 using Vintagestory.Client.NoObf;
 
 namespace VolumetricShading
 {
-    public class ConfigGui : GuiDialog
+    public abstract class MainConfigDialog : GuiDialog
     {
-        public ConfigGui(ICoreClientAPI capi) : base(capi)
+        public class ConfigOption
         {
-            SetupDialog();
+            public string SwitchKey;
 
-            capi.Settings.AddWatcher<int>("godRays", _ => RefreshValues());
+            public string Text;
+
+            public string Tooltip;
+
+            public Action<bool> ToggleAction;
+
+            public ActionConsumable AdvancedAction;
         }
 
-        private void SetupDialog()
+        protected List<ConfigOption> ConfigOptions = new List<ConfigOption>();
+        private bool _isSetup;
+
+        protected MainConfigDialog(ICoreClientAPI capi) : base(capi)
         {
+        }
+
+        protected void RegisterOption(ConfigOption option)
+        {
+            ConfigOptions.Add(option);
+        }
+
+        protected void SetupDialog()
+        {
+            _isSetup = true;
+            
             var dialogBounds = ElementStdBounds.AutosizedMainDialog.WithAlignment(EnumDialogArea.RightBottom)
                 .WithFixedAlignmentOffset(-GuiStyle.DialogToScreenPadding, -GuiStyle.DialogToScreenPadding);
-
+            
             const int switchSize = 20;
             const int switchPadding = 10;
             var font = CairoFont.WhiteSmallText();
 
-            var switchBounds = ElementBounds.Fixed(210.0, GuiStyle.TitleBarHeight, switchSize, switchSize);
-            var textBounds = ElementBounds.Fixed(0, GuiStyle.TitleBarHeight + 1.0, 200.0, switchSize);
-            var advancedButtonBounds = ElementBounds.Fixed(240.0, GuiStyle.TitleBarHeight, 110.0, switchSize);
+            var switchBounds = ElementBounds.Fixed(210.0, GuiStyle.TitleBarHeight,
+                switchSize, switchSize);
+            
+            var textBounds = ElementBounds.Fixed(0, GuiStyle.TitleBarHeight + 1.0,
+                200.0, switchSize);
+            
+            var advancedButtonBounds = ElementBounds.Fixed(240.0, GuiStyle.TitleBarHeight,
+                110.0, switchSize);
 
             var bgBounds = ElementBounds.Fill.WithFixedPadding(GuiStyle.ElementToDialogPadding);
             bgBounds.BothSizing = ElementSizing.FitToChildren;
 
-            SingleComposer = capi.Gui.CreateCompo("volumetricShadingConfigure", dialogBounds)
+            var composer = capi.Gui.CreateCompo("volumetricShadingConfigure", dialogBounds)
                 .AddShadedDialogBG(bgBounds)
                 .AddDialogTitleBar("Volumetric Shading Configuration", OnTitleBarCloseClicked)
-                .BeginChildElements(bgBounds)
-                .AddSwitch(ToggleVolumetricLighting, switchBounds, "toggleVolumetricLighting", switchSize)
-                .AddStaticText("Volumetric Lighting", font, textBounds)
-                .AddHoverText("Enables realistic scattering of light.", font, 250, textBounds.FlatCopy())
-                .AddSmallButton("Advanced...", OnVolumetricAdvancedClicked, advancedButtonBounds)
-                .AddSwitch(ToggleScreenSpaceReflections,
-                    (switchBounds = switchBounds.BelowCopy(fixedDeltaY: switchPadding)), "toggleSSR", switchSize)
-                .AddStaticText("Screen Space Reflections", font,
-                    (textBounds = textBounds.BelowCopy(fixedDeltaY: switchPadding)))
-                .AddHoverText("Toggles reflections on water.", font, 250, textBounds.FlatCopy())
-                .AddSmallButton("Advanced...", OnSSRAdvancedClicked,
-                    (advancedButtonBounds = advancedButtonBounds.BelowCopy(fixedDeltaY: switchPadding)))
-                .AddSwitch(ToggleOverexposure, (switchBounds = switchBounds.BelowCopy(fixedDeltaY: switchPadding)),
-                    "toggleOverexposure", switchSize)
-                .AddStaticText("Overexposure", font, (textBounds = textBounds.BelowCopy(fixedDeltaY: switchPadding)))
-                .AddHoverText("Adds overexposure at brightly sunlit places.", font, 250, textBounds.FlatCopy())
-                .AddSmallButton("Advanced...", OnOverexposureAdvancedClicked,
-                    (advancedButtonBounds = advancedButtonBounds.BelowCopy(fixedDeltaY: switchPadding)))
-                .AddSwitch(ToggleSSDO, (switchBounds = switchBounds.BelowCopy(fixedDeltaY: switchPadding)),
-                    "toggleSSDO", switchSize)
-                .AddStaticText("Improve SSAO", font, (textBounds = textBounds.BelowCopy(fixedDeltaY: switchPadding)))
-                .AddHoverText("Replaces SSAO with SSDO. Results in marginally faster and better looking occlusions.",
-                    font, 250, textBounds.FlatCopy())
-                .EndChildElements()
-                .Compose();
+                .BeginChildElements(bgBounds);
+
+            foreach (var option in ConfigOptions)
+            {
+                composer.AddStaticText(option.Text, font, textBounds);
+                if (option.Tooltip != null)
+                {
+                    composer.AddHoverText(option.Tooltip, font, 250, textBounds.FlatCopy());
+                }
+
+                if (option.SwitchKey != null)
+                {
+                    composer.AddSwitch(option.ToggleAction, switchBounds, option.SwitchKey, switchSize);
+                }
+
+                if (option.AdvancedAction != null)
+                {
+                    composer.AddSmallButton("Advanced...", option.AdvancedAction, advancedButtonBounds);
+                }
+                
+                switchBounds = switchBounds.BelowCopy(fixedDeltaY: switchPadding);
+                textBounds = textBounds.BelowCopy(fixedDeltaY: switchPadding);
+                advancedButtonBounds = advancedButtonBounds.BelowCopy(fixedDeltaY: switchPadding);
+            }
+
+            SingleComposer = composer.EndChildElements().Compose();
         }
 
         public override bool TryOpen()
         {
-            var success = base.TryOpen();
+            if (!_isSetup) SetupDialog();
+
+                var success = base.TryOpen();
             if (!success) return false;
 
             RefreshValues();
@@ -69,7 +99,66 @@ namespace VolumetricShading
             return true;
         }
 
-        private void RefreshValues()
+        private void OnTitleBarCloseClicked()
+        {
+            TryClose();
+        }
+        
+        protected abstract void RefreshValues();
+    }
+    
+    public class ConfigGui : MainConfigDialog
+    {
+        public ConfigGui(ICoreClientAPI capi) : base(capi)
+        {
+            RegisterOption(new ConfigOption
+            {
+                SwitchKey = "toggleVolumetricLighting",
+                Text = "Volumetric Lighting",
+                Tooltip = "Enables realistic scattering of light",
+                ToggleAction = ToggleVolumetricLighting,
+                AdvancedAction = OnVolumetricAdvancedClicked
+            });
+            
+            RegisterOption(new ConfigOption
+            {
+                SwitchKey = "toggleSSR",
+                Text = "Screen Space Reflections",
+                Tooltip = "Enables reflections, for example on water",
+                ToggleAction = ToggleScreenSpaceReflections,
+                AdvancedAction = OnSSRAdvancedClicked
+            });
+            
+            RegisterOption(new ConfigOption
+            {
+                SwitchKey = "toggleOverexposure",
+                Text = "Overexposure",
+                Tooltip = "Adds overexposure at brightly sunlit places",
+                ToggleAction = ToggleOverexposure,
+                AdvancedAction = OnOverexposureAdvancedClicked
+            });
+            
+            RegisterOption(new ConfigOption
+            {
+                Text = "Shadow Tweaks",
+                Tooltip = "Allows for some shadow tweaks that might make them look better",
+                AdvancedAction = OnShadowTweaksAdvancedClicked
+            });
+            
+            RegisterOption(new ConfigOption
+            {
+                SwitchKey = "toggleSSDO",
+                Text = "Improve SSAO",
+                Tooltip = "Replaces SSAO with SSDO. Results in marginally faster and better looking occlusions.",
+                ToggleAction = ToggleSSDO
+            });
+
+            SetupDialog();
+
+            capi.Settings.AddWatcher<int>("godRays", _ => RefreshValues());
+        }
+
+        protected override void RefreshValues()
         {
             if (!IsOpened()) return;
 
@@ -154,11 +243,14 @@ namespace VolumetricShading
             return true;
         }
 
-        private void OnTitleBarCloseClicked()
+        private bool OnShadowTweaksAdvancedClicked()
         {
             TryClose();
+            var shadowTweaksGui = new ShadowTweaksGui(capi);
+            shadowTweaksGui.TryOpen();
+            return true;
         }
-
+        
         public override string ToggleKeyCombinationCode => "volumetriclightingconfigure";
     }
 }

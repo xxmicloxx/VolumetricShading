@@ -4,70 +4,57 @@ namespace VolumetricShading
 {
     class ScreenSpaceReflectionsGui : AdvancedOptionsDialog
     {
+        protected override string DialogKey => "vsmodSSRConfigure";
+        protected override string DialogTitle => "Screen Space Reflections Options";
+
         public ScreenSpaceReflectionsGui(ICoreClientAPI capi) : base(capi)
         {
-            SetupDialog();
-        }
-
-        private void SetupDialog()
-        {
-            var dialogBounds = ElementStdBounds.AutosizedMainDialog.WithAlignment(EnumDialogArea.RightBottom)
-                .WithFixedAlignmentOffset(-GuiStyle.DialogToScreenPadding, -GuiStyle.DialogToScreenPadding);
-
-            const int switchSize = 20;
-            const int switchPadding = 10;
-            const double sliderWidth = 200.0;
-            var font = CairoFont.WhiteSmallText();
-
-            var switchBounds = ElementBounds.Fixed(250, GuiStyle.TitleBarHeight, switchSize, switchSize);
-            var textBounds = ElementBounds.Fixed(0, GuiStyle.TitleBarHeight + 1.0, 240.0, switchSize);
-
-            var bgBounds = ElementBounds.Fill.WithFixedPadding(GuiStyle.ElementToDialogPadding);
-            bgBounds.BothSizing = ElementSizing.FitToChildren;
-
-            SingleComposer = capi.Gui.CreateCompo("vsmodSSRConfigure", dialogBounds)
-                .AddShadedDialogBG(bgBounds)
-                .AddDialogTitleBar("Volumetric Lighting Options", OnTitleBarCloseClicked)
-                .BeginChildElements(bgBounds)
-                .AddSwitch(ToggleSSR, switchBounds, "toggleSSR", switchSize)
-                .AddStaticText("Enable Screen Space Reflections", font, textBounds)
-                .AddStaticText("Reflection dimming", font,
-                    (textBounds = textBounds.BelowCopy(fixedDeltaY: switchPadding)))
-                .AddHoverText("The dimming effect strength on the reflected image", font, 260, textBounds)
-                .AddSlider(OnDimmingSliderChanged,
-                    (switchBounds = switchBounds.BelowCopy(fixedDeltaY: switchPadding)).FlatCopy()
-                    .WithFixedWidth(sliderWidth), "dimmingSlider")
-                .AddStaticText("Water transparency", font,
-                    (textBounds = textBounds.BelowCopy(fixedDeltaY: switchPadding)))
-                .AddHoverText("Sets the transparency of the vanilla water effect", font, 260, textBounds)
-                .AddSlider(OnTransparencySliderChanged,
-                    (switchBounds = switchBounds.BelowCopy(fixedDeltaY: switchPadding)).FlatCopy()
-                    .WithFixedWidth(sliderWidth), "transparencySlider")
-                .AddStaticText("Splash transparency", font,
-                    (textBounds = textBounds.BelowCopy(fixedDeltaY: switchPadding)))
-                .AddHoverText("The strength of the vanilla splash effect", font, 260, textBounds)
-                .AddSlider(OnSplashTransparencySliderChanged,
-                    (switchBounds = switchBounds.BelowCopy(fixedDeltaY: switchPadding)).FlatCopy()
-                    .WithFixedWidth(sliderWidth), "splashTransparencySlider")
-                .AddStaticText("Tint influence", font, (textBounds = textBounds.BelowCopy(fixedDeltaY: switchPadding)))
-                .AddHoverText("Sets the influence an object's tint has on it's reflection color", font, 260, textBounds)
-                .AddSlider(OnTintSliderChanged,
-                    (switchBounds = switchBounds.BelowCopy(fixedDeltaY: switchPadding)).FlatCopy()
-                    .WithFixedWidth(sliderWidth), "tintSlider")
-                .AddStaticText("Sky mixin", font, (textBounds = textBounds.BelowCopy(fixedDeltaY: switchPadding)))
-                .AddHoverText("The amount of sky color that is always visible, even when fully reflecting", font, 260,
-                    textBounds)
-                .AddSlider(OnSkyMixinSliderChanged,
-                    (switchBounds = switchBounds.BelowCopy(fixedDeltaY: switchPadding)).FlatCopy()
-                    .WithFixedWidth(sliderWidth), "skyMixinSlider")
-                .EndChildElements()
-                .Compose();
-
-            SingleComposer.GetSlider("dimmingSlider").TriggerOnlyOnMouseUp();
-            SingleComposer.GetSlider("transparencySlider").TriggerOnlyOnMouseUp();
-            SingleComposer.GetSlider("tintSlider").TriggerOnlyOnMouseUp();
-            SingleComposer.GetSlider("skyMixinSlider").TriggerOnlyOnMouseUp();
-            SingleComposer.GetSlider("splashTransparencySlider").TriggerOnlyOnMouseUp();
+            RegisterOption(new ConfigOption
+            {
+                SwitchKey = "toggleSSR",
+                Text = "Enable Screen Space Reflections",
+                ToggleAction = ToggleSSR
+            });
+            
+            RegisterOption(new ConfigOption
+            {
+                SliderKey = "dimmingSlider",
+                Text = "Reflection dimming",
+                Tooltip = "The dimming effect strength on the reflected image",
+                SlideAction = OnDimmingSliderChanged
+            });
+            
+            RegisterOption(new ConfigOption
+            {
+                SliderKey = "transparencySlider",
+                Text = "Water transparency",
+                Tooltip = "Sets the transparency of the vanilla water effect",
+                SlideAction = OnTransparencySliderChanged
+            });
+            
+            RegisterOption(new ConfigOption
+            {
+                SliderKey = "splashTransparencySlider",
+                Text = "Splash transparency",
+                Tooltip = "The strength of the vanilla splash effect",
+                SlideAction = OnSplashTransparencySliderChanged
+            });
+            
+            RegisterOption(new ConfigOption
+            {
+                SliderKey = "tintSlider",
+                Text = "Tint influence",
+                Tooltip = "Sets the influence an object's tint has on it's reflection color",
+                SlideAction = OnTintSliderChanged
+            });
+            
+            RegisterOption(new ConfigOption
+            {
+                SliderKey = "skyMixinSlider",
+                Text = "Sky mixin",
+                Tooltip = "The amount of sky color that is always visible, even when fully reflecting",
+                SlideAction = OnSkyMixinSliderChanged
+            });
         }
 
         protected override void RefreshValues()

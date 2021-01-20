@@ -15,6 +15,7 @@ namespace VolumetricShading
         public VolumetricLighting VolumetricLighting;
         public OverexposureEffect OverexposureEffect;
         public ScreenSpaceDirectionalOcclusion ScreenSpaceDirectionalOcclusion;
+        public ShadowTweaks ShadowTweaks;
 
         public ConfigGui ConfigGui;
         public GuiDialog CurrentDialog;
@@ -48,6 +49,7 @@ namespace VolumetricShading
             ScreenSpaceReflections = new ScreenSpaceReflections(this);
             OverexposureEffect = new OverexposureEffect(this);
             ScreenSpaceDirectionalOcclusion = new ScreenSpaceDirectionalOcclusion(this);
+            ShadowTweaks = new ShadowTweaks(this);
         }
 
         private void RegisterHotkeys()
@@ -105,6 +107,21 @@ namespace VolumetricShading
             if (!ModSettings.SSRSplashTransparencySet)
             {
                 ModSettings.SSRSplashTransparency = 65;
+            }
+
+            if (ModSettings.NearShadowBaseWidth == 0)
+            {
+                ModSettings.NearShadowBaseWidth = 15;
+            }
+
+            if (!ModSettings.NearPeterPanningAdjustmentSet)
+            {
+                ModSettings.NearPeterPanningAdjustment = 2;
+            }
+
+            if (!ModSettings.FarPeterPanningAdjustmentSet)
+            {
+                ModSettings.FarPeterPanningAdjustment = 5;
             }
         }
 

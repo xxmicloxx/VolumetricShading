@@ -27,7 +27,7 @@
  
  float linearDepth(float depthSample)
  {
-@@ -32,9 +38,9 @@
+@@ -32,19 +38,20 @@
  	return vec4(mix(rgbaPixel.rgb, rgbaFog.rgb, fogWeight), rgbaPixel.a);
  }
  
@@ -38,7 +38,10 @@
  	float totalFar = 0.0;
  	if (shadowCoordsFar.z < 0.999 && shadowCoordsFar.w > 0) {
  		for (int x = -1; x <= 1; x++) {
-@@ -44,7 +50,8 @@
+ 			for (int y = -1; y <= 1; y++) {
+-				float inlight = texture (shadowMapFar, vec3(shadowCoordsFar.xy + vec2(x * shadowMapWidthInv, y * shadowMapHeightInv), shadowCoordsFar.z - 0.0009));
++				float inlight = texture (shadowMapFar, vec3(shadowCoordsFar.xy + vec2(x * shadowMapWidthInv, y * shadowMapHeightInv), shadowCoordsFar.z - 0.0009 + (0.0001 * VSMOD_FARSHADOWOFFSET)));
+ 				totalFar += 1 - inlight;
  			}
  		}
  	}
@@ -48,7 +51,14 @@
  
  	
  	float b = 1.0 - shadowIntensity * totalFar * shadowCoordsFar.w * 0.5;
-@@ -62,9 +69,7 @@
+@@ -56,15 +63,13 @@
+ 	if (shadowCoordsNear.z < 0.999 && shadowCoordsNear.w > 0) {
+ 		for (int x = -1; x <= 1; x++) {
+ 			for (int y = -1; y <= 1; y++) {
+-				float inlight = texture (shadowMapNear, vec3(shadowCoordsNear.xy + vec2(x * shadowMapWidthInv, y * shadowMapHeightInv), shadowCoordsNear.z - 0.0005));
++				float inlight = texture (shadowMapNear, vec3(shadowCoordsNear.xy + vec2(x * shadowMapWidthInv, y * shadowMapHeightInv), shadowCoordsNear.z - 0.0005 + (0.0001 * VSMOD_NEARSHADOWOFFSET)));
+ 				totalNear += 1 - inlight;
+ 			}
  		}
  	}
  	
@@ -105,7 +115,7 @@
 +		float playerDistance = length(worldPos);
 +		float distScaling = clamp((300 - playerDistance) / 300, 0, 1);
 +
-+		float exposure = (0.25 + 0.75 * pow(b, 2) * orientation) * VSMOD_OVEREXPOSURE * sunHeight * distScaling * densityModifier;
++		float exposure = pow(b, 2) * (0.25 + 0.75 * orientation) * VSMOD_OVEREXPOSURE * sunHeight * distScaling * densityModifier;
 +
 +		vec3 additional = rgbaPixel.rgb * vec3(1.2, 1.0, 0.7) * exposure;
 +		rgbaPixel.rgb += additional;
@@ -130,7 +140,7 @@
 +	float b = getBrightnessFromShadowMap();
 +	float nb = getBrightnessFromNormal(normal, normalShadeIntensity, minNormalShade);
 +
-+	float outB = min(b * (1.0), nb);
++	float outB = min(b, nb);
 +	rgbaPixel *= vec4(outB, outB, outB, 1);
 +	
 +	applyOverexposure(rgbaPixel, b, normal, worldPos, fogDensity);

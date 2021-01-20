@@ -102,6 +102,39 @@ namespace VolumetricShading
         }
     }
 
+    [HarmonyPatch(typeof(SystemRenderShadowMap))]
+    internal class SystemRenderShadowMapPatches
+    {
+        private static readonly MethodInfo OnRenderShadowNearCallsiteMethod = typeof(SystemRenderShadowMapPatches)
+            .GetMethod("OnRenderShadowNearCallsite");
+        
+        [HarmonyPatch("OnRenderShadowNear")]
+        [HarmonyTranspiler]
+        public static IEnumerable<CodeInstruction> OnRenderShadowNearTranspiler(
+            IEnumerable<CodeInstruction> instructions)
+        {
+            var first = true;
+            foreach (var instruction in instructions)
+            {
+                if (first)
+                {
+                    first = false;
+                    // replace constant offset
+                    yield return new CodeInstruction(OpCodes.Call, OnRenderShadowNearCallsiteMethod);
+                }
+                else
+                {
+                    yield return instruction;                    
+                }
+            }
+        }
+
+        public static int OnRenderShadowNearCallsite()
+        {
+            return VolumetricShadingMod.Instance.ShadowTweaks.NearShadowBaseWidth;
+        }
+    }
+
     [HarmonyPatch(typeof(SystemRenderSunMoon))]
     internal class SunMoonPatches
     {

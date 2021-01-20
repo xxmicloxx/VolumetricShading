@@ -5,49 +5,33 @@ namespace VolumetricShading
 {
     class VolumetricLightingGui : AdvancedOptionsDialog
     {
+        protected override string DialogKey => "vsmodVolumetricLightingConfigure";
+        protected override string DialogTitle => "Volumetric Lighting Options";
+
         public VolumetricLightingGui(ICoreClientAPI capi) : base(capi)
         {
-            SetupDialog();
-        }
-
-        private void SetupDialog()
-        {
-            var dialogBounds = ElementStdBounds.AutosizedMainDialog.WithAlignment(EnumDialogArea.RightBottom)
-                .WithFixedAlignmentOffset(-GuiStyle.DialogToScreenPadding, -GuiStyle.DialogToScreenPadding);
-
-            const int switchSize = 20;
-            const int switchPadding = 10;
-            const double sliderWidth = 200.0;
-            var font = CairoFont.WhiteSmallText();
-
-            var switchBounds = ElementBounds.Fixed(230, GuiStyle.TitleBarHeight, switchSize, switchSize);
-            var textBounds = ElementBounds.Fixed(0, GuiStyle.TitleBarHeight + 1.0, 220.0, switchSize);
-
-            var bgBounds = ElementBounds.Fill.WithFixedPadding(GuiStyle.ElementToDialogPadding);
-            bgBounds.BothSizing = ElementSizing.FitToChildren;
-
-            SingleComposer = capi.Gui.CreateCompo("vsmodVolumetricLightingConfigure", dialogBounds)
-                .AddShadedDialogBG(bgBounds)
-                .AddDialogTitleBar("Volumetric Lighting Options", OnTitleBarCloseClicked)
-                .BeginChildElements(bgBounds)
-                .AddSwitch(ToggleVolumetricLighting, switchBounds, "toggleVolumetricLighting", switchSize)
-                .AddStaticText("Enable Volumetric Lighting", font, textBounds)
-                .AddStaticText("Intensity", font, (textBounds = textBounds.BelowCopy(fixedDeltaY: switchPadding)))
-                .AddHoverText("The intensity of the Volumetric Lighting effect", font, 260, textBounds)
-                .AddSlider(OnIntensitySliderChanged,
-                    (switchBounds = switchBounds.BelowCopy(fixedDeltaY: switchPadding)).FlatCopy()
-                    .WithFixedWidth(sliderWidth), "intensitySlider")
-                .AddStaticText("Flatness", font, (textBounds = textBounds.BelowCopy(fixedDeltaY: switchPadding)))
-                .AddHoverText("Defines how noticeable the difference between low and high scattering is", font, 260,
-                    textBounds)
-                .AddSlider(OnFlatnessSliderChanged,
-                    (switchBounds = switchBounds.BelowCopy(fixedDeltaY: switchPadding)).FlatCopy()
-                    .WithFixedWidth(sliderWidth), "flatnessSlider")
-                .EndChildElements()
-                .Compose();
-
-            SingleComposer.GetSlider("flatnessSlider").TriggerOnlyOnMouseUp();
-            SingleComposer.GetSlider("intensitySlider").TriggerOnlyOnMouseUp();
+            RegisterOption(new ConfigOption
+            {
+                SwitchKey = "toggleVolumetricLighting",
+                Text = "Enable Volumetric Lighting",
+                ToggleAction = ToggleVolumetricLighting
+            });
+            
+            RegisterOption(new ConfigOption
+            {
+                SliderKey = "intensitySlider",
+                Text = "Intensity",
+                Tooltip = "The intensity of the Volumetric Lighting effect",
+                SlideAction = OnIntensitySliderChanged
+            });
+            
+            RegisterOption(new ConfigOption
+            {
+                SliderKey = "flatnessSlider",
+                Text = "Flatness",
+                Tooltip = "Defines how noticeable the difference between low and high scattering is",
+                SlideAction = OnFlatnessSliderChanged
+            });
         }
 
         protected override void RefreshValues()

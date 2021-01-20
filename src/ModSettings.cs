@@ -74,15 +74,34 @@ namespace VolumetricShading
             set => ClientSettings.Inst.Int["volumetricshading_overexposureIntensity"] = value;
         }
 
-        public static bool OverexposureIntensitySet => ClientSettings.Inst.Int.Exists("volumetricshading_SSRSkyMixin");
-
         public static int SunBloomIntensity
         {
             get => ClientSettings.Inst.GetIntSetting("volumetricshading_sunBloomIntensity");
             set => ClientSettings.Inst.Int["volumetricshading_sunBloomIntensity"] = value;
         }
 
-        public static bool SumBloomIntensitySet =>
-            ClientSettings.Inst.Int.Exists("volumetricshading_sunBloomIntensity");
+        public static int NearShadowBaseWidth
+        {
+            get => ClientSettings.Inst.GetIntSetting("volumetricshading_nearShadowBaseWidth");
+            set => ClientSettings.Inst.Int["volumetricshading_nearShadowBaseWidth"] = value;
+        }
+
+        public static int NearPeterPanningAdjustment
+        {
+            get => ClientSettings.Inst.GetIntSetting("volumetricshading_nearPeterPanningAdjustment");
+            set => ClientSettings.Inst.Int["volumetricshading_nearPeterPanningAdjustment"] = value;
+        }
+
+        public static bool NearPeterPanningAdjustmentSet =>
+            ClientSettings.Inst.Int.Exists("volumetricshading_nearPeterPanningAdjustment");
+        
+        public static int FarPeterPanningAdjustment
+        {
+            get => ClientSettings.Inst.GetIntSetting("volumetricshading_farPeterPanningAdjustment");
+            set => ClientSettings.Inst.Int["volumetricshading_farPeterPanningAdjustment"] = value;
+        }
+        
+        public static bool FarPeterPanningAdjustmentSet =>
+            ClientSettings.Inst.Int.Exists("volumetricshading_farPeterPanningAdjustment");
     }
 }
