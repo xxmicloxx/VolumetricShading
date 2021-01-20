@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -242,8 +243,9 @@ namespace VolumetricShading
 
         public static void Tesselate(ref TCTCache vars)
         {
-            if (vars.block.BlockMaterial == EnumBlockMaterial.Ice ||
+            if ((vars.block.BlockMaterial == EnumBlockMaterial.Ice ||
                 vars.block.BlockMaterial == EnumBlockMaterial.Glass)
+                && vars.block.SideSolid.All(x => x))
             {
                 vars.VertexFlags.Reflective = true;
             }

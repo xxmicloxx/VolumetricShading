@@ -52,8 +52,8 @@ vec4 raytrace(vec3 fragpos, vec3 rvector) {
     for(int i = 0; i < 25; ++i) {
         vec3 pos = nvec3(projectionMatrix * nvec4(fragpos)) * 0.5 + 0.5;
         if(pos.x < 0 || pos.x > 1 || pos.y < 0 || pos.y > 1 || pos.z < 0 || pos.z > 1.0) break;
-        vec3 fragpos0 = vec3(pos.st * 2.0 - 1.0, texture(gDepth, pos.st).r * 2.0 - 1.0);
-        fragpos0 = nvec3(invProjectionMatrix * nvec4(fragpos0));
+        vec3 fragpos0 = vec3(pos.st, texture(gDepth, pos.st).r);
+        fragpos0 = nvec3(invProjectionMatrix * nvec4(fragpos0 * 2.0 - 1.0));
         float err = distance(fragpos,fragpos0);
 		if(err < pow(length(rvector),1.175)) {
             sr++;

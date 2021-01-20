@@ -21,8 +21,10 @@ void main()
 {
     // read shiny flag
     if (((renderFlags >> 5) & 1) == 0) discard;
+    vec4 color = texture(terrainTex, uv);
+    if (color.a < 0.02) discard;
 
 	outGPosition = vec4(fragPosition.xyz, 0);
-	outGNormal = vec4(gnormal.xyz, 0);
-    outTint = vec4(pow(texture(terrainTex, uv).rgb, vec3(2.2)) * getColorMapping(terrainTexLinear).rgb, 0);
+	outGNormal = vec4(normalize(gnormal.xyz), 0);
+    outTint = vec4(pow(color.rgb, vec3(2.2)) * getColorMapping(terrainTexLinear).rgb, 0);
 }

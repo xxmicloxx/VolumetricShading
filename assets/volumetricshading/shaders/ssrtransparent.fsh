@@ -18,7 +18,10 @@ layout(location = 2) out vec4 outTint;
 void main()
 {
 	if (((renderFlags >> 5) & 1) == 0) discard;
+	vec4 color = texture(terrainTex, uv);
+	if (color.a < 0.02) discard;
+	
 	outGPosition = vec4(gposition.xyz, 0);
-	outGNormal = vec4(gnormal.xyz, 0);
-	outTint = vec4(texture(terrainTex, uv).xyz, 0);
+	outGNormal = vec4(normalize(gnormal.xyz), 0);
+	outTint = vec4(color.xyz, 0);
 }
