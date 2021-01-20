@@ -18,8 +18,10 @@ namespace VolumetricShading
 
         private FrameBufferRef _ssrFramebuffer;
         private FrameBufferRef _ssrOutFramebuffer;
+        
         private IShaderProgram _ssrLiquidShader;
         private IShaderProgram _ssrOpaqueShader;
+        private IShaderProgram _ssrTransparentShader;
         private IShaderProgram _ssrOutShader;
 
         private readonly ClientMain _game;
@@ -95,12 +97,15 @@ namespace VolumetricShading
 
             _ssrLiquidShader?.Dispose();
             _ssrOpaqueShader?.Dispose();
+            _ssrTransparentShader?.Dispose();
             _ssrOutShader?.Dispose();
 
             _ssrLiquidShader = RegisterShader("ssrliquid", ref success);
 
             _ssrOpaqueShader = RegisterShader("ssropaque", ref success);
             ((ShaderProgram) _ssrOpaqueShader).SetCustomSampler("terrainTexLinear", true);
+
+            _ssrTransparentShader = RegisterShader("ssrtransparent", ref success);
 
             _ssrOutShader = RegisterShader("ssrout", ref success);
 
@@ -139,6 +144,23 @@ namespace VolumetricShading
                 TextureTarget.Texture2D, fbRef.ColorTextureIds[textureId], 0);
         }
 
+        private void SetupDepthTexture(FrameBufferRef fbRef)
+        {
+            GL.BindTexture(TextureTarget.Texture2D, fbRef.DepthTextureId);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent32,
+                _fbWidth, _fbHeight, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
+                (int) TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
+                (int) TextureMagFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS,
+                (int) TextureWrapMode.ClampToEdge);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT,
+                (int) TextureWrapMode.ClampToEdge);
+            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment,
+                TextureTarget.Texture2D, fbRef.DepthTextureId, 0);
+        }
+
         public void SetupFramebuffers(List<FrameBufferRef> mainBuffers)
         {
             _mod.Mod.Logger.Event("Recreating framebuffers");
@@ -159,12 +181,10 @@ namespace VolumetricShading
             _fbHeight = (int) (_platform.window.Height * ClientSettings.SSAA);
             _ssrFramebuffer = new FrameBufferRef
             {
-                FboId = GL.GenFramebuffer(), Width = _fbWidth, Height = _fbHeight
+                FboId = GL.GenFramebuffer(), Width = _fbWidth, Height = _fbHeight, DepthTextureId = GL.GenTexture()
             };
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, _ssrFramebuffer.FboId);
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment,
-                TextureTarget.Texture2D,
-                mainBuffers[(int) EnumFrameBuffer.Primary].DepthTextureId, 0);
+            SetupDepthTexture(_ssrFramebuffer);
 
             // create our normal and position textures
             _ssrFramebuffer.ColorTextureIds = ArrayUtil.CreateFilled(3, _ => GL.GenTexture());
@@ -234,7 +254,7 @@ namespace VolumetricShading
             if (_ssrOutShader == null) return;
 
             _platform.LoadFrameBuffer(_ssrOutFramebuffer);
-            GL.ClearBuffer(ClearBuffer.Color, 0, new[] {0f, 0f, 0f, 0f});
+            GL.Clear(ClearBufferMask.DepthBufferBit);
 
             var uniforms = _mod.CApi.Render.ShaderUniforms;
             var ambient = _mod.CApi.Ambient;
@@ -286,6 +306,14 @@ namespace VolumetricShading
 
             if (!(_textureIdsField.GetValue(_chunkRenderer) is int[] textureIds)) return;
 
+            // copy the depth buffer so we can work with it
+            var primaryBuffer = _platform.FrameBuffers[(int) EnumFrameBuffer.Primary];
+            GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, primaryBuffer.FboId);
+            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, _ssrFramebuffer.FboId);
+            GL.BlitFramebuffer(0, 0, primaryBuffer.Width, primaryBuffer.Height,
+                0, 0, _fbWidth, _fbHeight, ClearBufferMask.DepthBufferBit,
+                BlitFramebufferFilter.Nearest);
+            
             // bind our framebuffer
             _platform.LoadFrameBuffer(_ssrFramebuffer);
             GL.ClearBuffer(ClearBuffer.Color, 0, new[] {0f, 0f, 0f, 1f});
@@ -293,7 +321,7 @@ namespace VolumetricShading
             GL.ClearBuffer(ClearBuffer.Color, 2, new[] {0f, 0f, 0f, 1f});
 
             _platform.GlEnableCullFace();
-            _platform.GlDepthMask(false);
+            _platform.GlDepthMask(true);
             _platform.GlEnableDepthTest();
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(0, BlendingFactorSrc.OneMinusSrcAlpha, BlendingFactorDest.SrcAlpha);
@@ -317,6 +345,7 @@ namespace VolumetricShading
             var pools = _chunkRenderer.poolsByRenderPass[(int) EnumChunkRenderPass.Opaque];
             for (var i = 0; i < textureIds.Length; ++i)
             {
+                shader.BindTexture2D("terrainTex", textureIds[i], 0);
                 shader.BindTexture2D("terrainTexLinear", textureIds[i], 0);
                 pools[i].Render(cameraPos, "origin");
             }
@@ -337,6 +366,19 @@ namespace VolumetricShading
                 pools[i].Render(cameraPos, "origin");
             }
 
+            shader.Stop();
+
+            shader = _ssrTransparentShader;
+            shader.Use();
+            shader.UniformMatrix("projectionMatrix", _mod.CApi.Render.CurrentProjectionMatrix);
+            shader.UniformMatrix("modelViewMatrix", _mod.CApi.Render.CurrentModelviewMatrix);
+            pools = _chunkRenderer.poolsByRenderPass[(int) EnumChunkRenderPass.Transparent];
+            for (var i = 0; i < textureIds.Length; ++i)
+            {
+                shader.BindTexture2D("terrainTex", textureIds[i], 0);
+                pools[i].Render(cameraPos, "origin");
+            }
+            
             shader.Stop();
 
             _game.GlPopMatrix();
@@ -389,6 +431,12 @@ namespace VolumetricShading
             {
                 _ssrOpaqueShader.Dispose();
                 _ssrOutShader = null;
+            }
+
+            if (_ssrTransparentShader != null)
+            {
+                _ssrTransparentShader.Dispose();
+                _ssrTransparentShader = null;
             }
 
             _chunkRenderer = null;

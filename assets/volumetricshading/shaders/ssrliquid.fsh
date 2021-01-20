@@ -167,6 +167,10 @@ mat3 cotangentFrame(vec3 N, vec3 p, vec2 uv) {
 
 void main() 
 {
+    float isWater = ((waterFlags & (1<<25)) > 0) ? 0f : 1f;
+    float myAlpha = alpha * isWater;
+    if (myAlpha > 0.5) discard;
+    
     // apply waves
     float div = ((waterFlags & (1<<27)) > 0) ? 90 : 10;
 	//float noise = generateNoise(worldPos.xyz + playerpos.xyz, div, wind);
@@ -181,8 +185,6 @@ void main()
     vec3 viewTangent = normalize(invTbn * worldPos.xyz);
     generateNoiseParallax(normalMap, viewTangent, div, parallaxPos);
 
-    float isWater = ((waterFlags & (1<<25)) > 0) ? 0f : 1f;
-
     if (isWater > 0 && skyExposed > 0) {
         //generateSplash(fragWorldPos.xyz);
         generateSplashBump(normalMap, parallaxPos);
@@ -190,8 +192,9 @@ void main()
 
     vec3 worldNormalMap = tbn * normalMap;
     vec3 camNormalMap = (modelViewMatrix * vec4(worldNormalMap, 0.0)).xyz;
-    float myAlpha = alpha * isWater;
-	outGPosition = vec4(fragPosition.xyz, myAlpha);
-	outGNormal = vec4(normalize(camNormalMap + gnormal.xyz), myAlpha);
-    outTint = vec4(getColorMapping(terrainTex).rgb, myAlpha);
+    
+    
+	outGPosition = vec4(fragPosition.xyz, 0);
+	outGNormal = vec4(normalize(camNormalMap + gnormal.xyz), 0);
+    outTint = vec4(getColorMapping(terrainTex).rgb, 0);
 }
