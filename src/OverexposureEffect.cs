@@ -11,6 +11,8 @@ namespace VolumetricShading
             mod.CApi.Settings.AddWatcher<int>("volumetricshading_sunBloomIntensity", OnSunBloomChanged);
             _currentBloom = ModSettings.SunBloomIntensity;
 
+            mod.Events.PreSunRender += OnRenderSun;
+            
             RegisterInjectorProperties(mod);
         }
 

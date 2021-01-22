@@ -6,16 +6,17 @@ namespace VolumetricShading
 {
     public class VolumetricShadingMod : ModSystem
     {
-        public static VolumetricShadingMod Instance;
+        public static VolumetricShadingMod Instance { get; private set; }
 
-        public ICoreClientAPI CApi;
+        public ICoreClientAPI CApi { get; private set; }
+        public Events Events { get; private set; }
 
-        public ShaderInjector ShaderInjector;
-        public ScreenSpaceReflections ScreenSpaceReflections;
-        public VolumetricLighting VolumetricLighting;
-        public OverexposureEffect OverexposureEffect;
-        public ScreenSpaceDirectionalOcclusion ScreenSpaceDirectionalOcclusion;
-        public ShadowTweaks ShadowTweaks;
+        public ShaderInjector ShaderInjector { get; private set; }
+        public ScreenSpaceReflections ScreenSpaceReflections { get; private set; }
+        public VolumetricLighting VolumetricLighting { get; private set; }
+        public OverexposureEffect OverexposureEffect { get; private set; }
+        public ScreenSpaceDirectionalOcclusion ScreenSpaceDirectionalOcclusion { get; private set; }
+        public ShadowTweaks ShadowTweaks { get; private set; }
 
         public ConfigGui ConfigGui;
         public GuiDialog CurrentDialog;
@@ -43,6 +44,7 @@ namespace VolumetricShading
 
             Instance = this;
             CApi = (ICoreClientAPI) api;
+            Events = new Events();
 
             ShaderInjector = new ShaderInjector();
             VolumetricLighting = new VolumetricLighting(this);

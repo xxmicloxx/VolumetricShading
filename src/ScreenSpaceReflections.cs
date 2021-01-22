@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using OpenTK.Graphics.OpenGL;
 using Vintagestory.API.Client;
@@ -46,6 +45,7 @@ namespace VolumetricShading
             RegisterInjectorProperties();
 
             mod.CApi.Event.ReloadShader += ReloadShaders;
+            mod.Events.PreFinalRender += OnSetFinalUniforms;
 
             _enabled = ModSettings.ScreenSpaceReflectionsEnabled;
             mod.CApi.Settings.AddWatcher<bool>("volumetricshading_screenSpaceReflections", OnEnabledChanged);
@@ -59,6 +59,7 @@ namespace VolumetricShading
             _invProjectionMatrix = Mat4f.Create();
             _invModelViewMatrix = Mat4f.Create();
 
+            mod.Events.RebuildFramebuffers += SetupFramebuffers;
             SetupFramebuffers(_platform.FrameBuffers);
         }
 
@@ -88,15 +89,6 @@ namespace VolumetricShading
             _enabled = enabled;
         }
 
-        private IShaderProgram RegisterShader(string name, ref bool success)
-        {
-            var shader = (ShaderProgram) _mod.CApi.Shader.NewShaderProgram();
-            shader.AssetDomain = _mod.Mod.Info.ModID;
-            _mod.CApi.Shader.RegisterFileShaderProgram(name, shader);
-            if (!shader.Compile()) success = false;
-            return shader;
-        }
-
         private bool ReloadShaders()
         {
             var success = true;
@@ -106,65 +98,16 @@ namespace VolumetricShading
             _ssrTransparentShader?.Dispose();
             _ssrOutShader?.Dispose();
 
-            _ssrLiquidShader = RegisterShader("ssrliquid", ref success);
+            _ssrLiquidShader = _mod.RegisterShader("ssrliquid", ref success);
 
-            _ssrOpaqueShader = RegisterShader("ssropaque", ref success);
+            _ssrOpaqueShader = _mod.RegisterShader("ssropaque", ref success);
             ((ShaderProgram) _ssrOpaqueShader).SetCustomSampler("terrainTexLinear", true);
 
-            _ssrTransparentShader = RegisterShader("ssrtransparent", ref success);
+            _ssrTransparentShader = _mod.RegisterShader("ssrtransparent", ref success);
 
-            _ssrOutShader = RegisterShader("ssrout", ref success);
+            _ssrOutShader = _mod.RegisterShader("ssrout", ref success);
 
             return success;
-        }
-
-        private void SetupVertexTexture(FrameBufferRef fbRef, int textureId)
-        {
-            GL.BindTexture(TextureTarget.Texture2D, fbRef.ColorTextureIds[textureId]);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba16f, _fbWidth, _fbHeight, 0,
-                PixelFormat.Rgba, PixelType.Float, IntPtr.Zero);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
-                (int) TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
-                (int) TextureMagFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor,
-                new[] {1f, 1f, 1f, 1f});
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS,
-                (int) TextureWrapMode.ClampToBorder);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT,
-                (int) TextureWrapMode.ClampToBorder);
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0 + textureId,
-                TextureTarget.Texture2D, fbRef.ColorTextureIds[textureId], 0);
-        }
-
-        private void SetupColorTexture(FrameBufferRef fbRef, int textureId)
-        {
-            GL.BindTexture(TextureTarget.Texture2D, fbRef.ColorTextureIds[textureId]);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, _fbWidth, _fbHeight, 0,
-                PixelFormat.Rgba, PixelType.UnsignedShort, IntPtr.Zero);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
-                (int) TextureMinFilter.Linear);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
-                (int) TextureMagFilter.Linear);
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0 + textureId,
-                TextureTarget.Texture2D, fbRef.ColorTextureIds[textureId], 0);
-        }
-
-        private void SetupDepthTexture(FrameBufferRef fbRef)
-        {
-            GL.BindTexture(TextureTarget.Texture2D, fbRef.DepthTextureId);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent32,
-                _fbWidth, _fbHeight, 0, PixelFormat.DepthComponent, PixelType.Float, IntPtr.Zero);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
-                (int) TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
-                (int) TextureMagFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS,
-                (int) TextureWrapMode.ClampToEdge);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT,
-                (int) TextureWrapMode.ClampToEdge);
-            GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment,
-                TextureTarget.Texture2D, fbRef.DepthTextureId, 0);
         }
 
         public void SetupFramebuffers(List<FrameBufferRef> mainBuffers)
@@ -190,18 +133,15 @@ namespace VolumetricShading
                 FboId = GL.GenFramebuffer(), Width = _fbWidth, Height = _fbHeight, DepthTextureId = GL.GenTexture()
             };
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, _ssrFramebuffer.FboId);
-            SetupDepthTexture(_ssrFramebuffer);
+            _ssrFramebuffer.SetupDepthTexture();
 
             // create our normal and position textures
             _ssrFramebuffer.ColorTextureIds = ArrayUtil.CreateFilled(3, _ => GL.GenTexture());
 
             // bind and setup textures
-            for (var i = 0; i < 2; ++i)
-            {
-                SetupVertexTexture(_ssrFramebuffer, i);
-            }
-
-            SetupColorTexture(_ssrFramebuffer, 2);
+            _ssrFramebuffer.SetupVertexTexture(0);
+            _ssrFramebuffer.SetupVertexTexture(1);
+            _ssrFramebuffer.SetupColorTexture(2);
 
             GL.DrawBuffers(3,
                 new[]
@@ -209,7 +149,7 @@ namespace VolumetricShading
                     DrawBuffersEnum.ColorAttachment0, DrawBuffersEnum.ColorAttachment1, DrawBuffersEnum.ColorAttachment2
                 });
 
-            CheckFbStatus();
+            Framebuffers.CheckStatus();
 
             // setup output framebuffer
             _ssrOutFramebuffer = new FrameBufferRef
@@ -219,21 +159,12 @@ namespace VolumetricShading
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, _ssrOutFramebuffer.FboId);
             _ssrOutFramebuffer.ColorTextureIds = new[] {GL.GenTexture()};
 
-            SetupColorTexture(_ssrOutFramebuffer, 0);
+            _ssrOutFramebuffer.SetupColorTexture(0);
 
             GL.DrawBuffer(DrawBufferMode.ColorAttachment0);
-            CheckFbStatus();
+            Framebuffers.CheckStatus();
 
             _screenQuad = _platform.GetScreenQuad();
-        }
-
-        private static void CheckFbStatus()
-        {
-            var errorCode = GL.Ext.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
-            if (errorCode != FramebufferErrorCode.FramebufferComplete)
-            {
-                throw new Exception("Could not create framebuffer: " + errorCode);
-            }
         }
 
         public void OnRenderFrame(float deltaTime, EnumRenderStage stage)
@@ -446,6 +377,6 @@ namespace VolumetricShading
 
         public double RenderOrder => 1;
 
-        public int RenderRange => Int32.MaxValue;
+        public int RenderRange => int.MaxValue;
     }
 }

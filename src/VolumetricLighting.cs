@@ -14,6 +14,8 @@ namespace VolumetricShading
             _mod.CApi.Settings.AddWatcher<int>("shadowMapQuality", OnShadowMapChanged);
             _mod.CApi.Settings.AddWatcher<int>("godRays", OnGodRaysChanged);
 
+            _mod.Events.PreGodraysRender += OnSetGodrayUniforms;
+
             RegisterInjectorProperties();
         }
 

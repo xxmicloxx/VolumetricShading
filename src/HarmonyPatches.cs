@@ -42,7 +42,7 @@ namespace VolumetricShading
 
         public static void GodrayCallsite(ShaderProgramGodrays rays)
         {
-            VolumetricShadingMod.Instance.VolumetricLighting.OnSetGodrayUniforms(rays);
+            VolumetricShadingMod.Instance.Events.EmitPreGodraysRender(rays);
         }
 
 
@@ -80,7 +80,7 @@ namespace VolumetricShading
 
         public static void FinalCallsite(ShaderProgramFinal final)
         {
-            VolumetricShadingMod.Instance.ScreenSpaceReflections.OnSetFinalUniforms(final);
+            VolumetricShadingMod.Instance.Events.EmitPreFinalRender(final);
         }
 
 
@@ -89,7 +89,7 @@ namespace VolumetricShading
         // ReSharper disable once InconsistentNaming
         public static void SetupDefaultFrameBuffersPostfix(List<FrameBufferRef> __result)
         {
-            VolumetricShadingMod.Instance.ScreenSpaceReflections.SetupFramebuffers(__result);
+            VolumetricShadingMod.Instance.Events.EmitRebuildFramebuffers(__result);
         }
     }
 
@@ -250,7 +250,7 @@ namespace VolumetricShading
 
         public static void RenderCallsite(ShaderProgramStandard standard)
         {
-            VolumetricShadingMod.Instance.OverexposureEffect.OnRenderSun(standard);
+            VolumetricShadingMod.Instance.Events.EmitPreSunRender(standard);
         }
     }
 

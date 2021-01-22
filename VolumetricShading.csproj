@@ -103,6 +103,8 @@
     <Content Include="modinfo.json" />
     <Compile Include="src\AdvancedOptionsDialog.cs" />
     <Compile Include="src\ConfigGui.cs" />
+    <Compile Include="src\Events.cs" />
+    <Compile Include="src\Framebuffers.cs" />
     <Compile Include="src\HarmonyPatches.cs" />
     <Compile Include="src\ModSettings.cs" />
     <Compile Include="src\OverexposureEffect.cs" />
@@ -113,6 +115,7 @@
     <Compile Include="src\ScreenSpaceReflectionsGui.cs" />
     <Compile Include="src\ShaderInjector.cs" />
     <Compile Include="src\ShaderProperty.cs" />
+    <Compile Include="src\Shaders.cs" />
     <Compile Include="src\ShadowTweaks.cs" />
     <Compile Include="src\ShadowTweaksGui.cs" />
     <Compile Include="src\VolumetricLighting.cs" />
