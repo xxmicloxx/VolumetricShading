@@ -11,7 +11,7 @@
  	vec4 texColor = applyFog(texture(tex, uv) * color, 0);
  	if (texColor.a < alphaTest) discard;
 -	vec4 texGlow = vec4(glowLevel, extraGodray, 0, texColor.a);
-+	vec4 texGlow = vec4(glowLevel, dayLight*0.2f, 0, texColor.a);
++	vec4 texGlow = vec4(glowLevel, 0.2f, 0, texColor.a);
  	
  	vec4 skyColor = vec4(1);
  	vec4 skyGlow = vec4(1);

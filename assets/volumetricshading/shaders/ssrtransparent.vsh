@@ -22,6 +22,7 @@ uniform mat4 modelViewMatrix;
 
 out vec2 uv;
 out vec4 gposition;
+out vec3 fragWorldPos;
 
 flat out int renderFlags;
 out vec4 gnormal;
@@ -41,6 +42,8 @@ void main(void)
 	vec4 cameraPos = modelViewMatrix * worldPos;
 	
 	gl_Position = projectionMatrix * cameraPos;
+	
+	fragWorldPos = worldPos.xyz + playerpos;
 	
 	calcColorMapUvs(colormapData, vec4(vertexPositionIn + origin, 1.0) + vec4(playerpos, 1), rgbaLightIn.a, false);
 	

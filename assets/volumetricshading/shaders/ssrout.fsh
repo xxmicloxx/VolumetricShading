@@ -27,7 +27,7 @@ out vec4 outColor;
 
 float comp = 1.0-zNear/zFar/zFar;
 
-const int maxf = 3;				//number of refinements
+const int maxf = 7;				//number of refinements
 const float ref = 0.11;			//refinement multiplier
 const float inc = 3.0;			//increasement factor at each step
 
@@ -48,6 +48,10 @@ vec4 raytrace(vec3 fragpos, vec3 rvector) {
     fragpos += rvector;
 	vec3 tvector = rvector;
     int sr = 0;
+    
+    bool hit = false;
+    vec3 hitFragpos0 = vec3(0);
+    vec3 hitPos = vec3(0);
 
     for(int i = 0; i < 25; ++i) {
         vec3 pos = nvec3(projectionMatrix * nvec4(fragpos)) * 0.5 + 0.5;
@@ -55,14 +59,16 @@ vec4 raytrace(vec3 fragpos, vec3 rvector) {
         vec3 fragpos0 = vec3(pos.st, texture(gDepth, pos.st).r);
         fragpos0 = nvec3(invProjectionMatrix * nvec4(fragpos0 * 2.0 - 1.0));
         float err = distance(fragpos,fragpos0);
-		if(err < pow(length(rvector),1.175)) {
+		if(err < pow(length(rvector), 1.175)) {
+            hit = true;
+            hitFragpos0 = fragpos0;
+            hitPos = pos;
             sr++;
+            
             if(sr >= maxf){
-                float isFurther = (fragpos0.z < start.z) ? 1 : 0;
-                color = pow(texture(primaryScene, pos.st), vec4(VSMOD_SSR_REFLECTION_DIMMING));
-                color.a = clamp(1.0 - pow(cdist(pos.st), 20.0), 0.0, 1.0) * isFurther;
                 break;
             }
+            
             tvector -= rvector;
             rvector *= ref;
         }
@@ -70,6 +76,13 @@ vec4 raytrace(vec3 fragpos, vec3 rvector) {
         tvector += rvector;
 		fragpos = start + tvector;
     }
+
+    if (hit) {
+        float isFurther = (hitFragpos0.z < start.z) ? 1 : 0;
+        color = pow(texture(primaryScene, hitPos.st), vec4(VSMOD_SSR_REFLECTION_DIMMING));
+        color.a = clamp(1.0 - pow(cdist(hitPos.st), 20.0), 0.0, 1.0) * isFurther;
+    }
+    
     return color;
 }
 

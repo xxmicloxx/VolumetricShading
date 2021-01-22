@@ -107,12 +107,12 @@ namespace VolumetricShading
     [HarmonyPatch(typeof(SystemRenderShadowMap))]
     internal class SystemRenderShadowMapPatches
     {
-        private static readonly MethodInfo OnRenderShadowNearCallsiteMethod = typeof(SystemRenderShadowMapPatches)
-            .GetMethod("OnRenderShadowNearCallsite");
+        private static readonly MethodInfo OnRenderShadowNearBaseWidthCallsiteMethod =
+            typeof(SystemRenderShadowMapPatches).GetMethod("OnRenderShadowNearBaseWidthCallsite");
         
         [HarmonyPatch("OnRenderShadowNear")]
         [HarmonyTranspiler]
-        public static IEnumerable<CodeInstruction> OnRenderShadowNearTranspiler(
+        public static IEnumerable<CodeInstruction> OnRenderShadowNearBaseWidthTranspiler(
             IEnumerable<CodeInstruction> instructions)
         {
             var first = true;
@@ -122,7 +122,7 @@ namespace VolumetricShading
                 {
                     first = false;
                     // replace constant offset
-                    yield return new CodeInstruction(OpCodes.Call, OnRenderShadowNearCallsiteMethod);
+                    yield return new CodeInstruction(OpCodes.Call, OnRenderShadowNearBaseWidthCallsiteMethod);
                 }
                 else
                 {
@@ -130,10 +130,44 @@ namespace VolumetricShading
                 }
             }
         }
-
-        public static int OnRenderShadowNearCallsite()
+        
+        public static int OnRenderShadowNearBaseWidthCallsite()
         {
             return VolumetricShadingMod.Instance.ShadowTweaks.NearShadowBaseWidth;
+        }
+
+        private static readonly MethodInfo PrepareForShadowRenderingMethod = typeof(SystemRenderShadowMap)
+            .GetMethod("PrepareForShadowRendering", BindingFlags.Instance | BindingFlags.NonPublic);
+
+        [HarmonyPatch("OnRenderShadowNear")]
+        [HarmonyTranspiler]
+        public static IEnumerable<CodeInstruction> OnRenderShadowNearZExtend(IEnumerable<CodeInstruction> instructions)
+        {
+            var found = false;
+            CodeInstruction previousInstruction = null;
+            foreach (var instruction in instructions)
+            {
+                if (instruction.Calls(PrepareForShadowRenderingMethod))
+                {
+                    found = true;
+                    
+                    // fixes some shadow glitches by increasing the extra culling range for shadows
+                    yield return new CodeInstruction(OpCodes.Ldc_R4, (float) 32);
+                }
+                else if (previousInstruction != null)
+                {
+                    yield return previousInstruction;
+                }
+                
+                previousInstruction = instruction;
+            }
+            
+            yield return previousInstruction;
+
+            if (!found)
+            {
+                throw new Exception("Could not patch OnRenderShadowNear for further Z extension");
+            }
         }
     }
 
@@ -243,9 +277,8 @@ namespace VolumetricShading
 
         public static void Tesselate(ref TCTCache vars)
         {
-            if ((vars.block.BlockMaterial == EnumBlockMaterial.Ice ||
+            if (vars.block.BlockMaterial == EnumBlockMaterial.Ice ||
                 vars.block.BlockMaterial == EnumBlockMaterial.Glass)
-                && vars.block.SideSolid.All(x => x))
             {
                 vars.VertexFlags.Reflective = true;
             }

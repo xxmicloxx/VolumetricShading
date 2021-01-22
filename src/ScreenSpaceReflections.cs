@@ -33,6 +33,9 @@ namespace VolumetricShading
         private int _fbWidth;
         private int _fbHeight;
 
+        private readonly float[] _invProjectionMatrix;
+        private readonly float[] _invModelViewMatrix;
+
         public ScreenSpaceReflections(VolumetricShadingMod mod)
         {
             _mod = mod;
@@ -52,6 +55,9 @@ namespace VolumetricShading
 
             _textureIdsField =
                 typeof(ChunkRenderer).GetField("textureIds", BindingFlags.Instance | BindingFlags.NonPublic);
+
+            _invProjectionMatrix = Mat4f.Create();
+            _invModelViewMatrix = Mat4f.Create();
 
             SetupFramebuffers(_platform.FrameBuffers);
         }
@@ -254,7 +260,6 @@ namespace VolumetricShading
             if (_ssrOutShader == null) return;
 
             _platform.LoadFrameBuffer(_ssrOutFramebuffer);
-            GL.Clear(ClearBufferMask.DepthBufferBit);
 
             var uniforms = _mod.CApi.Render.ShaderUniforms;
             var ambient = _mod.CApi.Ambient;
@@ -268,8 +273,6 @@ namespace VolumetricShading
             var shader = _ssrOutShader;
             shader.Use();
 
-            var invProjMatrix = new float[16];
-            var invModelViewMatrix = new float[16];
             shader.BindTexture2D("primaryScene",
                 _platform.FrameBuffers[(int) EnumFrameBuffer.Primary].ColorTextureIds[0], 0);
             shader.BindTexture2D("gPosition", _ssrFramebuffer.ColorTextureIds[0], 1);
@@ -278,9 +281,9 @@ namespace VolumetricShading
             shader.BindTexture2D("gTint", _ssrFramebuffer.ColorTextureIds[2], 4);
             shader.UniformMatrix("projectionMatrix", _mod.CApi.Render.CurrentProjectionMatrix);
             shader.UniformMatrix("invProjectionMatrix",
-                Mat4f.Invert(invProjMatrix, _mod.CApi.Render.CurrentProjectionMatrix));
+                Mat4f.Invert(_invProjectionMatrix, _mod.CApi.Render.CurrentProjectionMatrix));
             shader.UniformMatrix("invModelViewMatrix",
-                Mat4f.Invert(invModelViewMatrix, _mod.CApi.Render.CameraMatrixOriginf));
+                Mat4f.Invert(_invModelViewMatrix, _mod.CApi.Render.CameraMatrixOriginf));
             shader.Uniform("zNear", uniforms.ZNear);
             shader.Uniform("zFar", uniforms.ZNear);
             shader.Uniform("sunPosition", _mod.CApi.World.Calendar.SunPositionNormalized);
@@ -310,6 +313,7 @@ namespace VolumetricShading
             var primaryBuffer = _platform.FrameBuffers[(int) EnumFrameBuffer.Primary];
             GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, primaryBuffer.FboId);
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, _ssrFramebuffer.FboId);
+            GL.Clear(ClearBufferMask.DepthBufferBit);
             GL.BlitFramebuffer(0, 0, primaryBuffer.Width, primaryBuffer.Height,
                 0, 0, _fbWidth, _fbHeight, ClearBufferMask.DepthBufferBit,
                 BlitFramebufferFilter.Nearest);
@@ -323,10 +327,7 @@ namespace VolumetricShading
             _platform.GlEnableCullFace();
             _platform.GlDepthMask(true);
             _platform.GlEnableDepthTest();
-            GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(0, BlendingFactorSrc.OneMinusSrcAlpha, BlendingFactorDest.SrcAlpha);
-            GL.BlendFunc(1, BlendingFactorSrc.OneMinusSrcAlpha, BlendingFactorDest.SrcAlpha);
-            GL.BlendFunc(2, BlendingFactorSrc.OneMinusSrcAlpha, BlendingFactorDest.SrcAlpha);
+            _platform.GlToggleBlend(false);
 
             var climateAt =
                 _game.BlockAccessor.GetClimateAt(_game.EntityPlayer.Pos.AsBlockPos, EnumGetClimateMode.NowValues);
