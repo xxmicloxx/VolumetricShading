@@ -4,7 +4,7 @@
   "name": "Volumetric Shading",
   "authors": [ "xxmicloxx" ],
   "description": "Adds simple volumetric shading that hopefully looks good.",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "side":  "Client", 
   "dependency": {
     "game": ""
