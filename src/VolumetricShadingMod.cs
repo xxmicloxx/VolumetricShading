@@ -78,7 +78,7 @@ namespace VolumetricShading
         {
             if (ModSettings.VolumetricLightingFlatness == 0)
             {
-                ModSettings.VolumetricLightingFlatness = 145;
+                ModSettings.VolumetricLightingFlatness = 155;
             }
 
             if (ModSettings.VolumetricLightingIntensity == 0)

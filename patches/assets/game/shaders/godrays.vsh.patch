@@ -6,7 +6,7 @@
  
  uniform vec2 invFrameSizeIn;
  uniform vec3 sunPosScreenIn;
-@@ -7,13 +7,34 @@
+@@ -7,13 +7,33 @@
  uniform float iGlobalTimeIn;
  uniform float directionIn;
  uniform int dusk;
@@ -24,13 +24,12 @@
  out float direction;
 +out vec3 color;
 +
-+const vec3 DayColors[6] = vec3[6](
-+	vec3(1.0f, 0.0f, -0.2f),
-+	vec3(1.0f, 0.3f, 0.0f),
++const vec3 DayColors[5] = vec3[5](
++	vec3(1.0f, 0.2f, -0.2f),
 +	vec3(1.0f, 0.5f, 0.2f),
 +	vec3(1.0f, 0.7f, 0.5f),
-+	vec3(1.0f, 0.85f, 0.6f),
-+	vec3(1.0f, 0.9f, 0.7f)
++	vec3(0.8f, 0.75f, 0.7f),
++	vec3(0.6f, 0.8f, 1.0f)
 +);
 +
 +/*const vec3 DayColors[5] = vec3[5](
@@ -43,7 +42,7 @@
  
  void main(void)
  {
-@@ -26,14 +47,37 @@
+@@ -26,14 +46,37 @@
  	sunPosScreen = sunPosScreenIn;
  	iGlobalTime = iGlobalTimeIn;
  	
@@ -55,9 +54,9 @@
 +	vec3 moonColor = vec3(0.2, 0.4, 0.7) * moonLightStrength;
 +
 +	float height = pow(min(max(sunPos3dIn.y*1.5f, 0.0f), 1f), 2.5f);
-+	float actualScale = height*6.0f;
-+	float cmpH = min(floor(actualScale), 5.0f);
-+	float cmpH1 = min(floor(actualScale)+1.0f, 5.0f);
++	float actualScale = height*5.0f;
++	float cmpH = min(floor(actualScale), 4.0f);
++	float cmpH1 = min(floor(actualScale)+1.0f, 4.0f);
 +
 +	vec3 temp = DayColors[int(cmpH)];
 +	vec3 temp2 = DayColors[int(cmpH1)];

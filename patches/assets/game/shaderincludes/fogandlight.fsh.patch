@@ -165,7 +165,7 @@
 +	float dither = fract(0.75487765 * gl_FragCoord.x + 0.56984026 * gl_FragCoord.y);
 +	//float dither = 0;
 +
-+	int maxSamples = 6;
++	const int maxSamples = 6;
 +	
 +	vec3 dV = (shadowCoordsFar.xyz-shadowRayStart.xyz)/maxSamples;
 +	//vec4 shadowLightPosition = shadowMatrix * vec4(lightPosition, 1.0);
