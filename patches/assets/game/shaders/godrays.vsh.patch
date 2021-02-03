@@ -6,7 +6,7 @@
  
  uniform vec2 invFrameSizeIn;
  uniform vec3 sunPosScreenIn;
-@@ -7,13 +7,33 @@
+@@ -7,13 +7,44 @@
  uniform float iGlobalTimeIn;
  uniform float directionIn;
  uniform int dusk;
@@ -15,6 +15,7 @@
 +uniform float dayLightStrength;
 +uniform float shadowIntensity;
 +uniform float flatFogDensity;
++uniform float temperature;
  
  out vec2 texCoord;
  out vec3 sunPosScreen;
@@ -24,25 +25,35 @@
  out float direction;
 +out vec3 color;
 +
++const float NumDayColors = 5.0;
 +const vec3 DayColors[5] = vec3[5](
 +	vec3(1.0f, 0.2f, -0.2f),
-+	vec3(1.0f, 0.5f, 0.2f),
-+	vec3(1.0f, 0.7f, 0.5f),
++	vec3(1.0f, 0.45f, 0.0f),
 +	vec3(0.8f, 0.75f, 0.7f),
-+	vec3(0.6f, 0.8f, 1.0f)
++	vec3(0.6f, 0.8f, 1.0f),
++	vec3(0.4f, 0.6f, 1.0f)
 +);
 +
-+/*const vec3 DayColors[5] = vec3[5](
++const vec3 HotDayColors[5] = vec3[5](
++	vec3(1.0f, 0.2f, -0.2f),
++	vec3(1.0f, 0.45f, 0.0f),
++	vec3(1.0f, 0.65f, 0.5f),
++	vec3(1.0f, 0.75f, 0.6f) * 0.9,
++	vec3(1.0f, 0.9f, 0.7f) * 0.75
++);
++
++/*const float NumDayColors = 5.0;
++const vec3 DayColors[5] = vec3[5](
 +	vec3(1.0f, 0.0f, -0.2f),
 +	vec3(1.0f, 0.3f, 0.0f),
 +	vec3(1.0f, 0.5f, 0.1f),
 +	vec3(1.0f, 0.8f, 0.4f),
-+	vec3(1.0f, 0.8f, 0.7f)
++	vec3(1.0f, 0.5f, 0.0f)
 +);*/
  
  void main(void)
  {
-@@ -26,14 +46,37 @@
+@@ -26,14 +57,48 @@
  	sunPosScreen = sunPosScreenIn;
  	iGlobalTime = iGlobalTimeIn;
  	
@@ -54,13 +65,24 @@
 +	vec3 moonColor = vec3(0.2, 0.4, 0.7) * moonLightStrength;
 +
 +	float height = pow(min(max(sunPos3dIn.y*1.5f, 0.0f), 1f), 2.5f);
-+	float actualScale = height*5.0f;
-+	float cmpH = min(floor(actualScale), 4.0f);
-+	float cmpH1 = min(floor(actualScale)+1.0f, 4.0f);
++	float actualScale = height * NumDayColors;
++	float cmpH = min(floor(actualScale), NumDayColors-1.0f);
++	float cmpH1 = min(floor(actualScale)+1.0f, NumDayColors-1.0f);
 +
-+	vec3 temp = DayColors[int(cmpH)];
-+	vec3 temp2 = DayColors[int(cmpH1)];
++	vec3 coldTemp1 = DayColors[int(cmpH)];
++	vec3 coldTemp2 = DayColors[int(cmpH1)];
++	vec3 hotTemp1 = HotDayColors[int(cmpH)];
++	vec3 hotTemp2 = HotDayColors[int(cmpH1)];
++	
++	float hotness = clamp((temperature - 0.15) / 0.12, 0, 1);
++	//hotness = 1;
++	
++	vec3 temp = mix(coldTemp1, hotTemp1, hotness);
++	vec3 temp2 = mix(coldTemp2, hotTemp2, hotness);
++	//vec3 temp = coldTemp1;
++	//vec3 temp2 = coldTemp2;
 +	vec3 sunlight = mix(temp, temp2, fract(actualScale));
++	//sunlight *= hotness;
 +
 +	vec3 sunColor = sunlight * min(pow(shadowIntensity, 2.0f), 1.0f) * 1.2f; // midday
 +	color = moonColor;

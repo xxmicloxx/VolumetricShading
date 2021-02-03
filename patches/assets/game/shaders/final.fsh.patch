@@ -62,7 +62,7 @@
  	color.a=1;
  	float bloomSub = 0;
  	#if BLOOM == 1
-@@ -123,24 +133,21 @@
+@@ -123,24 +133,28 @@
  	#if SSAOLEVEL > 0
  		color.rgb *= min(1, texture(ssaoScene, texCoord).r + bloomSub);
  		//if (texCoord.x < 0.5) {
@@ -74,10 +74,20 @@
 -	
  	#if GODRAYS > 0
 -		vec4 grc = texture(godrayParts, texCoord) * 1;
+-		color.rgb += grc.rgb;
+-		color.rgb = min(color.rgb, vec3(1));
+-		color.a=1;
 +		vec4 grc = texture(godrayParts, texCoord);
- 		color.rgb += grc.rgb;
- 		color.rgb = min(color.rgb, vec3(1));
- 		color.a=1;
++		float maxComp = max(max(grc.r, grc.g), grc.b);
++		if (maxComp > 0.005) {
++			float scaleMul = 1.0 / maxComp;
++			grc *= scaleMul;
++			//color.rgb += grc.rgb * maxComp;
++			color.rgb = mix(color.rgb, grc.rgb*1.5, maxComp);
++			//color.rgb = grc.rgb * maxComp;
++			color.rgb = min(color.rgb, vec3(1));
++			color.a=1;
++		}
  	#endif
 -	
 +
@@ -91,7 +101,7 @@
  	// Vignetting
  	vec2 position = (gl_FragCoord.xy * invFrameSize.xy) - vec2(0.5);
  	float grayvignette = 1 - smoothstep(1.1, 0.75 - 0.45, length(position));
-@@ -184,4 +191,6 @@
+@@ -184,4 +198,6 @@
  	outColor.rgb = mix(outColor.rgb, vec3(0), grayvignette);
  	
  	outColor.a=1;

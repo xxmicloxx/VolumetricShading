@@ -77,9 +77,10 @@
 -	vec3 nSunPos = clamp(sunPosScreen, -10, 10);
 -	
 -	outColor = applyGodRays(texCoord, nSunPos);
+-	outColor.a=1;
 +	//outColor = applyGodRays(texCoord, nSunPos);
 +	outColor = applyVolumetricLighting(texCoord);
 +	//outColor = texture(inputTexture, texCoord);
- 	outColor.a=1;
++	//outColor.a=1;
  }
 \ No newline at end of file

@@ -15,7 +15,14 @@
  
  	if (bPointBrightSum > 0) {
  		pointColSum.rgb /= max(1, bPointBrightSum);
-@@ -143,7 +143,6 @@
+@@ -137,13 +137,12 @@
+ 	val = max(min(0.04, val), val - nearnessToPlayer);
+ 	
+ 	// Needs to be added after so that underwater fog still gets applied. 
+-	val += fogMin; 
++	val += fogMin;
+ 	
+ 	return clamp(val, 0, 1);
  }
  
  

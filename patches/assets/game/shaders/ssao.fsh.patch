@@ -49,7 +49,7 @@
 +
 +	const float attenuationAngleThreshold = 0.1;
 +	const int numSamples = 16;
-+	const float aoWeight = 0.6;
++	const float aoWeight = 1.0;
 +	float noise = fract(dot(gl_FragCoord.xy, vec2(0.5, 0.25)));
 +	float aspectRatio = screenSize.x / screenSize.y;
 +	float radius = 0.15 / (fragpos.z);

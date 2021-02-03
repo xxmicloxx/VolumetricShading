@@ -1,4 +1,6 @@
 ﻿using System.Reflection;
+using OpenTK.Graphics.OpenGL;
+using Vintagestory.API.Client;
 using Vintagestory.Client.NoObf;
 
 namespace VolumetricShading
@@ -6,10 +8,12 @@ namespace VolumetricShading
     public class VolumetricLighting
     {
         private readonly VolumetricShadingMod _mod;
+        private readonly ClientPlatformAbstract _platform;
 
         public VolumetricLighting(VolumetricShadingMod mod)
         {
             _mod = mod;
+            _platform = mod.CApi.GetClientPlatformAbstract();
 
             _mod.CApi.Settings.AddWatcher<int>("shadowMapQuality", OnShadowMapChanged);
             _mod.CApi.Settings.AddWatcher<int>("godRays", OnGodRaysChanged);
@@ -72,6 +76,7 @@ namespace VolumetricShading
             rays.Uniform("dayLightStrength", calendar.DayLightStrength);
             rays.Uniform("shadowIntensity", dropShadowIntensity);
             rays.Uniform("flatFogDensity", _mod.CApi.Ambient.BlendedFlatFogDensity);
+            rays.Uniform("temperature", _mod.CApi.Render.ShaderUniforms.SeasonTemperature);
         }
     }
 }
