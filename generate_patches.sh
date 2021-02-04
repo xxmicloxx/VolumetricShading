@@ -2,6 +2,7 @@
 
 GIT_PATH="$(dirname "$0")"
 PATCHES_PATH="$GIT_PATH/patches"
+SURVIVAL_SHADERS_SUBPATH="assets/survival/shaders"
 SHADERS_SUBPATH="assets/game/shaders"
 SHADERINCLUDES_SUBPATH="assets/game/shaderincludes"
 
@@ -46,3 +47,4 @@ create_patches() {
 
 create_patches "$SHADERS_SUBPATH"
 create_patches "$SHADERINCLUDES_SUBPATH"
+create_patches "$SURVIVAL_SHADERS_SUBPATH"

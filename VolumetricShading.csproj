@@ -92,6 +92,8 @@
     <Content Include="assets\game\shaders\ssao.fsh" />
     <Content Include="assets\game\shaders\standard.fsh" />
     <Content Include="assets\game\shaders\standard.vsh" />
+    <Content Include="assets\survival\shaders\mechpower.fsh" />
+    <Content Include="assets\survival\shaders\mechpower.vsh" />
     <Content Include="assets\volumetricshading\shaders\ssrtransparent.fsh" />
     <Content Include="assets\volumetricshading\shaders\ssrtransparent.vsh" />
     <Content Include="assets\volumetricshading\shaders\ssrliquid.fsh" />

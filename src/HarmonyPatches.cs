@@ -97,6 +97,13 @@ namespace VolumetricShading
     internal class ShaderRegistryPatches
     {
         [HarmonyPatch("LoadShader")]
+        [HarmonyPrefix]
+        public static void LoadShaderPrefix(ShaderProgram program, EnumShaderType shaderType)
+        {
+            VolumetricShadingMod.Instance.Events.EmitPreLoadShader(program, shaderType);
+        }
+        
+        [HarmonyPatch("LoadShader")]
         [HarmonyPostfix]
         public static void LoadShaderPostfix(ShaderProgram program, EnumShaderType shaderType)
         {

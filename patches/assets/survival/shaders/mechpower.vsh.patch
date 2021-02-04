@@ -1,0 +1,31 @@
+--- a/assets/survival/shaders/mechpower.vsh
++++ b/assets/survival/shaders/mechpower.vsh
+@@ -21,6 +21,11 @@
+ out vec4 rgbaFog;
+ out float fogAmount;
+ out vec3 normal;
++out vec3 vertPos;
++
++#if GODRAYS > 0
++uniform vec3 lightPosition;
++#endif
+ 
+ #if SSAOLEVEL > 0
+ out vec4 fragPosition;
+@@ -36,6 +41,7 @@
+ {
+ 	vec4 worldPos = transform * vec4(vertexPosition, 1.0);
+ 	vec4 cameraPos = modelViewMatrix * worldPos;
++	vertPos = worldPos.xyz;
+ 	
+ 	calcShadowMapCoords(modelViewMatrix, worldPos);
+ 	
+@@ -58,4 +64,8 @@
+ 	fragPosition = cameraPos;
+ 	gnormal = modelViewMatrix * vec4(normal.xyz, 0);
+ 	#endif
++
++	#if GODRAYS > 0
++	prepareVolumetricLighting(lightPosition);
++	#endif
+ }

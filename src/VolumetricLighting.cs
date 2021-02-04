@@ -19,8 +19,17 @@ namespace VolumetricShading
             _mod.CApi.Settings.AddWatcher<int>("godRays", OnGodRaysChanged);
 
             _mod.Events.PreGodraysRender += OnSetGodrayUniforms;
+            _mod.Events.PreLoadShader += OnPreLoadShader;
 
             RegisterInjectorProperties();
+        }
+
+        private void OnPreLoadShader(ShaderProgram shader, EnumShaderType type)
+        {
+            if (shader.PassName == "mechpower")
+            {
+                shader.AssetDomain = "survival";
+            }
         }
 
         private void RegisterInjectorProperties()

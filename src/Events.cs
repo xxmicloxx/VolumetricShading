@@ -10,7 +10,8 @@ namespace VolumetricShading
         public event Action<List<FrameBufferRef>> RebuildFramebuffers;
         public event Action<ShaderProgramFinal> PreFinalRender;
         public event Action<ShaderProgramGodrays> PreGodraysRender;
-        public event Action<ShaderProgramStandard> PreSunRender; 
+        public event Action<ShaderProgramStandard> PreSunRender;
+        public event Action<ShaderProgram, EnumShaderType> PreLoadShader;
 
         public void EmitRebuildFramebuffers(List<FrameBufferRef> framebuffers)
         {
@@ -30,6 +31,11 @@ namespace VolumetricShading
         public void EmitPreSunRender(ShaderProgramStandard standard)
         {
             PreSunRender?.Invoke(standard);
+        }
+
+        public void EmitPreLoadShader(ShaderProgram shader, EnumShaderType type)
+        {
+            PreLoadShader?.Invoke(shader, type);
         }
     }
 }
