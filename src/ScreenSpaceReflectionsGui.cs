@@ -18,6 +18,14 @@ namespace VolumetricShading
             
             RegisterOption(new ConfigOption
             {
+                SwitchKey = "toggleRainReflections",
+                Text = "Enable wet grass",
+                Tooltip = "Enables reflecting grass when raining",
+                ToggleAction = ToggleRainReflections
+            });
+            
+            RegisterOption(new ConfigOption
+            {
                 SliderKey = "dimmingSlider",
                 Text = "Reflection dimming",
                 Tooltip = "The dimming effect strength on the reflected image",
@@ -60,6 +68,7 @@ namespace VolumetricShading
         protected override void RefreshValues()
         {
             SingleComposer.GetSwitch("toggleSSR").SetValue(ModSettings.ScreenSpaceReflectionsEnabled);
+            SingleComposer.GetSwitch("toggleRainReflections").SetValue(ModSettings.SSRRainReflectionsEnabled);
             SingleComposer.GetSlider("dimmingSlider").SetValues(ModSettings.SSRReflectionDimming, 1, 400, 1);
             SingleComposer.GetSlider("transparencySlider").SetValues(ModSettings.SSRWaterTransparency, 0, 100, 1);
             SingleComposer.GetSlider("tintSlider").SetValues(ModSettings.SSRTintInfluence, 0, 100, 1);
@@ -74,6 +83,13 @@ namespace VolumetricShading
 
             capi.GetClientPlatformAbstract().RebuildFrameBuffers();
             capi.Shader.ReloadShaders();
+            RefreshValues();
+        }
+        
+        private void ToggleRainReflections(bool on)
+        {
+            ModSettings.SSRRainReflectionsEnabled = on;
+            
             RefreshValues();
         }
 

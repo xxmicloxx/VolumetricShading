@@ -59,7 +59,7 @@ vec4 raytrace(vec3 fragpos, vec3 rvector) {
         vec3 fragpos0 = vec3(pos.st, texture(gDepth, pos.st).r);
         fragpos0 = nvec3(invProjectionMatrix * nvec4(fragpos0 * 2.0 - 1.0));
         float err = distance(fragpos,fragpos0);
-        bool isFurther = fragpos0.z < start.z + 0.01;
+        bool isFurther = fragpos0.z < start.z;
 		if(err < pow(length(rvector), 1.175) && isFurther) {
             hit = true;
             hitFragpos0 = fragpos0;

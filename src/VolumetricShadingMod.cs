@@ -125,6 +125,11 @@ namespace VolumetricShading
             {
                 ModSettings.FarPeterPanningAdjustment = 5;
             }
+
+            if (!ModSettings.SSRRainReflectionsEnabledSet)
+            {
+                ModSettings.SSRRainReflectionsEnabled = true;
+            }
         }
 
         private bool OnConfigurePressed(KeyCombination cb)

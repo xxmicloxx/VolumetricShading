@@ -15,7 +15,8 @@ namespace VolumetricShading
                 Text = "Near base width",
                 Tooltip = "Sets the base width of the near shadow map. Increases sharpness of near shadows," +
                           "but decreases sharpness of mid-distance ones. Unmodified game value is 30.",
-                SlideAction = OnShadowBaseWidthSliderChanged
+                SlideAction = OnShadowBaseWidthSliderChanged,
+                InstantSlider = true
             });
             
             RegisterOption(new ConfigOption
@@ -50,7 +51,6 @@ namespace VolumetricShading
         private bool OnShadowBaseWidthSliderChanged(int value)
         {
             ModSettings.NearShadowBaseWidth = value;
-            capi.Shader.ReloadShaders();
             return true;
         }
 
@@ -60,7 +60,7 @@ namespace VolumetricShading
             capi.Shader.ReloadShaders();
             return true;
         }
-        
+            
         private bool OnFarPeterPanningChanged(int value)
         {
             ModSettings.FarPeterPanningAdjustment = value;

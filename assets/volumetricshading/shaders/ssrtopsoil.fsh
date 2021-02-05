@@ -1,6 +1,7 @@
 #version 330 core
 
 uniform sampler2D terrainTex;
+uniform float rainStrength = 1.0;
 
 in vec3 worldPosition;
 in vec4 fragPosition;
@@ -17,16 +18,18 @@ layout(location = 2) out vec4 outTint;
 
 #include noise3d.ash
 
-void main() 
+void main()
 {
-	if (normal.y <= 0) discard; // we only want top
-	
 	vec4 color = texture(terrainTex, uv);
 	if (color.a < 0.02) discard;
 	
 	float noise = gnoise(worldPosition * 10);
 	noise += cnoise(worldPosition * 50) * 0.5;
-	float alpha = 0.0;
+	float alpha = 1.0 - pow(rainStrength, 0.7);
+
+	if (normal.y <= 0) {
+		alpha = 1.0 - (1.0 - alpha) * 0.3;
+	}
 	
 	vec3 normal = gnormal.xyz;
 	normal += vec3(noise * 0.05);

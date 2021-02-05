@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using OpenTK.Graphics.OpenGL;
 using Vintagestory.API.Client;
@@ -14,6 +15,7 @@ namespace VolumetricShading
         private readonly VolumetricShadingMod _mod;
 
         private bool _enabled;
+        private bool _rainEnabled;
 
         private FrameBufferRef _ssrFramebuffer;
         private FrameBufferRef _ssrOutFramebuffer;
@@ -32,6 +34,10 @@ namespace VolumetricShading
 
         private int _fbWidth;
         private int _fbHeight;
+        
+        private float _currentRain;
+        private float _targetRain;
+        private float _rainAccumulator;
 
         private readonly float[] _invProjectionMatrix;
         private readonly float[] _invModelViewMatrix;
@@ -49,7 +55,10 @@ namespace VolumetricShading
             mod.Events.PreFinalRender += OnSetFinalUniforms;
 
             _enabled = ModSettings.ScreenSpaceReflectionsEnabled;
+            _rainEnabled = ModSettings.SSRRainReflectionsEnabled;
+            
             mod.CApi.Settings.AddWatcher<bool>("volumetricshading_screenSpaceReflections", OnEnabledChanged);
+            mod.CApi.Settings.AddWatcher<bool>("volumetricshading_SSRRainReflections", OnRainReflectionsChanged);
 
             mod.CApi.Event.RegisterRenderer(this, EnumRenderStage.Opaque, "ssrWorldSpace");
             mod.CApi.Event.RegisterRenderer(this, EnumRenderStage.AfterOIT, "ssrOut");
@@ -88,6 +97,11 @@ namespace VolumetricShading
         private void OnEnabledChanged(bool enabled)
         {
             _enabled = enabled;
+        }
+        
+        private void OnRainReflectionsChanged(bool enabled)
+        {
+            _rainEnabled = enabled;
         }
 
         private bool ReloadShaders()
@@ -181,11 +195,35 @@ namespace VolumetricShading
 
             if (stage == EnumRenderStage.Opaque)
             {
+                OnPreRender(deltaTime);
                 OnRenderSsrChunks();
             }
             else if (stage == EnumRenderStage.AfterOIT)
             {
                 OnRenderSsrOut();
+            }
+        }
+
+        private void OnPreRender(float dt)
+        {
+            _rainAccumulator += dt;
+            if (_rainAccumulator > 5f)
+            {
+                _rainAccumulator = 0f;
+                var climate = _game.BlockAccessor.GetClimateAt(_game.EntityPlayer.Pos.AsBlockPos,
+                    EnumGetClimateMode.NowValues);
+                
+                var rainMul = GameMath.Clamp((climate.Temperature + 1f) / 4f, 0f, 1f);
+                _targetRain = climate.Rainfall * rainMul;
+            }
+
+            if (_targetRain > _currentRain)
+            {
+                _currentRain = Math.Min(_currentRain + dt * 0.15f, _targetRain);
+            }
+            else if (_targetRain < _currentRain)
+            {
+                _currentRain = Math.Max(_currentRain - dt * 0.01f, _targetRain);
             }
         }
 
@@ -288,18 +326,22 @@ namespace VolumetricShading
 
             shader.Stop();
 
-            shader = _ssrTopsoilShader;
-            shader.Use();
-            shader.UniformMatrix("projectionMatrix", _mod.CApi.Render.CurrentProjectionMatrix);
-            shader.UniformMatrix("modelViewMatrix", _mod.CApi.Render.CurrentModelviewMatrix);
-            pools = _chunkRenderer.poolsByRenderPass[(int) EnumChunkRenderPass.TopSoil];
-            for (var i = 0; i < textureIds.Length; ++i)
+            if (_rainEnabled)
             {
-                shader.BindTexture2D("terrainTex", textureIds[i], 0);
-                pools[i].Render(cameraPos, "origin");
+                shader = _ssrTopsoilShader;
+                shader.Use();
+                shader.UniformMatrix("projectionMatrix", _mod.CApi.Render.CurrentProjectionMatrix);
+                shader.UniformMatrix("modelViewMatrix", _mod.CApi.Render.CurrentModelviewMatrix);
+                shader.Uniform("rainStrength", _currentRain);
+                pools = _chunkRenderer.poolsByRenderPass[(int) EnumChunkRenderPass.TopSoil];
+                for (var i = 0; i < textureIds.Length; ++i)
+                {
+                    shader.BindTexture2D("terrainTex", textureIds[i], 0);
+                    pools[i].Render(cameraPos, "origin");
+                }
+
+                shader.Stop();
             }
-            
-            shader.Stop();
 
             shader = _ssrLiquidShader;
             shader.Use();
