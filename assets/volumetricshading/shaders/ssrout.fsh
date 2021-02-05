@@ -59,7 +59,8 @@ vec4 raytrace(vec3 fragpos, vec3 rvector) {
         vec3 fragpos0 = vec3(pos.st, texture(gDepth, pos.st).r);
         fragpos0 = nvec3(invProjectionMatrix * nvec4(fragpos0 * 2.0 - 1.0));
         float err = distance(fragpos,fragpos0);
-		if(err < pow(length(rvector), 1.175)) {
+        bool isFurther = fragpos0.z < start.z + 0.01;
+		if(err < pow(length(rvector), 1.175) && isFurther) {
             hit = true;
             hitFragpos0 = fragpos0;
             hitPos = pos;
@@ -78,9 +79,8 @@ vec4 raytrace(vec3 fragpos, vec3 rvector) {
     }
 
     if (hit) {
-        float isFurther = (hitFragpos0.z < start.z) ? 1 : 0;
         color = pow(texture(primaryScene, hitPos.st), vec4(VSMOD_SSR_REFLECTION_DIMMING));
-        color.a = clamp(1.0 - pow(cdist(hitPos.st), 20.0), 0.0, 1.0) * isFurther;
+        color.a = clamp(1.0 - pow(cdist(hitPos.st), 20.0), 0.0, 1.0);
     }
     
     return color;
@@ -139,13 +139,12 @@ void main(void) {
         reflection.rgb = mix(reflection.rgb, skyColor.rgb, VSMOD_SSR_SKY_MIXIN * upness);
         reflection.rgb = mix(skyColor.rgb * upness, reflection.rgb, reflection.a);
 
-        reflection.a = 1f;
-
         float normalDotEye = dot(normal, unitPositionFrom);
 		float fresnel = pow(clamp(1.0 + normalDotEye,0.0,1.0), 4.0);
 			  fresnel = mix(0.09,1.0,fresnel);
 
         outColor = reflection;
+        outColor.a = 1.0f;
         
         outColor.rgb *= pow(texture(gTint, texcoord).rgb, vec3(VSMOD_SSR_TINT_INFLUENCE));
 

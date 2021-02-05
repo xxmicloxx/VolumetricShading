@@ -30,7 +30,6 @@ uniform vec3 origin;
 uniform mat4 projectionMatrix;
 uniform mat4 modelViewMatrix;
 
-out vec3 vertexPosition;
 out vec4 fragPosition;
 out vec4 gnormal;
 out vec2 uv;
@@ -47,7 +46,6 @@ void main(void)
 	vec4 worldPos = vec4(vertexPositionIn + origin, 1.0);
 	
 	worldPos = applyVertexWarping(renderFlagsIn, worldPos);
-	vertexPosition = worldPos.xyz;
 	
 	vec4 cameraPos = modelViewMatrix * worldPos;
 

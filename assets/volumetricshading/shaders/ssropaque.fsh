@@ -6,7 +6,6 @@ uniform sampler2D terrainTexLinear;
 
 in vec4 fragPosition;
 flat in int renderFlags;
-in vec3 vertexPosition;
 in vec4 gnormal;
 in vec2 uv;
 

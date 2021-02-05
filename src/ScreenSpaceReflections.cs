@@ -21,6 +21,7 @@ namespace VolumetricShading
         private IShaderProgram _ssrLiquidShader;
         private IShaderProgram _ssrOpaqueShader;
         private IShaderProgram _ssrTransparentShader;
+        private IShaderProgram _ssrTopsoilShader;
         private IShaderProgram _ssrOutShader;
 
         private readonly ClientMain _game;
@@ -96,6 +97,7 @@ namespace VolumetricShading
             _ssrLiquidShader?.Dispose();
             _ssrOpaqueShader?.Dispose();
             _ssrTransparentShader?.Dispose();
+            _ssrTopsoilShader?.Dispose();
             _ssrOutShader?.Dispose();
 
             _ssrLiquidShader = _mod.RegisterShader("ssrliquid", ref success);
@@ -104,6 +106,8 @@ namespace VolumetricShading
             ((ShaderProgram) _ssrOpaqueShader).SetCustomSampler("terrainTexLinear", true);
 
             _ssrTransparentShader = _mod.RegisterShader("ssrtransparent", ref success);
+
+            _ssrTopsoilShader = _mod.RegisterShader("ssrtopsoil", ref success);
 
             _ssrOutShader = _mod.RegisterShader("ssrout", ref success);
 
@@ -284,6 +288,19 @@ namespace VolumetricShading
 
             shader.Stop();
 
+            shader = _ssrTopsoilShader;
+            shader.Use();
+            shader.UniformMatrix("projectionMatrix", _mod.CApi.Render.CurrentProjectionMatrix);
+            shader.UniformMatrix("modelViewMatrix", _mod.CApi.Render.CurrentModelviewMatrix);
+            pools = _chunkRenderer.poolsByRenderPass[(int) EnumChunkRenderPass.TopSoil];
+            for (var i = 0; i < textureIds.Length; ++i)
+            {
+                shader.BindTexture2D("terrainTex", textureIds[i], 0);
+                pools[i].Render(cameraPos, "origin");
+            }
+            
+            shader.Stop();
+
             shader = _ssrLiquidShader;
             shader.Use();
             shader.UniformMatrix("projectionMatrix", _mod.CApi.Render.CurrentProjectionMatrix);
@@ -369,6 +386,12 @@ namespace VolumetricShading
             {
                 _ssrTransparentShader.Dispose();
                 _ssrTransparentShader = null;
+            }
+
+            if (_ssrTopsoilShader != null)
+            {
+                _ssrTopsoilShader.Dispose();
+                _ssrTopsoilShader = null;
             }
 
             _chunkRenderer = null;
