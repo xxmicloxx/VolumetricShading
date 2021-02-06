@@ -39,7 +39,7 @@
  	#endif
 +
 +	#if GODRAYS > 0
-+	prepareVolumetricLighting(lightPosition);
++	prepareVolumetricLighting(lightPosition, rgbaLightIn);
 +	#endif
  }
 \ No newline at end of file

@@ -26,6 +26,6 @@
  	#endif
 +
 +	#if GODRAYS > 0
-+	prepareVolumetricLighting(lightPosition);
++	prepareVolumetricLighting(lightPosition, rgbaBlockIn);
 +	#endif
  }

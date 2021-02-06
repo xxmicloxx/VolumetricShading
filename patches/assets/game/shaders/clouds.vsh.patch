@@ -23,7 +23,7 @@
  	rgbaCloud.a = clamp(rgbaCloud.a, 0, 1);
 +	
 +#if GODRAYS > 0
-+	prepareVolumetricLighting(lightPosition);
++	prepareVolumetricLightingFlat(lightPosition);
 +#endif
 +
 +	calcShadowMapCoords(modelViewMatrix, vec4(vexPos, 1.0));

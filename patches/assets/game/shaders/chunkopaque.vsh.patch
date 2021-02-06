@@ -22,7 +22,7 @@
  #endif
  
 +#if GODRAYS > 0
-+	prepareVolumetricLighting(lightPosition);
++	prepareVolumetricLighting(lightPosition, rgbaLightIn);
 +#endif
  
  	// Now the lowest 3 bits are used as an unsigned number 

@@ -24,7 +24,7 @@
 +	calcShadowMapCoords(modelViewMatrix, vec4(vertexPosition, 1.0));
 +
 +#if GODRAYS > 0
-+	prepareVolumetricLighting(lightPosition);
++	prepareVolumetricLightingFlat(lightPosition);
 +#endif
 +
      gl_Position = projectionMatrix * cameraPos;

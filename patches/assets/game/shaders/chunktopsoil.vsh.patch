@@ -22,7 +22,7 @@
  	normal = unpackNormal(renderFlags >> 7);
  	
 +#if GODRAYS > 0
-+	prepareVolumetricLighting(lightPosition);
++	prepareVolumetricLighting(lightPosition, rgbaLightIn);
 +#endif
 +	
  #if SSAOLEVEL > 0

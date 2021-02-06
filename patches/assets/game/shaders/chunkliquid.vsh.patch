@@ -34,7 +34,7 @@
  	calcColorMapUvs(colormapData, vec4(vertexPositionIn + origin, 1.0) + vec4(playerpos, 1), rgbaLightIn.a, false);
  	
 +#if GODRAYS > 0
-+	prepareVolumetricLighting(lightPosition);
++	prepareVolumetricLighting(lightPosition, rgbaLightIn);
 +#endif
  	
  	// We pretend the decal is closer to the camera to enforce it always being drawn on top

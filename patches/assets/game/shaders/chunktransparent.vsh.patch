@@ -22,7 +22,7 @@
  	normalShadeIntensity = min(1, rgbaLightIn.a * 1.5);
 +
 +#if GODRAYS > 0
-+	prepareVolumetricLighting(lightPosition);
++	prepareVolumetricLighting(lightPosition, rgbaLightIn);
 +#endif
  }
 \ No newline at end of file
