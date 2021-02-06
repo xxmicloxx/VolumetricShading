@@ -27,16 +27,16 @@
 +
 +const float NumDayColors = 5.0;
 +const vec3 DayColors[5] = vec3[5](
-+	vec3(1.0f, 0.35f, -0.2f),
-+	vec3(1.0f, 0.5f, 0.0f),
++	vec3(1.0f, 0.2f, 0.0f),
++	vec3(1.0f, 0.6f, 0.2f),
 +	vec3(0.8f, 0.75f, 0.7f),
 +	vec3(0.6f, 0.8f, 1.0f),
 +	vec3(0.4f, 0.6f, 1.0f)
 +);
 +
 +const vec3 HotDayColors[5] = vec3[5](
-+	vec3(1.0f, 0.35f, -0.2f),
-+	vec3(1.0f, 0.5f, 0.0f),
++	vec3(1.0f, 0.2f, 0.0f),
++	vec3(1.0f, 0.6f, 0.2f),
 +	vec3(1.0f, 0.65f, 0.5f),
 +	vec3(1.0f, 0.75f, 0.6f) * 0.9,
 +	vec3(1.0f, 0.9f, 0.7f) * 0.75
