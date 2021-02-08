@@ -31,35 +31,35 @@ layout(location = 3) out vec4 outRefraction;
 vec2 droplethash3( vec2 p )
 {
     vec2 q = vec2(dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)));
-	return fract(sin(q)*43758.5453);
+    return fract(sin(q)*43758.5453);
 }
 
 float dropletnoise(in vec2 x, in float waveCounter)
 {
-	if (dropletIntensity < 0.001) return 0.;
-	
+    if (dropletIntensity < 0.001) return 0.;
+
     x *= dropletIntensity;
-    
+
     vec2 p = floor(x);
     vec2 f = fract(x);
-    
-		
-	float va = 0.0;
+
+
+    float va = 0.0;
     for( int j=-1; j<=1; j++ )
     for( int i=-1; i<=1; i++ )
     {
         vec2 g = vec2(float(i), float(j));
-		vec2 o = droplethash3(p + g);
-		vec2 r = ((g - f) + o.xy) / dropletIntensity;
-		float d = sqrt(dot(r,r));
-        
+        vec2 o = droplethash3(p + g);
+        vec2 r = g - f + o;
+        float d = length(r) / dropletIntensity;
+
         float a = max(cos(d - waveCounter * 2.7 + (o.x + o.y) * 5.0), 0.);
         a = smoothstep(0.99, 0.999, a);
-        
-	    float ripple = mix(a, 0., d);
+
+        float ripple = mix(a, 0., d);
         va += max(ripple, 0.);
     }
-	
+
     return va;
 }
 
@@ -91,7 +91,8 @@ void generateNoiseParallax(inout vec3 normalMap, vec3 viewVector, float div, out
 
 float generateSplash(vec3 pos)
 {
-    vec2 uv = 6.0 * pos.xz;
+    vec3 localPos = fract(pos.xyz / 512.0) * 512.0;
+    vec2 uv = 6.0 * localPos.xz;
 
     float totalNoise = 0;
     for (int i = 0; i < 2; ++i) {
