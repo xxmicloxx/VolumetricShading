@@ -29,5 +29,5 @@ float generateCausticsNoise(vec3 coord, vec3 sunPos) {
     
     vec3 noisepos1 = vec3(coord1.x, coord1.z, waterWaveCounter / 12 + windWaveCounter / 12 + coord1.y);
     
-    return (cellNoise(noisepos1) - 0.1) / div * ((20 * windSpeed) + 8);
+    return (cellNoise(noisepos1) - 0.1) / div * ((24 * windSpeed) + 3);
 }

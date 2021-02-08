@@ -54,7 +54,7 @@ float dropletnoise(in vec2 x, in float waveCounter)
         float d = length(r) / dropletIntensity;
 
         float a = max(cos(d - waveCounter * 2.7 + (o.x + o.y) * 5.0), 0.);
-        a = smoothstep(0.99, 0.999, a);
+        a = smoothstep(0.97, 0.999, a);
 
         float ripple = mix(a, 0., d);
         va += max(ripple, 0.);
@@ -93,28 +93,25 @@ float generateSplash(vec3 pos)
 {
     vec3 localPos = fract(pos.xyz / 512.0) * 512.0;
     vec2 uv = 6.0 * localPos.xz;
-
-    float totalNoise = 0;
-    for (int i = 0; i < 2; ++i) {
-        totalNoise += dropletnoise(uv, waterWaveCounter - (0.1*i));
-    }
-    return totalNoise;
+    
+    return dropletnoise(uv, waterWaveCounter);
 }
 
 void generateSplashBump(inout vec3 normalMap, vec3 pos)
 {
     const vec3 deltaPos = vec3(0.01, 0.0, 0.0);
+    vec3 startPos = pos - deltaPos.xyx * 0.5;
     
-    float val0 = generateSplash(pos);
-    float val1 = generateSplash(pos + deltaPos.xyz);
-    float val2 = generateSplash(pos - deltaPos.xyz);
-    float val3 = generateSplash(pos + deltaPos.zyx);
-    float val4 = generateSplash(pos - deltaPos.zyx);
+    float val0 = generateSplash(startPos);
+    float val1 = generateSplash(startPos + deltaPos.xyz);
+    //float val2 = generateSplash(pos - deltaPos.xyz);
+    float val2 = generateSplash(startPos + deltaPos.zyx);
+    //float val4 = generateSplash(pos - deltaPos.zyx);
 
-    float xDelta = ((val1 - val0) + (val0 - val2));
-    float zDelta = ((val3 - val0) + (val0 - val4));
+    float xDelta = (val1 - val0);
+    float zDelta = (val2 - val0);
 
-    normalMap += vec3(xDelta * 0.5, zDelta * 0.5, 0) * 0.75;
+    normalMap += vec3(xDelta, zDelta, 0) * 0.75;
 }
 
 // https://gamedev.stackexchange.com/questions/86530/is-it-possible-to-calculate-the-tbn-matrix-in-the-fragment-shader
@@ -154,19 +151,24 @@ void main()
     vec3 viewTangent = normalize(invTbn * worldPos.xyz);
     generateNoiseParallax(normalMap, viewTangent, div, parallaxPos);
 
-    if (isWater > 0 && skyExposed > 0) {
+    if (isWater > 0 && skyExposed > 0 && dropletIntensity > 0.001) {
         //generateSplash(fragWorldPos.xyz);
         generateSplashBump(normalMap, parallaxPos);
     }
 
     vec3 worldNormalMap = tbn * normalMap;
     vec3 camNormalMap = (modelViewMatrix * vec4(worldNormalMap, 0.0)).xyz;
+    vec3 myGNormal = gnormal.xyz;
     
+    if (dot(gnormal.xyz, fragPosition.xyz) > 0) {
+        // flip the normal if viewed from behind
+        myGNormal = -gnormal.xyz;
+    }
     
 	outGPosition = vec4(fragPosition.xyz, 0);
-	outGNormal = vec4(normalize(camNormalMap + gnormal.xyz), 1.0 - playerUnderwater * caustics);
+	outGNormal = vec4(normalize(camNormalMap + myGNormal), 1.0 - playerUnderwater * caustics);
     outTint = vec4(getColorMapping(terrainTex).rgb, 0);
     #if VSMOD_REFRACT > 0
-    outRefraction = vec4(camNormalMap.xy / fragPosition.z, 0, 0);
+    outRefraction = vec4((-camNormalMap.xy) / fragPosition.z, 0, 0);
     #endif
 }

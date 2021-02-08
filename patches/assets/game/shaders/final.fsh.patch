@@ -59,7 +59,7 @@
  	// Limit brightness
  	//float b = (color.r + color.b + color.g) / 3;
  	//color.rgb /= max(1, b);
-@@ -94,21 +108,61 @@
+@@ -94,21 +108,68 @@
  	return color;	
  }
  
@@ -107,8 +107,15 @@
 +	#endif
      
 +#if VSMOD_SSR > 0 && VSMOD_CAUSTICS > 0
-+	float causticsStrength = texture(causticsScene, refractedUV).r;
-+	color.rgb *= pow(causticsStrength * 2.0, 2);
++	vec4 gposProj = projectionMatrix * vec4(texture(gpositionScene, refractedUV).xyz, 1);
++	gposProj = vec4(gposProj.xyz / gposProj.w, 1.0);
++	float gposDepth = gposProj.z;
++
++	float myDepth = texture(gdepthScene, refractedUV).r;
++	if (myDepth > gposDepth) {
++		float causticsStrength = texture(causticsScene, refractedUV).r;
++		color.rgb *= pow(causticsStrength * 2.0, 2);
++	}
 +#endif
 +
 +#if VSMOD_SSR > 0
@@ -126,7 +133,7 @@
  		
  		//vec3 blendedBloomCol = (bloomCol.rgb + color.rgb * (1-bloomCol.a));
  		//color.rgb = (color.rgb + blendedBloomCol) / 2;
-@@ -121,26 +175,30 @@
+@@ -121,26 +182,30 @@
  	#endif 
  
  	#if SSAOLEVEL > 0
@@ -168,7 +175,7 @@
  	// Vignetting
  	vec2 position = (gl_FragCoord.xy * invFrameSize.xy) - vec2(0.5);
  	float grayvignette = 1 - smoothstep(1.1, 0.75 - 0.45, length(position));
-@@ -184,4 +242,6 @@
+@@ -184,4 +249,6 @@
  	outColor.rgb = mix(outColor.rgb, vec3(0), grayvignette);
  	
  	outColor.a=1;
