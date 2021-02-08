@@ -1,0 +1,47 @@
+﻿#version 330 core
+
+uniform sampler2D gDepth;
+uniform sampler2D gNormal;
+
+uniform mat4 invProjectionMatrix;
+uniform mat4 invModelViewMatrix;
+
+uniform float dayLight;
+uniform vec3 sunPosition;
+uniform vec3 playerPos;
+
+in vec2 texcoord;
+out float outStrength;
+
+uniform float fogDensityIn;
+uniform float fogMinIn;
+uniform vec4 rgbaFog;
+
+#include noise3d.ash
+#include wavenoise.ash
+#include fogandlight.fsh
+#include shadow.fsh
+#include deferredfog.fsh
+
+void main(void)
+{
+    float underwater = texture(gNormal, texcoord).w;
+    if (underwater > 0.5) discard;
+    
+    float projectedZ = texture(gDepth, texcoord).r;
+    vec4 worldPosition = vec4(vec3(texcoord, projectedZ) * 2.0 - 1.0, 1.0);
+    worldPosition = invProjectionMatrix * worldPosition;
+    worldPosition.xyz /= worldPosition.w;
+    worldPosition.w = 1.0;
+    float screenZ = worldPosition.z;
+    worldPosition = invModelViewMatrix * worldPosition;
+
+    vec3 absWorldPos = worldPosition.xyz + playerPos;
+    
+    float shadowBrightness = getShadowBrightnessAt(worldPosition) * 0.5 + 0.5;
+
+    float waveNoise = generateCausticsNoise(absWorldPos, sunPosition) * 1.3;
+    
+    float fog = 1.0 - getFogLevelDeferred(-screenZ, fogMinIn, fogDensityIn, absWorldPos.y);
+    outStrength = (waveNoise * shadowBrightness * fog + 0.5) - 0.05 * fog;
+}

@@ -2,6 +2,7 @@
 
 uniform sampler2D terrainTex;
 uniform float rainStrength = 1.0;
+uniform float playerUnderwater;
 
 in vec3 worldPosition;
 in vec4 fragPosition;
@@ -15,6 +16,9 @@ flat in int renderFlags;
 layout(location = 0) out vec4 outGPosition;
 layout(location = 1) out vec4 outGNormal;
 layout(location = 2) out vec4 outTint;
+#if VSMOD_REFRACT > 0
+layout(location = 3) out vec4 outRefraction;
+#endif
 
 #include noise3d.ash
 
@@ -35,6 +39,9 @@ void main()
 	normal += vec3(noise * 0.05);
 	
 	outGPosition = vec4(fragPosition.xyz, alpha);
-	outGNormal = vec4(normalize(normal), alpha);
-	outTint = vec4(vec3(1.0), alpha);
+	outGNormal = vec4(normalize(normal), playerUnderwater);
+	outTint = vec4(vec3(1.0), 0);
+	#if VSMOD_REFRACT > 0
+	outRefraction = vec4(0, 0, 0, 1);
+	#endif
 }

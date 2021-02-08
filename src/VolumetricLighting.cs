@@ -8,12 +8,12 @@ namespace VolumetricShading
     public class VolumetricLighting
     {
         private readonly VolumetricShadingMod _mod;
-        private readonly ClientPlatformAbstract _platform;
+        private readonly ClientMain _game;
 
         public VolumetricLighting(VolumetricShadingMod mod)
         {
             _mod = mod;
-            _platform = mod.CApi.GetClientPlatformAbstract();
+            _game = _mod.CApi.GetClient();
 
             _mod.CApi.Settings.AddWatcher<int>("shadowMapQuality", OnShadowMapChanged);
             _mod.CApi.Settings.AddWatcher<int>("godRays", OnGodRaysChanged);
@@ -79,6 +79,8 @@ namespace VolumetricShading
             }
 
             var dropShadowIntensity = (float) dropShadowIntensityObj;
+            
+            var playerWaterDepth = _game.playerProperties.EyesInWaterDepth;
 
             rays.Uniform("moonLightStrength", calendar.MoonLightStrength);
             rays.Uniform("sunLightStrength", calendar.SunLightStrength);
@@ -86,6 +88,7 @@ namespace VolumetricShading
             rays.Uniform("shadowIntensity", dropShadowIntensity);
             rays.Uniform("flatFogDensity", _mod.CApi.Ambient.BlendedFlatFogDensity);
             rays.Uniform("temperature", _mod.CApi.Render.ShaderUniforms.SeasonTemperature);
+            rays.Uniform("playerWaterDepth", playerWaterDepth);
         }
     }
 }

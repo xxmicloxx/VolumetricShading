@@ -83,7 +83,7 @@
  	
  	return mix(1, nb, normalShadeIntensity);
  }
-@@ -96,24 +106,85 @@
+@@ -96,24 +106,67 @@
  vec4 applyFogAndShadow(vec4 rgbaPixel, float fogWeight) {
  	float b = getBrightnessFromShadowMap();
  	rgbaPixel *= vec4(b, b, b, 1);
@@ -104,24 +104,6 @@
  	return applyFog(rgbaPixel, fogWeight);
  }
  
-+vec3 uncharted2Tonemap(const vec3 x) {
-+	const float A = 0.15;
-+	const float B = 0.50;
-+	const float C = 0.10;
-+	const float D = 0.20;
-+	const float E = 0.02;
-+	const float F = 0.30;
-+	return ((x * (A * x + C * B) + D * E) / (x * (A * x + B) + D * F)) - E / F;
-+}
-+
-+vec3 tonemapUncharted2(const vec3 color) {
-+	const float W = 2.2;
-+	const float exposureBias = 2.0;
-+	vec3 curr = uncharted2Tonemap(exposureBias * color);
-+	vec3 whiteScale = 1.0 / uncharted2Tonemap(vec3(W));
-+	return curr * whiteScale;
-+}
-+
 +void applyOverexposure(inout vec4 rgbaPixel, float b, vec3 normal, vec3 worldPos, float fogDensity) {
 +#if VSMOD_OVEREXPOSURE_ENABLED > 0
 +	float dot = dot(normal, lightPosition);
@@ -136,7 +118,7 @@
 +
 +		float exposure = pow(b, 2) * (0.25 + 0.75 * orientation) * VSMOD_OVEREXPOSURE * sunHeight * distScaling * densityModifier;
 +
-+		vec3 additional = rgbaPixel.rgb * exposure;
++		vec3 additional = rgbaPixel.rgb * exposure * vec3(1.2, 0.9, 0.4);
 +		rgbaPixel.rgb += additional;
 +		//rgbaPixel.rgb = vec3(1.2, 0.9, 0.4);
 +		rgbaPixel.rgb = min(vec3(1), rgbaPixel.rgb);
@@ -173,7 +155,7 @@
  	float clampedDepth = min(250, depth);
  	float heightDiff = worldPosY - flatFogStart;
  	
-@@ -133,4 +204,39 @@
+@@ -133,4 +186,40 @@
  	val += fogMin; 
  	
  	return clamp(val, 0, 1);
@@ -181,11 +163,12 @@
 +
 +float calculateVolumetricScatter(vec3 position) {
 +#if GODRAYS > 0
-+	if (sunlightLevel < 0.005) {
++	if (sunlightLevel < 0.002) {
 +		return 0.0f;
 +	}
 +	
-+	float mul = clamp((sunlightLevel - 0.005) / 0.2, 0, 1);
++	float mul = clamp((sunlightLevel - 0.002) / 0.1, 0, 1);
++	//float mul = 1;
 +	float dither = fract(0.75487765 * gl_FragCoord.x + 0.56984026 * gl_FragCoord.y);
 +	//float dither = 0;
 +

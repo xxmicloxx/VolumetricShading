@@ -2,12 +2,9 @@
 
 uniform sampler2D terrainTex;
 uniform vec3 playerpos;
-uniform float windWaveCounter;
-uniform float waterWaveCounter;
-uniform float waterFlowCounter;
 uniform mat4 modelViewMatrix;
-uniform float windSpeed;
 uniform float dropletIntensity = 0;
+uniform float playerUnderwater;
 
 in vec4 worldPos;
 in vec4 fragPosition;
@@ -23,9 +20,13 @@ flat in int skyExposed;
 layout(location = 0) out vec4 outGPosition;
 layout(location = 1) out vec4 outGNormal;
 layout(location = 2) out vec4 outTint;
+#if VSMOD_REFRACT > 0
+layout(location = 3) out vec4 outRefraction;
+#endif
 
 #include colormap.fsh
 #include noise3d.ash
+#include wavenoise.ash
 
 vec2 droplethash3( vec2 p )
 {
@@ -62,24 +63,15 @@ float dropletnoise(in vec2 x, in float waveCounter)
     return va;
 }
 
-float generateNoise(vec3 coord1, float div) {
-    vec3 coord2 = coord1 * 4 + 16;
-
-    vec3 noisepos1 = vec3(coord1.x - windWaveCounter / 3, coord1.z, waterWaveCounter / 12 + windWaveCounter / 4);
-    vec3 noisepos2 = vec3(coord2.x - windWaveCounter / 4, coord2.z, waterWaveCounter / 12 + windWaveCounter / 4);
-
-    return gnoise(noisepos1) / div * ((50 * windSpeed) + 3) + gnoise(noisepos2) / div * ((4 * windSpeed) + 1);
-}
-
 void generateNoiseBump(inout vec3 normalMap, vec3 position, float div) {
     const vec3 offset = vec3(0.05, 0.0, 0.0);
     vec3 posCenter = position.xyz;
     vec3 posNorth = posCenter - offset.zyx;
     vec3 posEast = posCenter + offset.xzy;
 
-    float val0 = generateNoise(posCenter, div);
-    float val1 = generateNoise(posNorth, div);
-    float val2 = generateNoise(posEast, div);
+    float val0 = generateWaveNoise(posCenter, div);
+    float val1 = generateWaveNoise(posNorth, div);
+    float val2 = generateWaveNoise(posEast, div);
 
     float zDelta = (val0 - val1);
     float xDelta = (val2 - val0);
@@ -90,7 +82,7 @@ void generateNoiseBump(inout vec3 normalMap, vec3 position, float div) {
 void generateNoiseParallax(inout vec3 normalMap, vec3 viewVector, float div, out vec3 parallaxPos) {
     vec3 targetPos = fragWorldPos.xyz;
 
-    float currentNoise = generateNoise(fragWorldPos.xyz, div);
+    float currentNoise = generateWaveNoise(fragWorldPos.xyz, div);
     targetPos.xz += (currentNoise * viewVector.xy) * 0.4;
 
     generateNoiseBump(normalMap, targetPos, div);
@@ -144,9 +136,10 @@ void main()
 {
     float isWater = ((waterFlags & (1<<25)) > 0) ? 0f : 1f;
     float myAlpha = alpha * isWater;
-    if (myAlpha > 0.5) discard;
+    if (myAlpha < 0.5) discard;
     
     // apply waves
+    float caustics = length(flowVectorf) > 0.001 ? 0 : 1;
     float div = ((waterFlags & (1<<27)) > 0) ? 90 : 10;
 	//float noise = generateNoise(worldPos.xyz + playerpos.xyz, div, wind);
 
@@ -170,6 +163,9 @@ void main()
     
     
 	outGPosition = vec4(fragPosition.xyz, 0);
-	outGNormal = vec4(normalize(camNormalMap + gnormal.xyz), 0);
+	outGNormal = vec4(normalize(camNormalMap + gnormal.xyz), 1.0 - playerUnderwater * caustics);
     outTint = vec4(getColorMapping(terrainTex).rgb, 0);
+    #if VSMOD_REFRACT > 0
+    outRefraction = vec4(camNormalMap.xy / fragPosition.z, 0, 0);
+    #endif
 }

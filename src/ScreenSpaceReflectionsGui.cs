@@ -18,6 +18,22 @@ namespace VolumetricShading
             
             RegisterOption(new ConfigOption
             {
+                SwitchKey = "toggleRefractions",
+                Text = "Enable refractions",
+                Tooltip = "Enables refractions for water, ice, and glass",
+                ToggleAction = ToggleRefractions
+            });
+            
+            RegisterOption(new ConfigOption
+            {
+                SwitchKey = "toggleCaustics",
+                Text = "Enable caustics",
+                Tooltip = "Enables bands of light underwater caused by waves on the surface",
+                ToggleAction = ToggleCaustics
+            });
+            
+            RegisterOption(new ConfigOption
+            {
                 SwitchKey = "toggleRainReflections",
                 Text = "Enable wet grass",
                 Tooltip = "Enables reflecting grass when raining",
@@ -68,6 +84,8 @@ namespace VolumetricShading
         protected override void RefreshValues()
         {
             SingleComposer.GetSwitch("toggleSSR").SetValue(ModSettings.ScreenSpaceReflectionsEnabled);
+            SingleComposer.GetSwitch("toggleRefractions").SetValue(ModSettings.SSRRefractionsEnabled);
+            SingleComposer.GetSwitch("toggleCaustics").SetValue(ModSettings.SSRCausticsEnabled);
             SingleComposer.GetSwitch("toggleRainReflections").SetValue(ModSettings.SSRRainReflectionsEnabled);
             SingleComposer.GetSlider("dimmingSlider").SetValues(ModSettings.SSRReflectionDimming, 1, 400, 1);
             SingleComposer.GetSlider("transparencySlider").SetValues(ModSettings.SSRWaterTransparency, 0, 100, 1);
@@ -81,6 +99,24 @@ namespace VolumetricShading
         {
             ModSettings.ScreenSpaceReflectionsEnabled = on;
 
+            capi.GetClientPlatformAbstract().RebuildFrameBuffers();
+            capi.Shader.ReloadShaders();
+            RefreshValues();
+        }
+
+        private void ToggleCaustics(bool enabled)
+        {
+            ModSettings.SSRCausticsEnabled = enabled;
+            
+            capi.GetClientPlatformAbstract().RebuildFrameBuffers();
+            capi.Shader.ReloadShaders();
+            RefreshValues();
+        }
+        
+        private void ToggleRefractions(bool on)
+        {
+            ModSettings.SSRRefractionsEnabled = on;
+            
             capi.GetClientPlatformAbstract().RebuildFrameBuffers();
             capi.Shader.ReloadShaders();
             RefreshValues();

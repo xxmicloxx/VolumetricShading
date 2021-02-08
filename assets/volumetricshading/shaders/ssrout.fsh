@@ -24,6 +24,7 @@ out vec4 outColor;
 #include dither.fsh
 #include fogandlight.fsh
 #include skycolor.fsh
+#include deferredfog.fsh
 
 float comp = 1.0-zNear/zFar/zFar;
 
@@ -86,28 +87,6 @@ vec4 raytrace(vec3 fragpos, vec3 rvector) {
     return color;
 }
 
-float getFogLevelCustom(float depth, float fogMin, float fogDensity, float worldPosY) {
-	float clampedDepth = min(250, depth);
-	float heightDiff = worldPosY - flatFogStart;
-	
-	//float extraDistanceFog = max(-flatFogDensity * flatFogStart / (160 + heightDiff * 3), 0);   // heightDiff*3 seems to fix distant mountains being supper fogged on most flat fog values
-	// ^ this breaks stuff. Also doesn't seem to be needed? Seems to work fine without
-	
-	float extraDistanceFog = max(-flatFogDensity * clampedDepth * (flatFogStart) / 60, 0); // div 60 was 160 before, at 160 thick flat fog looks broken when looking at trees
-
-	float distanceFog = 1 - 1 / exp(clampedDepth * (fogDensity + extraDistanceFog));
-	float flatFog = 1 - 1 / exp(heightDiff * flatFogDensity);
-	
-	float val = max(flatFog, distanceFog);
-	float nearnessToPlayer = clamp((8-depth)/16, 0, 0.8);
-	val = max(min(0.04, val), val - nearnessToPlayer);
-	
-	// Needs to be added after so that underwater fog still gets applied. 
-	val += fogMin; 
-	
-	return clamp(val, 0, 1);
-}
-
 void main(void) {
     vec4 positionFrom = texture(gPosition, texcoord);
     vec3 unitPositionFrom = normalize(positionFrom.xyz);
@@ -129,10 +108,10 @@ void main(void) {
         vec4 reflection = raytrace(positionFrom.xyz, pivot);
         vec4 skyColor = vec4(0);
         vec4 outGlow = vec4(0);
-        
+
         vec4 worldNormal = invModelViewMatrix * vec4(normal, 0.0);
         float upness = clamp(dot(worldNormal.xyz, vec3(0, 1, 0)), 0, 1);
-        
+
         pivot = (invModelViewMatrix * vec4(pivot, 0.0)).xyz;
         getSkyColorAt(pivot, sunPosition, 0.0, clamp(dayLight, 0, 1), horizonFog, skyColor, outGlow);
         skyColor.rgb = pow(skyColor.rgb, vec3(VSMOD_SSR_REFLECTION_DIMMING));
@@ -140,21 +119,18 @@ void main(void) {
         reflection.rgb = mix(skyColor.rgb * upness, reflection.rgb, reflection.a);
 
         float normalDotEye = dot(normal, unitPositionFrom);
-		float fresnel = pow(clamp(1.0 + normalDotEye,0.0,1.0), 4.0);
-			  fresnel = mix(0.09,1.0,fresnel);
+        float fresnel = pow(clamp(1.0 + normalDotEye,0.0,1.0), 4.0);
+        fresnel = mix(0.09,1.0,fresnel);
 
         outColor = reflection;
         outColor.a = 1.0f;
-        
+
         outColor.rgb *= pow(texture(gTint, texcoord).rgb, vec3(VSMOD_SSR_TINT_INFLUENCE));
 
         vec4 positionFromWorldSpace = invModelViewMatrix * vec4(positionFrom.xyz, 1.0);
-        float fogLevel = getFogLevelCustom(-positionFrom.z, fogMinIn, fogDensityIn, positionFromWorldSpace.y);
+        float fogLevel = getFogLevelDeferred(-positionFrom.z, fogMinIn, fogDensityIn, positionFromWorldSpace.y);
         outColor = applyFog(outColor, fogLevel);
-        
+
         outColor.a *= (1.0f - positionFrom.w) * fresnel;
     }
-
-    //outColor.rgb = normal;
-    //outColor.a = 1.0f;
 }

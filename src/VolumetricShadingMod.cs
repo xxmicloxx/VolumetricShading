@@ -130,6 +130,16 @@ namespace VolumetricShading
             {
                 ModSettings.SSRRainReflectionsEnabled = true;
             }
+
+            if (!ModSettings.SSRRefractionsEnabledSet)
+            {
+                ModSettings.SSRRefractionsEnabled = true;
+            }
+
+            if (!ModSettings.SSRCausticsEnabledSet)
+            {
+                ModSettings.SSRCausticsEnabled = true;
+            }
         }
 
         private bool OnConfigurePressed(KeyCombination cb)

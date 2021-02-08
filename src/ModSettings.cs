@@ -33,9 +33,27 @@ namespace VolumetricShading
             get => ClientSettings.Inst.GetBoolSetting("volumetricshading_SSRRainReflections");
             set => ClientSettings.Inst.Bool["volumetricshading_SSRRainReflections"] = value;
         }
-
+        
         public static bool SSRRainReflectionsEnabledSet =>
             ClientSettings.Inst.Bool.Exists("volumetricshading_SSRRainReflections");
+
+        public static bool SSRRefractionsEnabled
+        {
+            get => ClientSettings.Inst.GetBoolSetting("volumetricshading_SSRRefractions");
+            set => ClientSettings.Inst.Bool["volumetricshading_SSRRefractions"] = value;
+        }
+
+        public static bool SSRRefractionsEnabledSet =>
+            ClientSettings.Inst.Bool.Exists("volumetricshading_SSRRefractions");
+
+        public static bool SSRCausticsEnabled
+        {
+            get => ClientSettings.Inst.GetBoolSetting("volumetricshading_SSRCaustics");
+            set => ClientSettings.Inst.Bool["volumetricshading_SSRCaustics"] = value;
+        }
+
+        public static bool SSRCausticsEnabledSet =>
+            ClientSettings.Inst.Bool.Exists("volumetricshading_SSRCaustics");
 
         public static int SSRWaterTransparency
         {

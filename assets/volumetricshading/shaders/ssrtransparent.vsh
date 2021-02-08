@@ -60,6 +60,4 @@ void main(void)
 	
 	gnormal = modelViewMatrix * vec4(unpackNormal(renderFlags >> 7).xyz, 0);
 	gposition = cameraPos;
-
-	gl_Position.z -= 0.01;
 }

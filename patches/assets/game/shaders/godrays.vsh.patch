@@ -6,7 +6,7 @@
  
  uniform vec2 invFrameSizeIn;
  uniform vec3 sunPosScreenIn;
-@@ -7,13 +7,44 @@
+@@ -7,13 +7,45 @@
  uniform float iGlobalTimeIn;
  uniform float directionIn;
  uniform int dusk;
@@ -16,6 +16,7 @@
 +uniform float shadowIntensity;
 +uniform float flatFogDensity;
 +uniform float temperature;
++uniform float playerWaterDepth;
  
  out vec2 texCoord;
  out vec3 sunPosScreen;
@@ -53,7 +54,7 @@
  
  void main(void)
  {
-@@ -26,14 +57,47 @@
+@@ -26,14 +58,50 @@
  	sunPosScreen = sunPosScreenIn;
  	iGlobalTime = iGlobalTimeIn;
  	
@@ -93,6 +94,9 @@
 +
 +	float fogMult = clamp((0.03 - flatFogDensity) * 50, 0, 1);
 +	color *= fogMult;
++	
++	float depthMod = 1.0 - clamp(playerWaterDepth * 5, 0, 1);
++	color *= depthMod;
  	
  	// http://fooplot.com/#W3sidHlwZSI6MCwiZXEiOiJtYXgoMSwxLjc1KigxLTYqYWJzKHgtMC4yMikpKSIsImNvbG9yIjoiIzAwMDAwMCJ9LHsidHlwZSI6MTAwMCwid2luZG93IjpbIi0xIiwiMSIsIjAiLCIyIl19XQ--
 -	float dawnMul = max(1, (1-dusk) * 2 * (1 - 6*abs(sunPos3dIn.y - 0.1)));
