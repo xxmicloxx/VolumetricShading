@@ -1,8 +1,8 @@
 ﻿using Vintagestory.API.Client;
 
-namespace VolumetricShading
+namespace VolumetricShading.Gui
 {
-    class ScreenSpaceReflectionsGui : AdvancedOptionsDialog
+    public class ScreenSpaceReflectionsGui : AdvancedOptionsDialog
     {
         protected override string DialogKey => "vsmodSSRConfigure";
         protected override string DialogTitle => "Screen Space Reflections Options";

@@ -1,6 +1,8 @@
 ﻿using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using HarmonyLib;
+using VolumetricShading.Effects;
+using VolumetricShading.Gui;
 
 namespace VolumetricShading
 {

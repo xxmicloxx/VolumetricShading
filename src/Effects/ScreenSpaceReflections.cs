@@ -8,7 +8,7 @@ using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
 using Vintagestory.Client.NoObf;
 
-namespace VolumetricShading
+namespace VolumetricShading.Effects
 {
     public enum EnumSSRFB
     {

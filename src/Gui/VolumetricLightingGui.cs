@@ -1,9 +1,9 @@
 ﻿using Vintagestory.API.Client;
 using Vintagestory.Client.NoObf;
 
-namespace VolumetricShading
+namespace VolumetricShading.Gui
 {
-    class VolumetricLightingGui : AdvancedOptionsDialog
+    public class VolumetricLightingGui : AdvancedOptionsDialog
     {
         protected override string DialogKey => "vsmodVolumetricLightingConfigure";
         protected override string DialogTitle => "Volumetric Lighting Options";

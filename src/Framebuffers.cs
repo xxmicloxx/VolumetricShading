@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL;
 using Vintagestory.API.Client;
 

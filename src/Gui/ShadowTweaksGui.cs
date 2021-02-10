@@ -1,6 +1,6 @@
 ﻿using Vintagestory.API.Client;
 
-namespace VolumetricShading
+namespace VolumetricShading.Gui
 {
     public class ShadowTweaksGui : AdvancedOptionsDialog
     {

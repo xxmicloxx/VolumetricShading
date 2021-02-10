@@ -1,9 +1,8 @@
 ﻿using System.Reflection;
-using OpenTK.Graphics.OpenGL;
 using Vintagestory.API.Client;
 using Vintagestory.Client.NoObf;
 
-namespace VolumetricShading
+namespace VolumetricShading.Effects
 {
     public class VolumetricLighting
     {

@@ -1,6 +1,6 @@
 ﻿using Vintagestory.Client.NoObf;
 
-namespace VolumetricShading
+namespace VolumetricShading.Effects
 {
     public class OverexposureEffect
     {

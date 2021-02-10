@@ -1,4 +1,4 @@
-﻿namespace VolumetricShading
+﻿namespace VolumetricShading.Effects
 {
     public class ShadowTweaks
     {

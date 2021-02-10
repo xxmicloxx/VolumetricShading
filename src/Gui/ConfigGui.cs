@@ -3,7 +3,7 @@ using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using Vintagestory.Client.NoObf;
 
-namespace VolumetricShading
+namespace VolumetricShading.Gui
 {
     public abstract class MainConfigDialog : GuiDialog
     {
