@@ -57,9 +57,6 @@ namespace VolumetricShading
         private float _targetRain;
         private float _rainAccumulator;
 
-        private readonly float[] _invProjectionMatrix;
-        private readonly float[] _invModelViewMatrix;
-
         public ScreenSpaceReflections(VolumetricShadingMod mod)
         {
             _mod = mod;
@@ -87,9 +84,6 @@ namespace VolumetricShading
 
             _textureIdsField =
                 typeof(ChunkRenderer).GetField("textureIds", BindingFlags.Instance | BindingFlags.NonPublic);
-
-            _invProjectionMatrix = Mat4f.Create();
-            _invModelViewMatrix = Mat4f.Create();
 
             mod.Events.RebuildFramebuffers += SetupFramebuffers;
             SetupFramebuffers(_platform.FrameBuffers);
@@ -322,7 +316,8 @@ namespace VolumetricShading
             _platform.LoadFrameBuffer(ssrOutFB);
 
             GL.ClearBuffer(ClearBuffer.Color, 0, new[] {0f, 0f, 0f, 1f});
-            
+
+            var myUniforms = _mod.Uniforms;
             var uniforms = _mod.CApi.Render.ShaderUniforms;
             var ambient = _mod.CApi.Ambient;
 
@@ -342,10 +337,8 @@ namespace VolumetricShading
             shader.BindTexture2D("gDepth", _platform.FrameBuffers[(int) EnumFrameBuffer.Primary].DepthTextureId, 3);
             shader.BindTexture2D("gTint", ssrFB.ColorTextureIds[2], 4);
             shader.UniformMatrix("projectionMatrix", _mod.CApi.Render.CurrentProjectionMatrix);
-            shader.UniformMatrix("invProjectionMatrix",
-                Mat4f.Invert(_invProjectionMatrix, _mod.CApi.Render.CurrentProjectionMatrix));
-            shader.UniformMatrix("invModelViewMatrix",
-                Mat4f.Invert(_invModelViewMatrix, _mod.CApi.Render.CameraMatrixOriginf));
+            shader.UniformMatrix("invProjectionMatrix", myUniforms.InvProjectionMatrix);
+            shader.UniformMatrix("invModelViewMatrix", myUniforms.InvModelViewMatrix);
             shader.Uniform("zNear", uniforms.ZNear);
             shader.Uniform("zFar", uniforms.ZNear);
             shader.Uniform("sunPosition", _mod.CApi.World.Calendar.SunPositionNormalized);
@@ -370,8 +363,8 @@ namespace VolumetricShading
 
                 shader.BindTexture2D("gDepth", _platform.FrameBuffers[(int) EnumFrameBuffer.Primary].DepthTextureId, 0);
                 shader.BindTexture2D("gNormal", ssrFB.ColorTextureIds[1], 1);
-                shader.UniformMatrix("invProjectionMatrix", _invProjectionMatrix);
-                shader.UniformMatrix("invModelViewMatrix", _invModelViewMatrix);
+                shader.UniformMatrix("invProjectionMatrix", myUniforms.InvProjectionMatrix);
+                shader.UniformMatrix("invModelViewMatrix", myUniforms.InvModelViewMatrix);
                 shader.Uniform("dayLight", dayLight);
                 shader.Uniform("playerPos", uniforms.PlayerPos);
                 shader.Uniform("sunPosition", uniforms.SunPosition3D);
@@ -430,7 +423,7 @@ namespace VolumetricShading
             // bind our framebuffer
             _platform.LoadFrameBuffer(ssrFB);
             GL.ClearBuffer(ClearBuffer.Color, 0, new[] {0f, 0f, 0f, 1f});
-            GL.ClearBuffer(ClearBuffer.Color, 1, new[] {0f, 0f, 0f, playerInWater ? 0f : 1f});
+            GL.ClearBuffer(ClearBuffer.Color, 1, new[] {0f, 0f, 0f, playerUnderwater});
             GL.ClearBuffer(ClearBuffer.Color, 2, new[] {0f, 0f, 0f, 1f});
             if (_refractionsEnabled)
             {
@@ -494,6 +487,7 @@ namespace VolumetricShading
             shader.Uniform("waterFlowCounter", _platform.ShaderUniforms.WaterFlowCounter);
             shader.Uniform("windSpeed", _platform.ShaderUniforms.WindSpeed);
             shader.Uniform("playerUnderwater", playerUnderwater);
+            shader.Uniform("cameraWorldPosition", _mod.Uniforms.CameraWorldPosition);
             pools = _chunkRenderer.poolsByRenderPass[(int) EnumChunkRenderPass.Liquid];
             for (var i = 0; i < textureIds.Length; ++i)
             {
@@ -537,14 +531,18 @@ namespace VolumetricShading
             if (ssrOutFB == null) return;
 
             final.BindTexture2D("ssrScene", ssrOutFB.ColorTextureIds[0]);
-            
-            if (_refractionsEnabled && ssrFB != null)
+
+            if ((_refractionsEnabled || _causticsEnabled) && ssrFB != null)
             {
                 final.UniformMatrix("projectionMatrix", _mod.CApi.Render.CurrentProjectionMatrix);
-                final.BindTexture2D("refractionScene", ssrFB.ColorTextureIds[3]);
                 final.BindTexture2D("gpositionScene", ssrFB.ColorTextureIds[0]);
                 final.BindTexture2D("gdepthScene",
                     _platform.FrameBuffers[(int) EnumFrameBuffer.Primary].DepthTextureId);
+            }
+            
+            if (_refractionsEnabled && ssrFB != null)
+            {
+                final.BindTexture2D("refractionScene", ssrFB.ColorTextureIds[3]);
             }
 
             if (_causticsEnabled && causticsFB != null)

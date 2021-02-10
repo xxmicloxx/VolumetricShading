@@ -9,17 +9,25 @@ namespace VolumetricShading
     {
         private readonly VolumetricShadingMod _mod;
         private readonly ClientMain _game;
+        private readonly FieldInfo _dropShadowIntensityField;
+        private bool _enabled;
 
         public VolumetricLighting(VolumetricShadingMod mod)
         {
             _mod = mod;
             _game = _mod.CApi.GetClient();
 
+            _dropShadowIntensityField = typeof(AmbientManager)
+                .GetField("DropShadowIntensity", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            _enabled = ClientSettings.GodRayQuality > 0;
+            
             _mod.CApi.Settings.AddWatcher<int>("shadowMapQuality", OnShadowMapChanged);
             _mod.CApi.Settings.AddWatcher<int>("godRays", OnGodRaysChanged);
 
             _mod.Events.PreGodraysRender += OnSetGodrayUniforms;
             _mod.Events.PreLoadShader += OnPreLoadShader;
+            _mod.Events.PostUseShader += OnPostUseShader;
 
             RegisterInjectorProperties();
         }
@@ -57,6 +65,8 @@ namespace VolumetricShading
 
         private void OnGodRaysChanged(int quality)
         {
+            _enabled = quality > 0;
+            
             if (quality != 1 || ClientSettings.ShadowMapQuality != 0) return;
 
             // turn on shadow mapping
@@ -68,9 +78,7 @@ namespace VolumetricShading
         {
             // custom uniform calls
             var calendar = _mod.CApi.World.Calendar;
-            var dropShadowIntensityObj = typeof(AmbientManager)
-                .GetField("DropShadowIntensity", BindingFlags.NonPublic | BindingFlags.Instance)?
-                .GetValue(_mod.CApi.Ambient);
+            var dropShadowIntensityObj = _dropShadowIntensityField?.GetValue(_mod.CApi.Ambient);
 
             if (dropShadowIntensityObj == null)
             {
@@ -89,6 +97,14 @@ namespace VolumetricShading
             rays.Uniform("flatFogDensity", _mod.CApi.Ambient.BlendedFlatFogDensity);
             rays.Uniform("temperature", _mod.CApi.Render.ShaderUniforms.SeasonTemperature);
             rays.Uniform("playerWaterDepth", playerWaterDepth);
+        }
+        
+        private void OnPostUseShader(ShaderProgramBase shader)
+        {
+            if (!_enabled) return;
+            if (!shader.includes.Contains("shadowcoords.vsh")) return;
+            
+            shader.Uniform("cameraWorldPosition", _mod.Uniforms.CameraWorldPosition);
         }
     }
 }

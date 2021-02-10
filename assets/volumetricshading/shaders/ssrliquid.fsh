@@ -5,6 +5,7 @@ uniform vec3 playerpos;
 uniform mat4 modelViewMatrix;
 uniform float dropletIntensity = 0;
 uniform float playerUnderwater;
+uniform vec4 cameraWorldPosition;
 
 in vec4 worldPos;
 in vec4 fragPosition;
@@ -148,10 +149,10 @@ void main()
     vec3 normalMap = vec3(0);
     //generateNoiseBump(normalMap, div);
     vec3 parallaxPos;
-    vec3 viewTangent = normalize(invTbn * worldPos.xyz);
+    vec3 viewTangent = normalize(invTbn * (worldPos.xyz - cameraWorldPosition.xyz));
     generateNoiseParallax(normalMap, viewTangent, div, parallaxPos);
 
-    if (isWater > 0 && skyExposed > 0 && dropletIntensity > 0.001) {
+    if (skyExposed > 0 && dropletIntensity > 0.001) {
         //generateSplash(fragWorldPos.xyz);
         generateSplashBump(normalMap, parallaxPos);
     }
@@ -166,9 +167,9 @@ void main()
     }
     
 	outGPosition = vec4(fragPosition.xyz, 0);
-	outGNormal = vec4(normalize(camNormalMap + myGNormal), 1.0 - playerUnderwater * caustics);
+	outGNormal = vec4(normalize(camNormalMap*2 + myGNormal), 1.0 - playerUnderwater * caustics);
     outTint = vec4(getColorMapping(terrainTex).rgb, 0);
     #if VSMOD_REFRACT > 0
-    outRefraction = vec4((-camNormalMap.xy) / fragPosition.z, 0, 0);
+    outRefraction = vec4((-camNormalMap.xy*1.2) / fragPosition.z, 0, 0);
     #endif
 }

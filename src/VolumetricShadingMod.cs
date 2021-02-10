@@ -10,6 +10,7 @@ namespace VolumetricShading
 
         public ICoreClientAPI CApi { get; private set; }
         public Events Events { get; private set; }
+        public Uniforms Uniforms { get; private set; }
 
         public ShaderInjector ShaderInjector { get; private set; }
         public ScreenSpaceReflections ScreenSpaceReflections { get; private set; }
@@ -45,6 +46,7 @@ namespace VolumetricShading
             Instance = this;
             CApi = (ICoreClientAPI) api;
             Events = new Events();
+            Uniforms = new Uniforms(this);
 
             ShaderInjector = new ShaderInjector();
             VolumetricLighting = new VolumetricLighting(this);
