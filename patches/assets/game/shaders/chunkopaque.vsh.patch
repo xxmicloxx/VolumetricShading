@@ -17,6 +17,15 @@
  out vec4 rgba;
  out vec2 uv;
  out vec4 rgbaFog;
+@@ -85,7 +89,7 @@
+ 	// Lower 8 bit is glow level
+ 	renderFlags = renderFlagsIn >> 8;  
+ 	
+-	normal = unpackNormal(renderFlags >> 7);	
++	normal = unpackNormal(renderFlags >> 7);
+ 	
+ #if SSAOLEVEL > 0
+ 	
 @@ -94,6 +98,9 @@
  	gnormal.w = isLeaves ? 1 : 0; // Cheap hax to make SSAO on leaves less bad looking;
  #endif

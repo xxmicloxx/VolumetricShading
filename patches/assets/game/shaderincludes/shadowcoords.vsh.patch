@@ -6,11 +6,12 @@
  uniform float shadowRangeFar;
  uniform mat4 toShadowMapSpaceMatrixFar;
  out vec4 shadowCoordsFar;
-@@ -9,6 +9,11 @@
+@@ -9,6 +9,12 @@
  out vec4 shadowCoordsNear;
  #endif
  
 +#if GODRAYS > 0
++uniform vec4 cameraWorldPosition;
 +out vec4 shadowRayStart;
 +out vec4 shadowLightPos;
 +out float sunlightLevel;
@@ -18,7 +19,7 @@
  
  const float transitionDistance = 10.0;
  
-@@ -51,4 +56,20 @@
+@@ -51,4 +57,20 @@
  	//shadowCoordsFar.w = max(0, 1.0 - nearSub);
  
  #endif
@@ -26,16 +27,16 @@
 +
 +void prepareVolumetricLightingFlat(vec3 lightPosition) {
 +	#if GODRAYS > 0
-+	shadowRayStart = toShadowMapSpaceMatrixFar * vec4(0.0, 0.0, 0.0, 1.0);
-+	shadowLightPos = toShadowMapSpaceMatrixFar * vec4(lightPosition, 1.0);
++	shadowRayStart = toShadowMapSpaceMatrixFar * cameraWorldPosition;
++	shadowLightPos = toShadowMapSpaceMatrixFar * vec4(lightPosition, 0.0);
 +	sunlightLevel = 1.0f;
 +	#endif
 +}
 +
 +void prepareVolumetricLighting(vec3 lightPosition, vec4 lightColor) {
 +#if GODRAYS > 0
-+	shadowRayStart = toShadowMapSpaceMatrixFar * vec4(0.0, 0.0, 0.0, 1.0);
-+	shadowLightPos = toShadowMapSpaceMatrixFar * vec4(lightPosition, 1.0);
++	shadowRayStart = toShadowMapSpaceMatrixFar * cameraWorldPosition;
++	shadowLightPos = toShadowMapSpaceMatrixFar * vec4(lightPosition, 0.0);
 +	sunlightLevel = lightColor.a;
 +#endif
  }

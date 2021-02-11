@@ -6,17 +6,22 @@
  #extension GL_ARB_explicit_attrib_location: enable
  
  uniform sampler2D terrainTex;
-@@ -39,7 +39,8 @@
+@@ -39,7 +39,7 @@
  #include skycolor.fsh
  #include colormap.fsh
  
 -void main() 
-+
 +void main()
  {
  	// When looking through tinted glass you can clearly see the edges where we fade to sky color
  	// Using this discard seems to completely fix that
-@@ -53,22 +54,19 @@
+@@ -47,28 +47,24 @@
+ 
+ 	vec4 texColor = texture(terrainTex, uv) * getColorMapping(terrainTexLinear) * rgba;
+ 	
+-	
+ 	#if SHADOWQUALITY > 0
+ 	float intensity = 0.34 + (1 - shadowIntensity)/8.0; // this was 0.45, which makes shadow acne visible on blocks
  	#else
  	float intensity = 0.45;
  	#endif
@@ -42,7 +47,7 @@
  		outColor.rgb = mix(skyColor.rgb, outColor.rgb, max(1-dayLight, max(0, rgba.a)));
  	}
  	
-@@ -96,12 +94,14 @@
+@@ -96,12 +92,14 @@
  	glow = pow(max(0, dot(normal, lightPosition)), 6) / 8 * shadowIntensity * (1 - fogAmount);
  #endif
  

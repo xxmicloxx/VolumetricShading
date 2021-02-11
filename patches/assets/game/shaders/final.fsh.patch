@@ -6,21 +6,27 @@
  
  uniform sampler2D primaryScene;
  uniform sampler2D glowParts;  // The second color buffer (outGlow var)
-@@ -6,12 +6,25 @@
+@@ -6,12 +6,31 @@
  uniform sampler2D godrayParts;
  uniform sampler2D ssaoScene;
  
 +#if VSMOD_SSR > 0
 +uniform sampler2D ssrScene;
-+#if VSMOD_REFRACT > 0
++
++#if VSMOD_REFRACT > 0 || VSMOD_CAUSTICS > 0
 +uniform mat4 projectionMatrix;
-+uniform sampler2D refractionScene;
 +uniform sampler2D gpositionScene;
 +uniform sampler2D gdepthScene;
 +#endif
++
++#if VSMOD_REFRACT > 0
++uniform sampler2D refractionScene;
++#endif
++
 +#if VSMOD_CAUSTICS > 0
 +uniform sampler2D causticsScene;
 +#endif
++
 +#endif
 +
  uniform float gammaLevel;
@@ -33,7 +39,7 @@
  uniform float windWaveCounter;
  uniform float glitchEffectStrength;
  
-@@ -35,7 +48,7 @@
+@@ -35,7 +54,7 @@
  
  vec4 ColorGrade(vec4 color) {
  	// I don't know why, but this seems to make the scene look a lot better
@@ -42,7 +48,7 @@
  	
  	vec3 hsl = rgb2hsl(color.rgb);
  
-@@ -47,7 +60,7 @@
+@@ -47,7 +66,7 @@
  	
  	
  	color.rgb = hsl2rgb(hsl);
@@ -51,7 +57,7 @@
  	color.rgb = pow(color.rgb, vec3(1.0 / extraGamma));
  
  	color.rgb *= brightnessLevel;
-@@ -84,6 +97,7 @@
+@@ -84,6 +103,7 @@
  
  	
  	
@@ -59,7 +65,7 @@
  	// Limit brightness
  	//float b = (color.r + color.b + color.g) / 3;
  	//color.rgb /= max(1, b);
-@@ -94,21 +108,68 @@
+@@ -94,21 +114,68 @@
  	return color;	
  }
  
@@ -133,7 +139,7 @@
  		
  		//vec3 blendedBloomCol = (bloomCol.rgb + color.rgb * (1-bloomCol.a));
  		//color.rgb = (color.rgb + blendedBloomCol) / 2;
-@@ -121,26 +182,30 @@
+@@ -121,26 +188,30 @@
  	#endif 
  
  	#if SSAOLEVEL > 0
@@ -175,7 +181,7 @@
  	// Vignetting
  	vec2 position = (gl_FragCoord.xy * invFrameSize.xy) - vec2(0.5);
  	float grayvignette = 1 - smoothstep(1.1, 0.75 - 0.45, length(position));
-@@ -184,4 +249,6 @@
+@@ -184,4 +255,6 @@
  	outColor.rgb = mix(outColor.rgb, vec3(0), grayvignette);
  	
  	outColor.a=1;

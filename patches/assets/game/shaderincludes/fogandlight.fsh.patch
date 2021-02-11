@@ -1,8 +1,15 @@
 --- a/assets/game/shaderincludes/fogandlight.fsh
 +++ b/assets/game/shaderincludes/fogandlight.fsh
-@@ -1,11 +1,17 @@
--uniform float flatFogDensity;
-+﻿uniform float flatFogDensity;
+@@ -1,11 +1,25 @@
++﻿#ifndef VOLUMETRICSHADINGMOD
++// pre-load protection
++#define VSMOD_NEARSHADOWOFFSET 0
++#define VSMOD_FARSHADOWOFFSET 0
++#define VSMOD_OVEREXPOSURE 0
++#define VOLUMETRIC_FLATNESS 1
++#endif
++
+ uniform float flatFogDensity;
  uniform float flatFogStart;
  uniform float viewDistance;
  uniform float viewDistanceLod0;
@@ -20,7 +27,7 @@
  
  #if SHADOWQUALITY > 0
  in float blockBrightness;
-@@ -20,6 +26,7 @@
+@@ -20,6 +34,7 @@
  uniform sampler2DShadow shadowMapNear;
  #endif
  
@@ -28,7 +35,7 @@
  
  float linearDepth(float depthSample)
  {
-@@ -32,19 +39,20 @@
+@@ -32,19 +47,20 @@
  	return vec4(mix(rgbaPixel.rgb, rgbaFog.rgb, fogWeight), rgbaPixel.a);
  }
  
@@ -52,7 +59,7 @@
  
  	
  	float b = 1.0 - shadowIntensity * totalFar * shadowCoordsFar.w * 0.5;
-@@ -56,15 +64,13 @@
+@@ -56,15 +72,13 @@
  	if (shadowCoordsNear.z < 0.999 && shadowCoordsNear.w > 0) {
  		for (int x = -1; x <= 1; x++) {
  			for (int y = -1; y <= 1; y++) {
@@ -70,7 +77,7 @@
  
  	
  	b -=  shadowIntensity * totalNear * shadowCoordsNear.w * 0.5;
-@@ -86,7 +92,11 @@
+@@ -86,7 +100,11 @@
  	
  	// Let's also define that diffuse light from the sky provides an additional brightness boost for up facing stuff
  	// because the top side of blocks being darker than the sides is uncanny o__O
@@ -83,7 +90,7 @@
  	
  	return mix(1, nb, normalShadeIntensity);
  }
-@@ -96,24 +106,67 @@
+@@ -96,24 +114,67 @@
  vec4 applyFogAndShadow(vec4 rgbaPixel, float fogWeight) {
  	float b = getBrightnessFromShadowMap();
  	rgbaPixel *= vec4(b, b, b, 1);
@@ -155,7 +162,7 @@
  	float clampedDepth = min(250, depth);
  	float heightDiff = worldPosY - flatFogStart;
  	
-@@ -133,4 +186,40 @@
+@@ -133,4 +194,38 @@
  	val += fogMin; 
  	
  	return clamp(val, 0, 1);
@@ -175,8 +182,6 @@
 +	const int maxSamples = 6;
 +	
 +	vec3 dV = (shadowCoordsFar.xyz-shadowRayStart.xyz)/maxSamples;
-+	//vec4 shadowLightPosition = shadowMatrix * vec4(lightPosition, 1.0);
-+	vec3 lightDir = normalize(shadowLightPos.xyz-shadowRayStart.xyz);
 +	
 +	vec3 progress = shadowRayStart.xyz + dV*dither;
 +	
@@ -189,7 +194,7 @@
 +	}
 +	
 +	float normalOut = min(1, vL * length(position) / 1000.0f / maxSamples);
-+	float intensity = dot(normalize(dV), lightDir);
++	float intensity = dot(normalize(dV), normalize(shadowLightPos.xyz));
 +	//float phase = 2.5+exp(intensity*3.0)/3.0;
 +	float phase = 2.0+exp(intensity*4.0)/4.0;
 +	return min(0.9f, pow(phase * normalOut, VOLUMETRIC_FLATNESS)) * mul;
