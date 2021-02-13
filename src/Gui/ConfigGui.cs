@@ -147,6 +147,14 @@ namespace VolumetricShading.Gui
             
             RegisterOption(new ConfigOption
             {
+                SwitchKey = "toggleUnderwater",
+                Text = "Underwater Tweaks",
+                Tooltip = "Better underwater looks",
+                ToggleAction = ToggleUnderwater
+            });
+            
+            RegisterOption(new ConfigOption
+            {
                 SwitchKey = "toggleSSDO",
                 Text = "Improve SSAO",
                 Tooltip = "Replaces SSAO with SSDO. Results in marginally faster and better looking occlusions.",
@@ -166,8 +174,16 @@ namespace VolumetricShading.Gui
             SingleComposer.GetSwitch("toggleSSR").On = ModSettings.ScreenSpaceReflectionsEnabled;
             SingleComposer.GetSwitch("toggleSSDO").On = ModSettings.SSDOEnabled;
             SingleComposer.GetSwitch("toggleOverexposure").On = ModSettings.OverexposureIntensity > 0;
+            SingleComposer.GetSwitch("toggleUnderwater").On = ModSettings.UnderwaterTweaksEnabled;
         }
 
+        private void ToggleUnderwater(bool enabled)
+        {
+            ModSettings.UnderwaterTweaksEnabled = enabled;
+            
+            RefreshValues();
+        }
+        
         private void ToggleVolumetricLighting(bool on)
         {
             if (on && ClientSettings.ShadowMapQuality == 0)

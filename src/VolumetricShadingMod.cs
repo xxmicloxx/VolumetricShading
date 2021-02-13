@@ -20,6 +20,7 @@ namespace VolumetricShading
         public OverexposureEffect OverexposureEffect { get; private set; }
         public ScreenSpaceDirectionalOcclusion ScreenSpaceDirectionalOcclusion { get; private set; }
         public ShadowTweaks ShadowTweaks { get; private set; }
+        public UnderwaterTweaks UnderwaterTweaks { get; private set; }
 
         public ConfigGui ConfigGui;
         public GuiDialog CurrentDialog;
@@ -56,6 +57,7 @@ namespace VolumetricShading
             OverexposureEffect = new OverexposureEffect(this);
             ScreenSpaceDirectionalOcclusion = new ScreenSpaceDirectionalOcclusion(this);
             ShadowTweaks = new ShadowTweaks(this);
+            UnderwaterTweaks = new UnderwaterTweaks(this);
         }
 
         private void RegisterHotkeys()
@@ -143,6 +145,11 @@ namespace VolumetricShading
             if (!ModSettings.SSRCausticsEnabledSet)
             {
                 ModSettings.SSRCausticsEnabled = true;
+            }
+
+            if (!ModSettings.UnderwaterTweaksEnabledSet)
+            {
+                ModSettings.UnderwaterTweaksEnabled = true;
             }
         }
 

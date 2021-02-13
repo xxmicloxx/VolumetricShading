@@ -130,5 +130,14 @@ namespace VolumetricShading
         
         public static bool FarPeterPanningAdjustmentSet =>
             ClientSettings.Inst.Int.Exists("volumetricshading_farPeterPanningAdjustment");
+
+        public static bool UnderwaterTweaksEnabled
+        {
+            get => ClientSettings.Inst.GetBoolSetting("volumetricshading_underwaterTweaks");
+            set => ClientSettings.Inst.Bool["volumetricshading_underwaterTweaks"] = value;
+        }
+
+        public static bool UnderwaterTweaksEnabledSet =>
+            ClientSettings.Inst.Bool.Exists("volumetricshading_underwaterTweaks");
     }
 }

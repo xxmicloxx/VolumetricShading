@@ -13,6 +13,7 @@ namespace VolumetricShading
         public event Action<ShaderProgramStandard> PreSunRender;
         public event Action<ShaderProgram, EnumShaderType> PreLoadShader;
         public event Action<ShaderProgramBase> PostUseShader;
+        public event Action PostWaterChangeSight;
         
         public void EmitRebuildFramebuffers(List<FrameBufferRef> framebuffers)
         {
@@ -42,6 +43,11 @@ namespace VolumetricShading
         public void EmitPostUseShader(ShaderProgramBase shader)
         {
             PostUseShader?.Invoke(shader);
+        }
+
+        public void EmitPostWaterChangeSight()
+        {
+            PostWaterChangeSight?.Invoke();
         }
     }
 }

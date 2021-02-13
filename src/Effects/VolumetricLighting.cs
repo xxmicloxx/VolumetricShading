@@ -77,6 +77,8 @@ namespace VolumetricShading.Effects
         {
             // custom uniform calls
             var calendar = _mod.CApi.World.Calendar;
+            var ambient = _mod.CApi.Ambient;
+            var uniforms = _mod.CApi.Render.ShaderUniforms;
             var dropShadowIntensityObj = _dropShadowIntensityField?.GetValue(_mod.CApi.Ambient);
 
             if (dropShadowIntensityObj == null)
@@ -93,9 +95,10 @@ namespace VolumetricShading.Effects
             rays.Uniform("sunLightStrength", calendar.SunLightStrength);
             rays.Uniform("dayLightStrength", calendar.DayLightStrength);
             rays.Uniform("shadowIntensity", dropShadowIntensity);
-            rays.Uniform("flatFogDensity", _mod.CApi.Ambient.BlendedFlatFogDensity);
-            rays.Uniform("temperature", _mod.CApi.Render.ShaderUniforms.SeasonTemperature);
+            rays.Uniform("flatFogDensity", ambient.BlendedFlatFogDensity);
+            rays.Uniform("temperature", uniforms.SeasonTemperature);
             rays.Uniform("playerWaterDepth", playerWaterDepth);
+            rays.Uniform("fogColor", ambient.BlendedFogColor);
         }
         
         private void OnPostUseShader(ShaderProgramBase shader)

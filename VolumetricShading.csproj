@@ -114,6 +114,7 @@
     <Compile Include="src\Effects\ScreenSpaceDirectionalOcclusion.cs" />
     <Compile Include="src\Effects\ScreenSpaceReflections.cs" />
     <Compile Include="src\Effects\ShadowTweaks.cs" />
+    <Compile Include="src\Effects\UnderwaterTweaks.cs" />
     <Compile Include="src\Effects\VolumetricLighting.cs" />
     <Compile Include="src\Events.cs" />
     <Compile Include="src\Framebuffers.cs" />
