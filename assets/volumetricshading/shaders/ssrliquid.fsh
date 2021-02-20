@@ -35,7 +35,7 @@ vec2 droplethash3( vec2 p )
     return fract(sin(q)*43758.5453);
 }
 
-float dropletnoise(in vec2 x)
+float dropletnoise(in vec2 x, in float waveCounter)
 {
     if (dropletIntensity < 0.001) return 0.;
 
