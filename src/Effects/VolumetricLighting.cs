@@ -1,5 +1,4 @@
 using System.Reflection;
-using Vintagestory.API.Client;
 using Vintagestory.Client.NoObf;
 using VolumetricShading.Patch;
 
@@ -89,7 +88,6 @@ namespace VolumetricShading.Effects
             rays.Uniform("dayLightStrength", calendar.DayLightStrength);
             rays.Uniform("shadowIntensity", dropShadowIntensity);
             rays.Uniform("flatFogDensity", ambient.BlendedFlatFogDensity);
-            rays.Uniform("temperature", uniforms.SeasonTemperature);
             rays.Uniform("playerWaterDepth", playerWaterDepth);
             rays.Uniform("fogColor", ambient.BlendedFogColor);
             rays.UniformMatrix("invProjectionMatrix", myUniforms.InvProjectionMatrix);

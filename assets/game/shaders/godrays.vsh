@@ -12,7 +12,6 @@ uniform float sunLightStrength;
 uniform float dayLightStrength;
 uniform float shadowIntensity;
 uniform float flatFogDensity;
-uniform float temperature;
 uniform float playerWaterDepth;
 uniform vec4 fogColor;
 
@@ -30,14 +29,6 @@ vec3(1.0f, 0.6f, 0.2f),
 vec3(0.8f, 0.75f, 0.7f),
 vec3(0.6f, 0.8f, 1.0f),
 vec3(0.4f, 0.6f, 1.0f)
-);
-
-const vec3 HotDayColors[5] = vec3[5](
-vec3(1.0f, 0.2f, 0.0f),
-vec3(1.0f, 0.6f, 0.2f),
-vec3(1.0f, 0.65f, 0.5f),
-vec3(1.0f, 0.75f, 0.6f) * 0.9,
-vec3(1.0f, 0.9f, 0.7f) * 0.75
 );
 
 /*const float NumDayColors = 5.0;
@@ -69,25 +60,14 @@ void main(void)
     float cmpH = min(floor(actualScale), NumDayColors-1.0f);
     float cmpH1 = min(floor(actualScale)+1.0f, NumDayColors-1.0f);
 
-    vec3 coldTemp1 = DayColors[int(cmpH)];
-    vec3 coldTemp2 = DayColors[int(cmpH1)];
-    vec3 hotTemp1 = HotDayColors[int(cmpH)];
-    vec3 hotTemp2 = HotDayColors[int(cmpH1)];
-
-    float hotness = clamp((temperature - 0.15) / 0.12, 0, 1);
-    hotness = 0;
-
-    vec3 temp = mix(coldTemp1, hotTemp1, hotness);
-    vec3 temp2 = mix(coldTemp2, hotTemp2, hotness);
-    //vec3 temp = coldTemp1;
-    //vec3 temp2 = coldTemp2;
+    vec3 temp = DayColors[int(cmpH)];
+    vec3 temp2 = DayColors[int(cmpH1)];
     vec3 sunlight = mix(temp, temp2, fract(actualScale));
 
     float rayIntensity = min(pow(shadowIntensity, 2.0f), 1.0f) * 1.2f;
     vec3 sunColor = sunlight * rayIntensity; // midday
     
-    vec3 dayBackColor = mix(vec3(0.4f, 0.6f, 1.0f), vec3(1.0f, 0.75f, 0.6f)*0.75, hotness * clamp(height * 5 - 1.5, 0.0, 1.0));
-    vec3 usedBackColor = mix(vec3(1.0f, 0.1f, 0.3f)*0.75, dayBackColor, clamp(height * 5, 0.0, 1.0));
+    vec3 usedBackColor = mix(vec3(1.0f, 0.1f, 0.3f)*0.75, vec3(0.4f, 0.6f, 1.0f), clamp(height * 5, 0.0, 1.0));
     vec3 sunBackColor = usedBackColor * rayIntensity;
     
     vec3 outColor = moonColor;
