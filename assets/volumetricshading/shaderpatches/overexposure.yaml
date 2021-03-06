@@ -1,0 +1,92 @@
+- type: token
+  filename: fogandlight.fsh
+  tokens: nb = max(nb, dot(normalize(normal), vec3(0, 1, 0)) * 0.95);
+  content: |
+    float factor = 0.95f;
+    factor = clamp(factor - 0.35f * VSMOD_OVEREXPOSURE, 0.0f, 1.0f);
+    nb = max(nb, dot(normalize(normal), vec3(0, 1, 0)) * factor);
+
+- type: token
+  filename: fogandlight.fsh
+  tokens: float getFogLevel
+  snippet: overexposureapply.txt
+
+- type: token
+  filename: chunkopaque.fsh
+  tokens: applyFogAndShadowWithNormal(texColor, fogAmount, normal, 1, intensity);
+  content: applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1, intensity, vertexPosition, fogDensityIn);
+
+- type: start
+  filename: chunktopsoil.fsh
+  content: uniform float fogDensityIn;
+
+- type: token
+  filename: chunktopsoil.fsh
+  tokens: applyFogAndShadowWithNormal(outColor, fogAmount, normal, 1, intensity);
+  content: applyOverexposedFogAndShadow(outColor, fogAmount, normal, 1, intensity, vertexPosition, fogDensityIn);
+
+- type: start
+  filename: chunktransparent.fsh
+  content: uniform float fogDensityIn;
+
+- type: token
+  filename: chunktransparent.fsh
+  tokens: applyFogAndShadowWithNormal(texColor, fogAmount, normal, normalShadeIntensity, 0.45);
+  content: applyOverexposedFogAndShadow(texColor, fogAmount, normal, normalShadeIntensity, 0.45, worldPos.xyz, fogDensityIn);
+
+- type: start
+  filename: entityanimated.fsh
+  content: uniform float fogDensityIn;
+
+# vertexPosition in entityanimated.vsh is injected in volumetriclighting.yaml...
+- type: token
+  filename: entityanimated.fsh
+  tokens: applyFogAndShadowWithNormal(texColor, fogAmount, normal, 1, intensity);
+  content: applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1, intensity, vertexPosition, fogDensityIn);
+
+# vertexPosition in entityanimated.vsh is injected in volumetriclighting.yaml...
+- type: token
+  filename: entityanimated.vsh
+  tokens: worldPos = applyVertexWarping(flags | addRenderFlags, worldPos);
+  content: |
+    worldPos = applyVertexWarping(flags | addRenderFlags, worldPos);
+    vertexPosition = worldPos.xyz;
+
+- type: start
+  filename: standard.fsh
+  content: |
+    uniform float extraOutGlow = 0;
+    uniform float fogDensityIn;
+
+- type: token
+  filename: standard.fsh
+  tokens: in vec3 normal;
+  content: |
+    in vec3 normal;
+    in vec4 vertexPosition;
+
+- type: token
+  filename: standard.fsh
+  tokens: applyFogAndShadow(outColor, fogAmount);
+  content: applyOverexposedFogAndShadowFlat(outColor, fogAmount, normal, vertexPosition.xyz, fogDensityIn);
+
+- type: token
+  filename: standard.fsh
+  tokens: outGlow = vec4
+  content: |
+    glow += extraOutGlow;
+    outGlow = vec4
+
+- type: token
+  filename: standard.vsh
+  tokens: out vec3 normal;
+  content: |
+    out vec3 normal;
+    out vec4 vertexPosition;
+
+- type: token
+  filename: standard.vsh
+  tokens: vec4 camPos =
+  content: |
+    vertexPosition = worldPos;
+    vec4 camPos =

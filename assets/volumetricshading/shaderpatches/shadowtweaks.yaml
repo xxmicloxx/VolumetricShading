@@ -1,0 +1,9 @@
+- type: token
+  filename: fogandlight.fsh
+  tokens: shadowCoordsFar.z - 0.0009
+  content: shadowCoordsFar.z - 0.0009 + (0.0001 * VSMOD_FARSHADOWOFFSET)
+
+- type: token
+  filename: fogandlight.fsh
+  tokens: shadowCoordsNear.z - 0.0005
+  content: shadowCoordsNear.z - 0.0005 + (0.0001 * VSMOD_NEARSHADOWOFFSET)

@@ -1,6 +1,7 @@
-﻿using System.Reflection;
+using System.Reflection;
 using Vintagestory.API.Client;
 using Vintagestory.Client.NoObf;
+using VolumetricShading.Patch;
 
 namespace VolumetricShading.Effects
 {
@@ -25,21 +26,12 @@ namespace VolumetricShading.Effects
             _mod.CApi.Settings.AddWatcher<int>("godRays", OnGodRaysChanged);
 
             _mod.Events.PreGodraysRender += OnSetGodrayUniforms;
-            _mod.Events.PreLoadShader += OnPreLoadShader;
             _mod.Events.PostUseShader += OnPostUseShader;
 
-            RegisterInjectorProperties();
+            RegisterPatches();
         }
 
-        private void OnPreLoadShader(ShaderProgram shader, EnumShaderType type)
-        {
-            if (shader.PassName == "mechpower")
-            {
-                shader.AssetDomain = "survival";
-            }
-        }
-
-        private void RegisterInjectorProperties()
+        private void RegisterPatches()
         {
             var injector = _mod.ShaderInjector;
 
@@ -79,6 +71,7 @@ namespace VolumetricShading.Effects
             var calendar = _mod.CApi.World.Calendar;
             var ambient = _mod.CApi.Ambient;
             var uniforms = _mod.CApi.Render.ShaderUniforms;
+            var myUniforms = _mod.Uniforms;
             var dropShadowIntensityObj = _dropShadowIntensityField?.GetValue(_mod.CApi.Ambient);
 
             if (dropShadowIntensityObj == null)
@@ -99,6 +92,8 @@ namespace VolumetricShading.Effects
             rays.Uniform("temperature", uniforms.SeasonTemperature);
             rays.Uniform("playerWaterDepth", playerWaterDepth);
             rays.Uniform("fogColor", ambient.BlendedFogColor);
+            rays.UniformMatrix("invProjectionMatrix", myUniforms.InvProjectionMatrix);
+            rays.UniformMatrix("invModelViewMatrix", myUniforms.InvModelViewMatrix);
         }
         
         private void OnPostUseShader(ShaderProgramBase shader)

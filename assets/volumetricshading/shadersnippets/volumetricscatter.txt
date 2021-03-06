@@ -1,0 +1,33 @@
+float calculateVolumetricScatter(vec3 position) {
+    #if GODRAYS > 0
+    if (sunlightLevel < 0.002) {
+        return 0.0f;
+    }
+
+    float mul = clamp((sunlightLevel - 0.002) / 0.1, 0, 1);
+    //float mul = 1;
+    float dither = fract(0.75487765 * gl_FragCoord.x + 0.56984026 * gl_FragCoord.y);
+    //float dither = 0;
+
+    const int maxSamples = 6;
+
+    vec3 dV = (shadowCoordsFar.xyz-shadowRayStart.xyz)/maxSamples;
+
+    vec3 progress = shadowRayStart.xyz + dV*dither;
+
+    float vL = 0.0f;
+
+    for (int i = 0; i < maxSamples; ++i) {
+
+        vL += texture(shadowMapFar, vec3(progress.xy, progress.z - 0.0009));
+        progress += dV;
+    }
+
+    float normalOut = min(1, vL * length(position) / 1000.0f / maxSamples);
+    float intensity = dot(normalize(dV), normalize(shadowLightPos.xyz));
+    //float phase = 2.5+exp(intensity*3.0)/3.0;
+    float phase = 2.0+exp(intensity*4.0)/4.0;
+    return min(0.9f, pow(phase * normalOut, VOLUMETRIC_FLATNESS)) * mul;
+    #endif
+    return 0.0f;
+}

@@ -1,4 +1,4 @@
-﻿using Vintagestory.API.Client;
+using Vintagestory.API.Client;
 using Vintagestory.Client.NoObf;
 
 namespace VolumetricShading.Gui

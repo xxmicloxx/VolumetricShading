@@ -1,0 +1,15 @@
+void prepareVolumetricLightingFlat(vec3 lightPosition) {
+    #if GODRAYS > 0
+    shadowRayStart = toShadowMapSpaceMatrixFar * cameraWorldPosition;
+    shadowLightPos = toShadowMapSpaceMatrixFar * vec4(lightPosition, 0.0);
+    sunlightLevel = 1.0f;
+    #endif
+}
+
+void prepareVolumetricLighting(vec3 lightPosition, vec4 lightColor) {
+    #if GODRAYS > 0
+    shadowRayStart = toShadowMapSpaceMatrixFar * cameraWorldPosition;
+    shadowLightPos = toShadowMapSpaceMatrixFar * vec4(lightPosition, 0.0);
+    sunlightLevel = lightColor.a;
+    #endif
+}

@@ -1,4 +1,4 @@
-﻿#version 330 core
+#version 330 core
 
 uniform sampler2D gDepth;
 uniform sampler2D gNormal;
@@ -34,13 +34,17 @@ void main(void)
     screenPosition.xyz /= screenPosition.w;
     screenPosition.w = 1.0;
     vec4 worldPosition = invModelViewMatrix * screenPosition;
+    vec4 cameraWorldPos = invModelViewMatrix * vec4(0, 0, 0, 1);
 
     vec3 absWorldPos = worldPosition.xyz + playerPos;
     
     float shadowBrightness = getShadowBrightnessAt(worldPosition) * 0.5 + 0.5;
+    float shadowStrength = clamp(pow(shadowIntensity, 2.0f), 0.2f, 1.0f);
+    //float shadowStrength = 1.0f;
 
     float waveNoise = generateCausticsNoise(absWorldPos, sunPosition) * 1.3;
     
     float fog = 1.0 - getFogLevelDeferred(-screenPosition.z, fogMinIn, fogDensityIn, absWorldPos.y);
-    outStrength = (waveNoise * shadowBrightness * fog + 0.5) - 0.05 * fog;
+    float distance = exp(-length(worldPosition - cameraWorldPos) * 0.008f);
+    outStrength = (waveNoise * distance * shadowBrightness * shadowStrength * fog + 0.5) - 0.05 * distance * fog * shadowStrength;
 }

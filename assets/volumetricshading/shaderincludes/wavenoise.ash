@@ -1,4 +1,4 @@
-﻿uniform float windWaveCounter;
+uniform float windWaveCounter;
 uniform float waterWaveCounter;
 uniform float waterFlowCounter;
 uniform float windSpeed;

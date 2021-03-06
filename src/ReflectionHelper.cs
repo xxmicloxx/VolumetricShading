@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using Vintagestory.API.Client;
 using Vintagestory.Client.NoObf;

@@ -3,7 +3,4 @@
 **/obj/
 **/bin/
 *.code-workspace
-assets/game/shaders/
-assets/survival/shaders/
-assets/game/shaderincludes/
 VolumetricShading.zip

@@ -1,4 +1,4 @@
-﻿float getFogLevelDeferred(float depth, float fogMin, float fogDensity, float worldPosY) {
+float getFogLevelDeferred(float depth, float fogMin, float fogDensity, float worldPosY) {
     float clampedDepth = min(250, depth);
     float heightDiff = worldPosY - flatFogStart;
 

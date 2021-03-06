@@ -1,4 +1,4 @@
-﻿using Vintagestory.Client.NoObf;
+using Vintagestory.Client.NoObf;
 
 namespace VolumetricShading
 {

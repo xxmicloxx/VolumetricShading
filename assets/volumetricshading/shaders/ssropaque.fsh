@@ -25,7 +25,7 @@ void main()
     // read shiny flag
     if (((renderFlags >> 5) & 1) == 0) discard;
     vec4 color = texture(terrainTex, uv);
-    if (color.a < 0.02) discard;
+    if (color.a < 0.5) discard;
 
 	outGPosition = vec4(fragPosition.xyz, 0);
 	outGNormal = vec4(normalize(gnormal.xyz), playerUnderwater);

@@ -1,0 +1,273 @@
+- type: start
+  filename: fogandlight.fsh
+  content: |
+    #if GODRAYS > 0
+    in vec4 shadowRayStart;
+    in vec4 shadowLightPos;
+    in float sunlightLevel;
+    #endif
+    
+    #define VOLUMETRIC_SSAO_DECLINE 0.5f
+
+- type: end
+  filename: fogandlight.fsh
+  snippet: volumetricscatter.txt
+
+- type: start
+  filename: shadowcoords.vsh
+  content: |
+    #if GODRAYS > 0
+    uniform vec4 cameraWorldPosition;
+    out vec4 shadowRayStart;
+    out vec4 shadowLightPos;
+    out float sunlightLevel;
+    #endif
+
+- type: end
+  filename: shadowcoords.vsh
+  snippet: volumetricshadowcoords.txt
+
+- type: token
+  filename: skycolor.fsh
+  tokens: clamp(V2.y/4 + (vl/2 - 0.3) , 0, 0.5);
+  content: clamp(V2.y/4 + (vl/2 - 0.3) , 0, 0.5) * 0.5f;
+
+- type: token
+  filename: skycolor.fsh
+  tokens: vec4(0, intensity - fogAmount/2, 0, 1);
+  content: vec4(intensity - fogAmount/2, intensity - fogAmount/2, 0, 1);
+
+- type: token
+  filename: celestialobject.fsh
+  tokens: vec4(glowLevel, extraGodray, 0, texColor.a);
+  content: vec4(glowLevel, 0.2f, 0, texColor.a);
+
+- type: token
+  filename: chunkliquid.fsh
+  tokens: outGlow = vec4(glowLevel, 0, 0, color.a);
+  content: |
+    float scatterAmt = calculateVolumetricScatter(fWorldPos);
+    outGlow = vec4(glowLevel, scatterAmt, 0, color.a);
+
+- type: start
+  filename: chunkliquid.vsh
+  snippet: volumetriclightposition.txt
+
+- type: token
+  filename: chunkliquid.vsh
+  tokens: calcShadowMapCoords(modelViewMatrix, worldPos);
+  content: |
+    calcShadowMapCoords(modelViewMatrix, worldPos);
+    #if GODRAYS > 0
+    prepareVolumetricLighting(lightPosition, rgbaLightIn);
+    #endif
+
+- type: token
+  filename: chunkopaque.fsh
+  tokens: "#if SSAOLEVEL > 0 outGPosition"
+  content: |
+    godrayLevel = calculateVolumetricScatter(vertexPosition);
+    #if SSAOLEVEL > 0
+    outGPosition
+    
+- type: token
+  filename: chunkopaque.fsh
+  tokens: vec4(fragPosition.xyz, fogAmount + glowLevel);
+  content: vec4(fragPosition.xyz, fogAmount + glowLevel + godrayLevel * VOLUMETRIC_SSAO_DECLINE);
+
+- type: start
+  filename: chunkopaque.vsh
+  snippet: volumetriclightposition.txt
+
+- type: token
+  filename: chunkopaque.vsh
+  tokens: normal = unpackNormal(renderFlags >> 7);
+  content: |
+    normal = unpackNormal(renderFlags >> 7);
+    #if GODRAYS > 0
+    prepareVolumetricLighting(lightPosition, rgbaLightIn);
+    #endif
+
+- type: token
+  filename: chunktopsoil.fsh
+  tokens: "#if SSAOLEVEL > 0 outGPosition"
+  content: |
+    float scatterAmt = calculateVolumetricScatter(vertexPosition);
+    #if SSAOLEVEL > 0
+    outGPosition
+
+- type: token
+  filename: chunktopsoil.fsh
+  tokens: vec4(fragPosition.xyz, fogAmount + glowLevel);
+  content: vec4(fragPosition.xyz, fogAmount + glowLevel + scatterAmt * VOLUMETRIC_SSAO_DECLINE);
+
+- type: token
+  filename: chunktopsoil.fsh
+  tokens: vec4(glowLevel + glow, 0, 0, outColor.a);
+  content: vec4(glowLevel + glow, scatterAmt, 0, outColor.a);
+
+- type: start
+  filename: chunktopsoil.vsh
+  snippet: volumetriclightposition.txt
+
+- type: token
+  filename: chunktopsoil.vsh
+  tokens: normal = unpackNormal(renderFlags >> 7);
+  content: |
+    normal = unpackNormal(renderFlags >> 7);
+    #if GODRAYS > 0
+    prepareVolumetricLighting(lightPosition, rgbaLightIn);
+    #endif
+
+- type: token
+  filename: chunktransparent.fsh
+  tokens: outGlow = vec4(glowLevel, 0, 0, color.a);
+  content: |
+    float scatterAmt = calculateVolumetricScatter(worldPos.xyz);
+    outGlow = vec4(glowLevel, scatterAmt, 0, color.a);
+
+- type: start
+  filename: chunktransparent.vsh
+  snippet: volumetriclightposition.txt
+
+- type: token
+  filename: chunktransparent.vsh
+  tokens: normalShadeIntensity = min(1, rgbaLightIn.a * 1.5);
+  content: |
+    normalShadeIntensity = min(1, rgbaLightIn.a * 1.5);
+    #if GODRAYS > 0
+    prepareVolumetricLighting(lightPosition, rgbaLightIn);
+    #endif
+
+- type: token
+  filename: clouds.fsh
+  tokens: outGlow = vec4(glow, 0
+  content: |
+    float actOut = 0f;
+    #if GODRAYS > 0
+    	float normalOut = 0.1f;
+    	float intensity = dot(normalize(shadowCoordsFar.xyz-shadowRayStart.xyz),  normalize(shadowLightPos.xyz-shadowRayStart.xyz));
+    	float phase = 2.5+exp(intensity*3.0)/3.0;
+    	actOut = pow(phase * normalOut, VOLUMETRIC_FLATNESS);
+    #endif
+    outGlow = vec4(glow, actOut
+
+- type: start
+  filename: clouds.vsh
+  snippet: volumetriclightposition.txt
+
+- type: token
+  filename: clouds.vsh
+  tokens: rgbaCloud.a = clamp(rgbaCloud.a, 0, 1);
+  content: |
+    rgbaCloud.a = clamp(rgbaCloud.a, 0, 1);
+    #if GODRAYS > 0
+    prepareVolumetricLightingFlat(lightPosition);
+    #endif
+    calcShadowMapCoords(modelViewMatrix, vec4(vexPos, 1.0));
+
+- type: start
+  filename: entityanimated.fsh
+  content: in vec3 vertexPosition;
+
+- type: token
+  filename: entityanimated.fsh
+  tokens: "#if SSAOLEVEL > 0 outGPosition"
+  content: |
+    float scatterAmt = calculateVolumetricScatter(vertexPosition);
+    #if SSAOLEVEL > 0
+    outGPosition
+
+- type: token
+  filename: entityanimated.fsh
+  tokens: vec4(fragPosition.xyz, fogAmount + glowLevel);
+  content: vec4(fragPosition.xyz, fogAmount + glowLevel + scatterAmt * VOLUMETRIC_SSAO_DECLINE);
+
+- type: token
+  filename: entityanimated.fsh
+  tokens: vec4(glowLevel + glow, 0, 0, color.a);
+  content: vec4(glowLevel + glow, scatterAmt, 0, color.a);
+
+- type: start
+  filename: entityanimated.vsh
+  content: |
+    out vec3 vertexPosition;
+    #if GODRAYS > 0
+    uniform vec3 lightPosition;
+    #endif
+
+- type: token
+  filename: entityanimated.vsh
+  tokens: worldPos = applyVertexWarping(flags | addRenderFlags, worldPos);
+  content: |
+    worldPos = applyVertexWarping(flags | addRenderFlags, worldPos);
+    vertexPosition = worldPos.xyz;
+
+- type: token
+  filename: entityanimated.vsh
+  tokens: "#if SSAOLEVEL > 0 fragPosition"
+  content: |
+    #if GODRAYS > 0
+    prepareVolumetricLighting(lightPosition, rgbaLightIn);
+    #endif
+    #if SSAOLEVEL > 0
+    fragPosition
+
+- type: regex
+  filename: final.fsh
+  regex: '#\s*if\s+GODRAYS\s*>\s*0[^#]*'
+  snippet: volumetricfinal.txt
+
+- type: token
+  filename: sky.fsh
+  tokens: outGlow.y *= clamp((dayLight - 0.05) * 2, 0, 1);
+  content: |
+    #if GODRAYS > 0
+    float normalOut = 0.2f*dayLight;
+    float intensity = dot(normalize(shadowCoordsFar.xyz-shadowRayStart.xyz), normalize(shadowLightPos.xyz-shadowRayStart.xyz));
+    float phase = 2.5+exp(intensity*3.0)/3.0;
+    outGlow.y = pow(phase * normalOut, VOLUMETRIC_FLATNESS);
+    #endif
+
+- type: start
+  filename: sky.vsh
+  snippet: volumetriclightposition.txt
+
+- type: token
+  filename: sky.vsh
+  tokens: gl_Position = projectionMatrix * cameraPos;
+  content: |
+    calcShadowMapCoords(modelViewMatrix, vec4(vertexPosition, 1.0));
+    #if GODRAYS > 0
+    prepareVolumetricLightingFlat(lightPosition);
+    #endif
+    gl_Position = projectionMatrix * cameraPos;
+
+- type: start
+  filename: mechpower.fsh
+  content: in vec3 vertPos;
+
+- type: token
+  filename: mechpower.fsh
+  tokens: outGlow = vec4(glowLevel, 0, 0, outColor.a);
+  content: |
+    float scatterAmt = calculateVolumetricScatter(vertPos);
+    outGlow = vec4(glowLevel, scatterAmt, 0, outColor.a);
+
+- type: start
+  filename: mechpower.vsh
+  content: |
+    out vec3 vertPos;
+    #if GODRAYS > 0
+    uniform vec3 lightPosition;
+    #endif
+
+- type: token
+  filename: mechpower.vsh
+  tokens: calcShadowMapCoords(modelViewMatrix, worldPos);
+  content: |
+    vertPos = worldPos.xyz;
+    calcShadowMapCoords(modelViewMatrix, worldPos);
+    #if GODRAYS > 0
+    prepareVolumetricLighting(lightPosition, rgbaBlockIn);
+    #endif

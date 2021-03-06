@@ -75,6 +75,6 @@ void main(void)
 	flowVectorf = flowVector;
 	uv = uvIn;
 
-	alpha = rgbaLightIn.a < 0.2f ? 0f : 1f;
+	alpha = rgbaLightIn.a < 0.2f ? 0.0f : 1.0f;
 	calcColorMapUvs(colormapData, vec4(vertexPositionIn + origin, 1.0) + vec4(playerpos, 1), rgbaLightIn.a, false);
 }

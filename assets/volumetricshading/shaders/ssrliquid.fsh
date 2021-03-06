@@ -28,41 +28,7 @@ layout(location = 3) out vec4 outRefraction;
 #include colormap.fsh
 #include noise3d.ash
 #include wavenoise.ash
-
-vec2 droplethash3( vec2 p )
-{
-    vec2 q = vec2(dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)));
-    return fract(sin(q)*43758.5453);
-}
-
-float dropletnoise(in vec2 x, in float waveCounter)
-{
-    if (dropletIntensity < 0.001) return 0.;
-
-    x *= dropletIntensity;
-
-    vec2 p = floor(x);
-    vec2 f = fract(x);
-
-
-    float va = 0.0;
-    for( int j=-1; j<=1; j++ )
-    for( int i=-1; i<=1; i++ )
-    {
-        vec2 g = vec2(float(i), float(j));
-        vec2 o = droplethash3(p + g);
-        vec2 r = g - f + o;
-        float d = length(r) / dropletIntensity;
-
-        float a = max(cos(d - waveCounter * 2.7 + (o.x + o.y) * 5.0), 0.);
-        a = smoothstep(0.97, 0.999, a);
-
-        float ripple = mix(a, 0., d);
-        va += max(ripple, 0.);
-    }
-
-    return va;
-}
+#generated dropletnoise
 
 void generateNoiseBump(inout vec3 normalMap, vec3 position, float div) {
     const vec3 offset = vec3(0.05, 0.0, 0.0);
@@ -133,7 +99,7 @@ mat3 cotangentFrame(vec3 N, vec3 p, vec2 uv) {
 
 void main() 
 {
-    float isWater = ((waterFlags & (1<<25)) > 0) ? 0f : 1f;
+    float isWater = ((waterFlags & (1<<25)) > 0) ? 0.0f : 1.0f;
     float myAlpha = alpha * isWater;
     if (myAlpha < 0.5) discard;
     
@@ -145,7 +111,7 @@ void main()
     mat3 tbn = cotangentFrame(worldNormal, worldPos.xyz, uv);
     mat3 invTbn = transpose(tbn);
 
-    //vec3 normalMap = vec3(noise, noise, 0f);
+    //vec3 normalMap = vec3(noise, noise, 0.0f);
     vec3 normalMap = vec3(0);
     //generateNoiseBump(normalMap, div);
     vec3 parallaxPos;

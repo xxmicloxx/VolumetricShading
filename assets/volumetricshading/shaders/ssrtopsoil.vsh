@@ -40,6 +40,7 @@ void main(void)
 	worldPosition = worldPos.xyz + playerpos;
 	
 	vec4 cameraPos = modelViewMatrix * worldPos;
+	cameraPos.w += 0.01;
 	
 	gl_Position = projectionMatrix * cameraPos;
 	
@@ -50,6 +51,4 @@ void main(void)
 	
 	fragPosition = cameraPos;
 	gnormal = modelViewMatrix * vec4(normal, 0);
-
-	gl_Position.z -= 0.01;
 }

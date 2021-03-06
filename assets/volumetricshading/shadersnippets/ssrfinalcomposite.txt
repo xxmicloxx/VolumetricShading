@@ -1,0 +1,18 @@
+#if VSMOD_SSR > 0 && VSMOD_CAUSTICS > 0
+    vec4 gposProj = projectionMatrix * vec4(texture(gpositionScene, refractedUV).xyz, 1);
+    gposProj = vec4(gposProj.xyz / gposProj.w, 1.0);
+    float gposDepth = gposProj.z;
+    
+    float myDepth = texture(gdepthScene, refractedUV).r;
+    if (myDepth > gposDepth) {
+        float causticsStrength = texture(causticsScene, refractedUV).r;
+        color.rgb *= pow(causticsStrength * 2.0, 2);
+    }
+#endif
+
+#if VSMOD_SSR > 0
+    vec4 ssr = texture(ssrScene, texCoord);
+    color.rgb = mix(color.rgb, ssr.rgb, ssr.a);
+#endif
+
+#if BLOOM == 1

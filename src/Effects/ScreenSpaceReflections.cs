@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using OpenTK.Graphics.OpenGL;
@@ -7,6 +7,7 @@ using Vintagestory.API.Common;
 using Vintagestory.API.MathTools;
 using Vintagestory.API.Util;
 using Vintagestory.Client.NoObf;
+using VolumetricShading.Patch;
 
 namespace VolumetricShading.Effects
 {
@@ -40,9 +41,9 @@ namespace VolumetricShading.Effects
         private bool _refractionsEnabled;
         private bool _causticsEnabled;
 
-        private FrameBufferRef[] _framebuffers = new FrameBufferRef[(int) EnumSSRFB.Count];
+        private readonly FrameBufferRef[] _framebuffers = new FrameBufferRef[(int) EnumSSRFB.Count];
 
-        private IShaderProgram[] _shaders = new IShaderProgram[(int) EnumSSRShaders.Count];
+        private readonly IShaderProgram[] _shaders = new IShaderProgram[(int) EnumSSRShaders.Count];
 
         private readonly ClientMain _game;
         private readonly ClientPlatformWindows _platform;
@@ -68,6 +69,7 @@ namespace VolumetricShading.Effects
 
             mod.CApi.Event.ReloadShader += ReloadShaders;
             mod.Events.PreFinalRender += OnSetFinalUniforms;
+            mod.ShaderPatcher.OnReload += RegeneratePatches;
 
             _enabled = ModSettings.ScreenSpaceReflectionsEnabled;
             _rainEnabled = ModSettings.SSRRainReflectionsEnabled;
@@ -87,6 +89,35 @@ namespace VolumetricShading.Effects
 
             mod.Events.RebuildFramebuffers += SetupFramebuffers;
             SetupFramebuffers(_platform.FrameBuffers);
+        }
+
+        private void RegeneratePatches()
+        {
+            var asset = _mod.CApi.Assets.Get(new AssetLocation("game", "shaders/chunkliquid.fsh"));
+            var code = asset.ToText();
+
+            var success = true;
+            var extractor = new FunctionExtractor();
+            success &= extractor.Extract(code, "droplethash3");
+            success &= extractor.Extract(code, "dropletnoise");
+
+            if (!success)
+            {
+                throw new InvalidOperationException("Could not extract dropletnoise/droplethash3");
+            }
+
+            var content = extractor.ExtractedContent;
+            content = content.Replace("waterWaveCounter", "waveCounter");
+            
+            var tokenPatch = new TokenPatch("float dropletnoise(in vec2 x)") 
+                { ReplacementString = "float dropletnoise(in vec2 x, in float waveCounter)" };
+            content = tokenPatch.Patch("dropletnoise", content);
+
+            tokenPatch = new TokenPatch("a = smoothstep(0.99, 0.999, a);") 
+                { ReplacementString = "a = smoothstep(0.97, 0.999, a);" };
+            content = tokenPatch.Patch("dropletnoise", content);
+
+            _mod.ShaderInjector["dropletnoise"] = content;
         }
 
         private void RegisterInjectorProperties()

@@ -1,0 +1,3 @@
+#if GODRAYS > 0
+uniform vec3 lightPosition;
+#endif

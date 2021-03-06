@@ -1,0 +1,77 @@
+- type: token
+  filename: chunkliquid.fsh
+  tokens: texColor.a += max(0, diff/16 + noise/4);
+  content: |
+    texColor.a += max(0, diff/16 + noise/4);
+    #if VSMOD_SSR > 0
+    texColor.a *= VSMOD_SSR_WATER_TRANSPARENCY;
+    #endif
+
+- type: token
+  filename: chunkliquid.fsh
+  tokens: f = dropletnoise(uv);
+  content: |
+    f = dropletnoise(uv);
+    #if VSMOD_SSR > 0
+    f *= VSMOD_SSR_SPLASH_TRANSPARENCY;
+    #endif
+
+- type: token
+  filename: chunkliquid.fsh
+  tokens: if (skyExposed > 0) { vec3 noisepos
+  content: |
+    #if VSMOD_SSR == 0
+    if (skyExposed > 0) {
+    vec3 noisepos
+
+- type: token
+  filename: chunkliquid.fsh
+  tokens: texColor.rgb *= 1 + f;
+  content: |
+    #endif
+    texColor.rgb *= 1 + f;
+
+- type: token
+  filename: chunktransparent.fsh
+  tokens: '#if SHINYEFFECT > 0'
+  content: "#if SHINYEFFECT > 0 && VSMOD_SSR == 0\n"
+
+- type: token
+  filename: final.fsh
+  tokens: uniform sampler2D ssaoScene;
+  snippet: ssrfinalheader.txt
+
+- type: token
+  filename: final.fsh
+  tokens: void main(void) {
+  snippet: ssrfinalrefract.txt
+
+- type: token
+  filename: final.fsh
+  tokens: fxaaTexturePixel(primaryScene, texCoord, invFrameSize)
+  content: fxaaTexturePixel(primaryScene, refractedUV, invFrameSize)
+
+- type: token
+  filename: final.fsh
+  tokens: texture(primaryScene, texCoord)
+  content: texture(primaryScene, refractedUV)
+
+- type: token
+  filename: final.fsh
+  tokens: '#if BLOOM == 1'
+  snippet: ssrfinalcomposite.txt
+
+- type: token
+  filename: final.fsh
+  tokens: texture(bloomParts, texCoord)
+  content: texture(bloomParts, refractedUV)
+
+- type: token
+  filename: final.fsh
+  tokens: texture(glowParts, texCoord)
+  content: texture(glowParts, refractedUV)
+
+- type: token
+  filename: final.fsh
+  tokens: texture(ssaoScene, texCoord)
+  content: texture(ssaoScene, refractedUV)

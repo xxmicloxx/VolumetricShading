@@ -1,8 +1,9 @@
-﻿using Vintagestory.API.Client;
+using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using HarmonyLib;
 using VolumetricShading.Effects;
 using VolumetricShading.Gui;
+using VolumetricShading.Patch;
 
 namespace VolumetricShading
 {
@@ -14,6 +15,7 @@ namespace VolumetricShading
         public Events Events { get; private set; }
         public Uniforms Uniforms { get; private set; }
 
+        public ShaderPatcher ShaderPatcher { get; private set; }
         public ShaderInjector ShaderInjector { get; private set; }
         public ScreenSpaceReflections ScreenSpaceReflections { get; private set; }
         public VolumetricLighting VolumetricLighting { get; private set; }
@@ -51,6 +53,7 @@ namespace VolumetricShading
             Events = new Events();
             Uniforms = new Uniforms(this);
 
+            ShaderPatcher = new ShaderPatcher(CApi);
             ShaderInjector = new ShaderInjector();
             VolumetricLighting = new VolumetricLighting(this);
             ScreenSpaceReflections = new ScreenSpaceReflections(this);
@@ -78,18 +81,20 @@ namespace VolumetricShading
             {
                 Mod.Logger.Event("Patched " + method.FullDescription());
             }
+            
+            ShaderPatcher.Reload();
         }
 
         private static void SetConfigDefaults()
         {
             if (ModSettings.VolumetricLightingFlatness == 0)
             {
-                ModSettings.VolumetricLightingFlatness = 150;
+                ModSettings.VolumetricLightingFlatness = 140;
             }
 
             if (ModSettings.VolumetricLightingIntensity == 0)
             {
-                ModSettings.VolumetricLightingIntensity = 50;
+                ModSettings.VolumetricLightingIntensity = 40;
             }
 
             if (!ModSettings.SSRWaterTransparencySet)
@@ -109,7 +114,7 @@ namespace VolumetricShading
 
             if (!ModSettings.SSRSkyMixinSet)
             {
-                ModSettings.SSRSkyMixin = 15;
+                ModSettings.SSRSkyMixin = 0;
             }
 
             if (!ModSettings.SSRSplashTransparencySet)
