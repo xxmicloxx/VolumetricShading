@@ -223,7 +223,7 @@
   tokens: outGlow.y *= clamp((dayLight - 0.05) * 2, 0, 1);
   content: |
     #if GODRAYS > 0
-    float normalOut = 0.2f*dayLight;
+    float normalOut = 0.5f*dayLight;
     float intensity = dot(normalize(shadowCoordsFar.xyz-shadowRayStart.xyz), normalize(shadowLightPos.xyz-shadowRayStart.xyz));
     float phase = 2.5+exp(intensity*3.0)/3.0;
     outGlow.y = pow(phase * normalOut, VOLUMETRIC_FLATNESS);

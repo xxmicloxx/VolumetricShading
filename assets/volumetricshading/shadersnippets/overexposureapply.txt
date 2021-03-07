@@ -14,8 +14,8 @@ void applyOverexposure(inout vec4 rgbaPixel, float b, vec3 normal, vec3 worldPos
 		
 		glow += exposure * 0.2;
 
-		vec3 sun = vec3(1.0, 0.75, 0.4) * 1;
-		vec3 additional = rgbaPixel.rgb * exposure * sun;
+		vec3 sun = vec3(1.0, 0.75, 0.4);
+		vec3 additional = rgbaPixel.rgb * exposure * sun * 0.75;
 		//rgbaPixel.rgb += additional;
 		rgbaPixel.rgb = rgbaPixel.rgb * mix(vec3(1.0), sun, exposure) + additional;
 		//rgbaPixel.rgb = mix(vec3(1.0), sun, exposure);

@@ -1,11 +1,11 @@
 float calculateVolumetricScatter(vec3 position) {
     #if GODRAYS > 0
-    if (sunlightLevel < 0.002) {
+    /*if (sunlightLevel < 0.002) {
         return 0.0f;
-    }
+    }*/
 
-    float mul = clamp((sunlightLevel - 0.002) / 0.1, 0, 1);
-    //float mul = 1;
+    //float mul = clamp((sunlightLevel - 0.002) / 0.1, 0, 1);
+    float mul = 1.0;
     float dither = fract(0.75487765 * gl_FragCoord.x + 0.56984026 * gl_FragCoord.y);
     //float dither = 0;
 

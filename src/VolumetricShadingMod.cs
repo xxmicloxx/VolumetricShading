@@ -103,7 +103,7 @@ namespace VolumetricShading
 
             if (ModSettings.VolumetricLightingIntensity == 0)
             {
-                ModSettings.VolumetricLightingIntensity = 40;
+                ModSettings.VolumetricLightingIntensity = 50;
             }
 
             if (!ModSettings.SSRWaterTransparencySet)
