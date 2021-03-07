@@ -1,6 +1,8 @@
+using System;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using HarmonyLib;
+using Vintagestory.API.Util;
 using VolumetricShading.Effects;
 using VolumetricShading.Gui;
 using VolumetricShading.Patch;
@@ -14,6 +16,7 @@ namespace VolumetricShading
         public ICoreClientAPI CApi { get; private set; }
         public Events Events { get; private set; }
         public Uniforms Uniforms { get; private set; }
+        public bool Debug { get; private set; }
 
         public ShaderPatcher ShaderPatcher { get; private set; }
         public ShaderInjector ShaderInjector { get; private set; }
@@ -52,6 +55,9 @@ namespace VolumetricShading
             CApi = (ICoreClientAPI) api;
             Events = new Events();
             Uniforms = new Uniforms(this);
+            Debug = Environment.GetEnvironmentVariable("VOLUMETRICSHADING_DEBUG").ToBool();
+            if (Debug)
+                Mod.Logger.Event("Debugging activated");
 
             ShaderPatcher = new ShaderPatcher(CApi);
             ShaderInjector = new ShaderInjector();
@@ -61,6 +67,8 @@ namespace VolumetricShading
             ScreenSpaceDirectionalOcclusion = new ScreenSpaceDirectionalOcclusion(this);
             ShadowTweaks = new ShadowTweaks(this);
             UnderwaterTweaks = new UnderwaterTweaks(this);
+
+            ShaderInjector.Debug = Debug;
         }
 
         private void RegisterHotkeys()
@@ -73,6 +81,7 @@ namespace VolumetricShading
         private void PatchGame()
         {
             Mod.Logger.Event("Loading harmony for patching...");
+            Harmony.DEBUG = Debug;
             _harmony = new Harmony("com.xxmicloxx.vsvolumetricshading");
             _harmony.PatchAll();
 
@@ -104,7 +113,7 @@ namespace VolumetricShading
 
             if (ModSettings.SSRReflectionDimming == 0)
             {
-                ModSettings.SSRReflectionDimming = 170;
+                ModSettings.SSRReflectionDimming = 110;
             }
 
             if (!ModSettings.SSRTintInfluenceSet)

@@ -73,5 +73,5 @@
 
 - type: token
   filename: final.fsh
-  tokens: texture(ssaoScene, texCoord)
-  content: texture(ssaoScene, refractedUV)
+  tokens: texture(ssaoScene, texCoord).r
+  content: texture(ssaoScene, refractedUV).r

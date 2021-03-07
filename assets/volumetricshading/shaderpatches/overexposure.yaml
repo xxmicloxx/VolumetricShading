@@ -13,8 +13,20 @@
 
 - type: token
   filename: chunkopaque.fsh
-  tokens: applyFogAndShadowWithNormal(texColor, fogAmount, normal, 1, intensity);
-  content: applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1, intensity, vertexPosition, fogDensityIn);
+  tokens: outColor = applyFogAndShadowWithNormal(texColor, fogAmount, normal, 1, intensity);
+  content: |
+    float glow = 0.0;
+    outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1, intensity, vertexPosition, fogDensityIn, glow);
+
+- type: token
+  filename: chunkopaque.fsh
+  tokens: float glow = 0;
+  content: ''
+
+- type: token
+  filename: chunkopaque.fsh
+  tokens: glow = pow
+  content: glow += pow
 
 - type: start
   filename: chunktopsoil.fsh
@@ -22,8 +34,20 @@
 
 - type: token
   filename: chunktopsoil.fsh
-  tokens: applyFogAndShadowWithNormal(outColor, fogAmount, normal, 1, intensity);
-  content: applyOverexposedFogAndShadow(outColor, fogAmount, normal, 1, intensity, vertexPosition, fogDensityIn);
+  tokens: outColor = applyFogAndShadowWithNormal(outColor, fogAmount, normal, 1, intensity);
+  content: |
+    float glow = 0.0;
+    outColor = applyOverexposedFogAndShadow(outColor, fogAmount, normal, 1, intensity, vertexPosition, fogDensityIn, glow);
+
+- type: token
+  filename: chunktopsoil.fsh
+  tokens: float glow = 0;
+  content: ''
+
+- type: token
+  filename: chunktopsoil.fsh
+  tokens: glow = pow
+  content: glow += pow
 
 - type: start
   filename: chunktransparent.fsh
@@ -31,8 +55,25 @@
 
 - type: token
   filename: chunktransparent.fsh
-  tokens: applyFogAndShadowWithNormal(texColor, fogAmount, normal, normalShadeIntensity, 0.45);
-  content: applyOverexposedFogAndShadow(texColor, fogAmount, normal, normalShadeIntensity, 0.45, worldPos.xyz, fogDensityIn);
+  tokens: void drawPixel(vec4 color)
+  content: void drawPixel(vec4 color, float glow)
+
+- type: token
+  filename: chunktransparent.fsh
+  tokens: texColor = applyFogAndShadowWithNormal(texColor, fogAmount, normal, normalShadeIntensity, 0.45);
+  content: |
+    float glow = 0.0;
+    texColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, normalShadeIntensity, 0.45, worldPos.xyz, fogDensityIn, glow);
+
+- type: token
+  filename: chunktransparent.fsh
+  tokens: drawPixel(texColor);
+  content: drawPixel(texColor, glow);
+
+- type: token
+  filename: chunktransparent.fsh
+  tokens: outGlow = vec4(glowLevel
+  content: outGlow = vec4(glowLevel + glow
 
 - type: start
   filename: entityanimated.fsh
@@ -41,8 +82,20 @@
 # vertexPosition in entityanimated.vsh is injected in volumetriclighting.yaml...
 - type: token
   filename: entityanimated.fsh
-  tokens: applyFogAndShadowWithNormal(texColor, fogAmount, normal, 1, intensity);
-  content: applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1, intensity, vertexPosition, fogDensityIn);
+  tokens: outColor = applyFogAndShadowWithNormal(texColor, fogAmount, normal, 1, intensity);
+  content: |
+    float glow = 0.0;
+    outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1, intensity, vertexPosition, fogDensityIn, glow);
+
+- type: token
+  filename: entityanimated.fsh
+  tokens: float glow = 0;
+  content: ''
+
+- type: token
+  filename: entityanimated.fsh
+  tokens: glow = pow
+  content: glow += pow
 
 # vertexPosition in entityanimated.vsh is injected in volumetriclighting.yaml...
 - type: token
@@ -67,8 +120,20 @@
 
 - type: token
   filename: standard.fsh
-  tokens: applyFogAndShadow(outColor, fogAmount);
-  content: applyOverexposedFogAndShadowFlat(outColor, fogAmount, normal, vertexPosition.xyz, fogDensityIn);
+  tokens: outColor = applyFogAndShadow(outColor, fogAmount);
+  content: |
+    float glow = 0.0;
+    outColor = applyOverexposedFogAndShadowFlat(outColor, fogAmount, normal, vertexPosition.xyz, fogDensityIn, glow);
+
+- type: token
+  filename: standard.fsh
+  tokens: float glow = 0;
+  content: ''
+
+- type: token
+  filename: standard.fsh
+  tokens: glow = pow
+  content: glow += pow
 
 - type: token
   filename: standard.fsh

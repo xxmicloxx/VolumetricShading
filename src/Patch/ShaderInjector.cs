@@ -11,7 +11,7 @@ namespace VolumetricShading.Patch
 {
     public class ShaderInjector
     {
-        public bool Debug = true;
+        public bool Debug = false;
         public IList<IShaderProperty> ShaderProperties { get; }
         public IDictionary<string, string> GeneratedValues { get; }
 

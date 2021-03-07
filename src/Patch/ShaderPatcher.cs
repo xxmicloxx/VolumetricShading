@@ -12,12 +12,10 @@ namespace VolumetricShading.Patch
         public readonly Dictionary<string, string> Cache = new Dictionary<string, string>();
         
         private readonly YamlPatchLoader _yamlPatchLoader;
-        private readonly ICoreClientAPI _capi;
 
         public ShaderPatcher(ICoreClientAPI capi)
         {
             _yamlPatchLoader = new YamlPatchLoader(this, "volumetricshading", capi);
-            _capi = capi;
         }
 
         public void Reload()

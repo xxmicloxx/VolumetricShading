@@ -66,6 +66,12 @@ namespace VolumetricShading.Patch
                 match = match.NextMatch();
             } while (match.Success && Multiple);
 
+            if (match.Success)
+            {
+                // we have multiple matches, but should only have one
+                throw new InvalidOperationException($"Multiple regex matches, but only one wanted: {Regex}");
+            }
+
             if (startIndex < code.Length)
                 sb.Append(code, startIndex, code.Length - startIndex);
 
