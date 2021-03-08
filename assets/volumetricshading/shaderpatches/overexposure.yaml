@@ -16,7 +16,7 @@
   tokens: outColor = applyFogAndShadowWithNormal(texColor, fogAmount, normal, 1, intensity);
   content: |
     float glow = 0.0;
-    outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1, intensity, vertexPosition, fogDensityIn, glow);
+    outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1.0, intensity, vertexPosition, fogDensityIn, glow);
 
 - type: token
   filename: chunkopaque.fsh
@@ -37,7 +37,7 @@
   tokens: outColor = applyFogAndShadowWithNormal(outColor, fogAmount, normal, 1, intensity);
   content: |
     float glow = 0.0;
-    outColor = applyOverexposedFogAndShadow(outColor, fogAmount, normal, 1, intensity, vertexPosition, fogDensityIn, glow);
+    outColor = applyOverexposedFogAndShadow(outColor, fogAmount, normal, 1.0, intensity, vertexPosition, fogDensityIn, glow);
 
 - type: token
   filename: chunktopsoil.fsh
@@ -85,7 +85,7 @@
   tokens: outColor = applyFogAndShadowWithNormal(texColor, fogAmount, normal, 1, intensity);
   content: |
     float glow = 0.0;
-    outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1, intensity, vertexPosition, fogDensityIn, glow);
+    outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1.0, intensity, vertexPosition, fogDensityIn, glow);
 
 - type: token
   filename: entityanimated.fsh
@@ -108,7 +108,7 @@
 - type: start
   filename: standard.fsh
   content: |
-    uniform float extraOutGlow = 0;
+    uniform float extraOutGlow = 0.0;
     uniform float fogDensityIn;
 
 - type: token

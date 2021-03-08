@@ -31,11 +31,10 @@ vec4 applyOverexposedFogAndShadowFlat(vec4 rgbaPixel, float fogWeight, vec3 norm
 	
 	applyOverexposure(rgbaPixel, b, normal, worldPos, fogDensity, glow);
 
-	return applyFog(rgbaPixel, fogWeight*1);
+	return applyFog(rgbaPixel, fogWeight);
 }
 
-vec4 applyOverexposedFogAndShadow(vec4 rgbaPixel, float fogWeight, vec3 normal, float normalShadeIntensity,
-	float minNormalShade, vec3 worldPos, float fogDensity, inout float glow) {
+vec4 applyOverexposedFogAndShadow(vec4 rgbaPixel, float fogWeight, vec3 normal, float normalShadeIntensity, float minNormalShade, vec3 worldPos, float fogDensity, inout float glow) {
 
 	float b = getBrightnessFromShadowMap();
 	float nb = getBrightnessFromNormal(normal, normalShadeIntensity, minNormalShade);
