@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
 using YamlDotNet.Serialization;
@@ -9,12 +10,12 @@ namespace VolumetricShading.Patch
 {
     public class YamlPatchLoader
     {
-        public static AssetCategory ShaderPatches =
+        public static readonly AssetCategory ShaderPatches =
             new AssetCategory("shaderpatches", false, EnumAppSide.Client);
 
-        public static AssetCategory ShaderSnippets =
+        public static readonly AssetCategory ShaderSnippets =
             new AssetCategory("shadersnippets", false, EnumAppSide.Client);
-        
+
         // ReSharper disable once ClassNeverInstantiated.Local
         private class PatchEntry
         {

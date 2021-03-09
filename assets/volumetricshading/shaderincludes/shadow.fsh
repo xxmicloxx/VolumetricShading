@@ -1,10 +1,8 @@
 #if SHADOWQUALITY > 0
-uniform float shadowRangeFar;
 uniform mat4 toShadowMapSpaceMatrixFar;
 #endif
 
 #if SHADOWQUALITY > 1
-uniform float shadowRangeNear;
 uniform mat4 toShadowMapSpaceMatrixNear;
 #endif
 

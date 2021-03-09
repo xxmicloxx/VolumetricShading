@@ -21,6 +21,22 @@ namespace VolumetricShading.Gui
             
             RegisterOption(new ConfigOption
             {
+                SwitchKey = "softShadowsEnabled",
+                Text = "Soft shadows (slow)",
+                Tooltip = "Preliminary, bad, and slow implementation of soft shadows. Will be improved in the future.",
+                ToggleAction = OnSoftShadowsToggled
+            });
+            
+            RegisterOption(new ConfigOption
+            {
+                SliderKey = "softShadowSamples",
+                Text = "Soft shadow samples",
+                Tooltip = "Amount of soft shadow samples. More samples = better looks, but slower.",
+                SlideAction = OnSoftShadowSamplesChanged
+            });
+            
+            RegisterOption(new ConfigOption
+            {
                 SliderKey = "nearPeterPanningSlider",
                 Text = "Near offset adjustment",
                 Tooltip = "Adjusts the near shadow map Z offset. Reduces peter panning, but might lead to artifacts.",
@@ -41,11 +57,30 @@ namespace VolumetricShading.Gui
             SingleComposer.GetSlider("shadowBaseWidthSlider")
                 .SetValues(ModSettings.NearShadowBaseWidth, 5, 30, 1);
             
+            SingleComposer.GetSwitch("softShadowsEnabled")
+                .SetValue(ModSettings.SoftShadowsEnabled);
+            
+            SingleComposer.GetSlider("softShadowSamples")
+                .SetValues(ModSettings.SoftShadowSamples, 1, 64, 1);
+            
             SingleComposer.GetSlider("nearPeterPanningSlider")
                 .SetValues(ModSettings.NearPeterPanningAdjustment, 0, 4, 1);
             
             SingleComposer.GetSlider("farPeterPanningSlider")
                 .SetValues(ModSettings.FarPeterPanningAdjustment, 0, 8, 1);
+        }
+        
+        private void OnSoftShadowsToggled(bool enabled)
+        {
+            ModSettings.SoftShadowsEnabled = enabled;
+            capi.Shader.ReloadShaders();
+        }
+        
+        private bool OnSoftShadowSamplesChanged(int value)
+        {
+            ModSettings.SoftShadowSamples = value;
+            capi.Shader.ReloadShaders();
+            return true;
         }
 
         private bool OnShadowBaseWidthSliderChanged(int value)

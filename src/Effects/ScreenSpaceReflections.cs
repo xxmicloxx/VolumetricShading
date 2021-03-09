@@ -215,14 +215,7 @@ namespace VolumetricShading.Effects
             framebuffer.SetupDepthTexture();
 
             // create our normal and position textures
-            if (_refractionsEnabled)
-            {
-                framebuffer.ColorTextureIds = ArrayUtil.CreateFilled(4, _ => GL.GenTexture());
-            }
-            else
-            {
-                framebuffer.ColorTextureIds = ArrayUtil.CreateFilled(3, _ => GL.GenTexture());
-            }
+            framebuffer.ColorTextureIds = ArrayUtil.CreateFilled(_refractionsEnabled ? 4 : 3, _ => GL.GenTexture());
 
             // bind and setup textures
             framebuffer.SetupVertexTexture(0);

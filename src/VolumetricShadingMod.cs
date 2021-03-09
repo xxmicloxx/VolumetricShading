@@ -41,7 +41,6 @@ namespace VolumetricShading
         {
             PatchGame();
             RegisterHotkeys();
-            SetConfigDefaults();
         }
 
         public override void StartPre(ICoreAPI api)
@@ -51,6 +50,8 @@ namespace VolumetricShading
                 return;
             }
 
+            SetConfigDefaults();
+            
             Instance = this;
             CApi = (ICoreClientAPI) api;
             Events = new Events();
@@ -60,7 +61,7 @@ namespace VolumetricShading
                 Mod.Logger.Event("Debugging activated");
 
             ShaderPatcher = new ShaderPatcher(CApi);
-            ShaderInjector = new ShaderInjector();
+            ShaderInjector = new ShaderInjector(CApi, Mod.Info.ModID);
             VolumetricLighting = new VolumetricLighting(this);
             ScreenSpaceReflections = new ScreenSpaceReflections(this);
             OverexposureEffect = new OverexposureEffect(this);
@@ -136,6 +137,11 @@ namespace VolumetricShading
                 ModSettings.NearShadowBaseWidth = 15;
             }
 
+            if (ModSettings.SoftShadowSamples == 0)
+            {
+                ModSettings.SoftShadowSamples = 16;
+            }
+
             if (!ModSettings.NearPeterPanningAdjustmentSet)
             {
                 ModSettings.NearPeterPanningAdjustment = 2;
@@ -187,7 +193,8 @@ namespace VolumetricShading
         public override void Dispose()
         {
             if (CApi == null) return;
-
+            
+            ShadowTweaks.Dispose();
             _harmony?.UnpatchAll();
 
             Instance = null;

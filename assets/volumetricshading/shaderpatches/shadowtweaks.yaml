@@ -1,9 +1,57 @@
 - type: token
   filename: fogandlight.fsh
-  tokens: shadowCoordsFar.z - 0.0009
-  content: shadowCoordsFar.z - 0.0009 + (0.0001 * VSMOD_FARSHADOWOFFSET)
+  tokens: shadowCoordsFar.z - 0.0009)
+  content: shadowCoordsFar.z - 0.0009 + (0.0001 * VSMOD_FARSHADOWOFFSET))
 
 - type: token
   filename: fogandlight.fsh
-  tokens: shadowCoordsNear.z - 0.0005
-  content: shadowCoordsNear.z - 0.0005 + (0.0001 * VSMOD_NEARSHADOWOFFSET)
+  multiple: yes
+  tokens: shadowCoordsNear.z - 0.0005)
+  content: shadowCoordsNear.z - 0.0005 + (0.0001 * VSMOD_NEARSHADOWOFFSET))
+
+- type: token
+  filename: fogandlight.fsh
+  tokens: uniform sampler2DShadow shadowMapFar;
+  content: |
+    uniform sampler2DShadow shadowMapFar;
+    uniform float shadowRangeFar;
+    #if VSMOD_SOFTSHADOWS > 0
+    uniform sampler2D shadowMapFarTex;
+    #endif
+
+- type: token
+  filename: fogandlight.fsh
+  tokens: uniform sampler2DShadow shadowMapNear;
+  content: |
+    uniform sampler2DShadow shadowMapNear;
+    uniform float shadowRangeNear;
+    #if VSMOD_SOFTSHADOWS > 0
+    uniform sampler2D shadowMapNearTex;
+    #endif
+
+- type: token
+  filename: fogandlight.fsh
+  tokens: float getBrightnessFromShadowMap() {
+  content: |
+    #snippet softshadows.txt
+
+    float getBrightnessFromShadowMap() {
+
+- type: token
+  filename: fogandlight.fsh
+  tokens: float totalNear = 0.0;
+  content: |
+    #if VSMOD_SOFTSHADOWS > 0
+    float totalNear = 1.0;
+    if (shadowCoordsNear.z < 0.999 && shadowCoordsNear.w > 0) {
+        totalNear = 1.0 - vsmod_pcss();
+    }
+    #else
+    float totalNear = 0.0;
+
+- type: token
+  filename: fogandlight.fsh
+  tokens: totalNear /= 9.0;
+  content: |
+    totalNear /= 9.0;
+    #endif

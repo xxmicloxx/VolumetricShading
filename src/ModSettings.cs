@@ -113,6 +113,18 @@ namespace VolumetricShading
             set => ClientSettings.Inst.Int["volumetricshading_nearShadowBaseWidth"] = value;
         }
 
+        public static bool SoftShadowsEnabled
+        {
+            get => ClientSettings.Inst.GetBoolSetting("volumetricshading_softShadows");
+            set => ClientSettings.Inst.Bool["volumetricshading_softShadows"] = value;
+        }
+
+        public static int SoftShadowSamples
+        {
+            get => ClientSettings.Inst.GetIntSetting("volumetricshading_softShadowSamples");
+            set => ClientSettings.Inst.Int["volumetricshading_softShadowSamples"] = value;
+        }
+        
         public static int NearPeterPanningAdjustment
         {
             get => ClientSettings.Inst.GetIntSetting("volumetricshading_nearPeterPanningAdjustment");

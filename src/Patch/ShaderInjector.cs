@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using Vintagestory.API.Client;
+using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.Client.NoObf;
 
@@ -15,11 +16,19 @@ namespace VolumetricShading.Patch
         public IList<IShaderProperty> ShaderProperties { get; }
         public IDictionary<string, string> GeneratedValues { get; }
 
+        private readonly ICoreClientAPI _capi;
+        private readonly string _domain;
+        
         private static readonly Regex GeneratedRegex = new Regex("^\\s*#\\s*generated\\s+(.*)$",
             RegexOptions.Multiline | RegexOptions.IgnoreCase);
+        
+        private static readonly Regex SnippetRegex = new Regex("^\\s*#\\s*snippet\\s+(.*)$",
+            RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
-        public ShaderInjector()
+        public ShaderInjector(ICoreClientAPI capi, string domain)
         {
+            _capi = capi;
+            _domain = domain;
             ShaderProperties = new List<IShaderProperty>();
             GeneratedValues = new Dictionary<string, string>();
 
@@ -68,6 +77,7 @@ namespace VolumetricShading.Patch
             shader.PrefixCode += prefixBuilder.ToString();
 
             shader.Code = HandleGenerated(shader.Code);
+            shader.Code = HandleSnippets(shader.Code);
 
             if (!Debug) return;
             
@@ -88,10 +98,21 @@ namespace VolumetricShading.Patch
             return GeneratedRegex.Replace(code, InsertGenerated);
         }
 
+        private string HandleSnippets(string code)
+        {
+            return SnippetRegex.Replace(code, InsertSnippet);
+        }
+
         private string InsertGenerated(Match match)
         {
             var key = match.Groups[1].Value.Trim();
             return GeneratedValues[key];
+        }
+
+        private string InsertSnippet(Match match)
+        {
+            var key = match.Groups[1].Value.Trim();
+            return _capi.Assets.Get(new AssetLocation(_domain, "shadersnippets/" + key)).ToText();
         }
     }
 }

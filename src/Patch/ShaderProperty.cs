@@ -62,6 +62,26 @@ namespace VolumetricShading.Patch
         }
     }
 
+    public class IntValueShaderProperty : ValueShaderProperty
+    {
+        public delegate int IntValueDelegate();
+        
+        public IntValueDelegate IntValueGenerator { get; set; }
+
+        public IntValueShaderProperty(string name = null, IntValueDelegate intValueGenerator = null)
+        {
+            ValueGenerator = GenerateValue;
+
+            Name = name;
+            IntValueGenerator = intValueGenerator;
+        }
+
+        private string GenerateValue()
+        {
+            return IntValueGenerator().ToString();
+        }
+    }
+
     public class BoolValueShaderProperty : ValueShaderProperty
     {
         public delegate bool BoolValueDelegate();
@@ -93,6 +113,12 @@ namespace VolumetricShading.Patch
             FloatValueShaderProperty.FloatValueDelegate floatGenerator)
         {
             injector.RegisterShaderProperty(new FloatValueShaderProperty(name, floatGenerator));
+        }
+
+        public static void RegisterIntProperty(this ShaderInjector injector, string name,
+            IntValueShaderProperty.IntValueDelegate intGenerator)
+        {
+            injector.RegisterShaderProperty(new IntValueShaderProperty(name, intGenerator));
         }
 
         public static void RegisterBoolProperty(this ShaderInjector injector, string name,

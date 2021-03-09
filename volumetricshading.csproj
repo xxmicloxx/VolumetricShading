@@ -33,10 +33,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony, Version=2.0.4.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\..\opt\vintagestory\Lib\0Harmony.dll</HintPath>
+      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK, Version=3.3.1.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4">
-      <HintPath>..\..\..\..\opt\vintagestory\Lib\OpenTK.dll</HintPath>
+      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -47,13 +47,13 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="Vintagestory, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\..\opt\vintagestory\Vintagestory.exe</HintPath>
+      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\Vintagestory.exe</HintPath>
     </Reference>
     <Reference Include="VintagestoryAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\..\opt\vintagestory\VintagestoryAPI.dll</HintPath>
+      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\VintagestoryAPI.dll</HintPath>
     </Reference>
     <Reference Include="VintagestoryLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\..\opt\vintagestory\VintagestoryLib.dll</HintPath>
+      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\VintagestoryLib.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -69,6 +69,7 @@
     <Content Include="assets\volumetricshading\shaderpatches\shadowtweaks.yaml" />
     <Content Include="assets\volumetricshading\shaderpatches\volumetriclighting.yaml" />
     <Content Include="assets\volumetricshading\shadersnippets\overexposureapply.txt" />
+    <Content Include="assets\volumetricshading\shadersnippets\softshadows.txt" />
     <Content Include="assets\volumetricshading\shadersnippets\ssrfinalcomposite.txt" />
     <Content Include="assets\volumetricshading\shadersnippets\ssrfinalheader.txt" />
     <Content Include="assets\volumetricshading\shadersnippets\ssrfinalrefract.txt" />
