@@ -25,7 +25,7 @@ namespace VolumetricShading.Effects
         {
         }
 
-        public double RenderOrder => 0.45;
+        public double RenderOrder => 1;
         public int RenderRange => int.MaxValue;
     }
     
@@ -100,6 +100,8 @@ namespace VolumetricShading.Effects
             if (quality == 0 && _enabled)
             {
                 ModSettings.DeferredLightingEnabled = false;
+                _platform.RebuildFrameBuffers();
+                _mod.CApi.Shader.ReloadShaders();
             }
         }
 
@@ -184,6 +186,7 @@ namespace VolumetricShading.Effects
             var fbPrimary = _platform.FrameBuffers[(int) EnumFrameBuffer.Primary];
             
             _platform.GlDisableDepthTest();
+            _platform.GlToggleBlend(false);
             GL.DrawBuffers(2, new [] { DrawBuffersEnum.ColorAttachment0, DrawBuffersEnum.ColorAttachment1 });
 
             var s = _shader;

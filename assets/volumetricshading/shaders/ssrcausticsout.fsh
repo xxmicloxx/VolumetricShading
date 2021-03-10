@@ -43,7 +43,7 @@ void main(void)
 
     float waveNoise = generateCausticsNoise(absWorldPos, sunPosition) * 1.3;
     
-    float fog = 1.0 - getFogLevelDeferred(-screenPosition.z, fogMinIn, fogDensityIn, absWorldPos.y);
+    float fog = 1.0 - getFogLevelDeferred(length(screenPosition), fogMinIn, fogDensityIn, absWorldPos.y);
     float distance = exp(-length(worldPosition - cameraWorldPos) * 0.008f);
     outStrength = (waveNoise * distance * shadowBrightness * shadowStrength * fog + 0.5) - 0.05 * distance * fog * shadowStrength;
 }

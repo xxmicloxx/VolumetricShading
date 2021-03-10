@@ -156,7 +156,7 @@ namespace VolumetricShading.Gui
             RegisterOption(new ConfigOption
             {
                 SwitchKey = "toggleDeferred",
-                Text = "Defer Lighting",
+                Text = "Deferred Lighting",
                 Tooltip = "Aims to improve lighting performance by deferring lighting operations. Requires SSAO.",
                 ToggleAction = ToggleDeferredLighting
             });

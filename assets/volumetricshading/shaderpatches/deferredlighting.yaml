@@ -75,11 +75,21 @@
 - type: token
   filename: chunkopaque.fsh
   tokens: vec4(glowLevel + glow, godrayLevel, 0, outColor.a);
-  content: vec4(glowLevel + glow, godrayLevel, blockBrightness, outColor.a);
+  content: "\n
+    #if SHADOWQUALITY > 0\n
+    vec4(glowLevel + glow, godrayLevel, blockBrightness, outColor.a);\n
+    #else\n
+    vec4(glowLevel + glow, godrayLevel, 0, outColor.a);\n
+    #endif\n"
 
 - type: token
   filename: standard.fsh
   tokens: vec4(glowLevel + glow, extraGodray - fogAmount, 0, outColor.a);
-  content: vec4(glowLevel + glow, extraGodray - fogAmount, blockBrightness, outColor.a);
+  content: "\n
+    #if SHADOWQUALITY > 0\n
+    vec4(glowLevel + glow, extraGodray - fogAmount, blockBrightness, outColor.a);\n
+    #else\n
+    vec4(glowLevel + glow, extraGodray - fogAmount, 0, outColor.a);\n
+    #endif\n"
 
 # topsoil, entityanimated patched in volumetriclighting.yaml

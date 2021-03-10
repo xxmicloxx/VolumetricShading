@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL;
 using Vintagestory.API.Client;
 using Vintagestory.Client.NoObf;
@@ -11,10 +12,12 @@ namespace VolumetricShading.Effects
         private bool _softShadowsEnabled;
         private int _softShadowSamples;
         public int NearShadowBaseWidth { get; private set; }
+        public ISet<string> ExcludedShaders { get; }
 
         public ShadowTweaks(VolumetricShadingMod mod)
         {
             _mod = mod;
+            ExcludedShaders = new HashSet<string> { "sky", "clouds" };
 
             _mod.CApi.Settings.AddWatcher<int>("volumetricshading_nearShadowBaseWidth", OnNearShadowBaseWidthChanged);
             _mod.CApi.Settings.AddWatcher<bool>("volumetricshading_softShadows", OnSoftShadowsChanged);
@@ -61,10 +64,13 @@ namespace VolumetricShading.Effects
         {
             if (!_softShadowsEnabled) return;
             if (!shader.includes.Contains("fogandlight.fsh")) return;
+            if (ExcludedShaders.Contains(shader.PassName)) return;
             if (ShaderProgramBase.shadowmapQuality <= 0) return;
 
             const string uniformFar = "shadowMapFarTex";
             const string uniformNear = "shadowMapNearTex";
+            const string uniformShadowFar = "shadowMapFar";
+            const string uniformShadowNear = "shadowMapNear";
             if (!shader.customSamplers.ContainsKey(uniformFar))
             {
                 var lookupSamplers = new int[2];
@@ -95,8 +101,8 @@ namespace VolumetricShading.Effects
                 
                 shader.customSamplers[uniformFar] = lookupSamplers[0];
                 shader.customSamplers[uniformNear] = lookupSamplers[1];
-                shader.customSamplers["shadowMapFar"] = oldSamplers[0];
-                shader.customSamplers["shadowMapNear"] = oldSamplers[1];
+                shader.customSamplers[uniformShadowFar] = oldSamplers[0];
+                shader.customSamplers[uniformShadowNear] = oldSamplers[1];
             }
             
             var fbs = _mod.CApi.Render.FrameBuffers;
@@ -105,6 +111,8 @@ namespace VolumetricShading.Effects
 
             shader.BindTexture2D(uniformFar, fbFar.DepthTextureId);
             shader.BindTexture2D(uniformNear, fbNear.DepthTextureId);
+            shader.BindTexture2D(uniformShadowFar, fbFar.DepthTextureId);
+            shader.BindTexture2D(uniformShadowNear, fbNear.DepthTextureId);
         }
 
         public void Dispose()

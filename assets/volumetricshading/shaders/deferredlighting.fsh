@@ -43,15 +43,16 @@ void main(void)
         screenPosition.w = 1.0;
         vec4 worldPosition = invModelViewMatrix * screenPosition;
         vec4 cameraWorldPos = invModelViewMatrix * vec4(0, 0, 0, 1);
-        vec4 worldNormal = invModelViewMatrix * normal;
+        vec4 worldNormal = invModelViewMatrix * vec4(normal.xyz, 0);
 
         vec3 absWorldPos = worldPosition.xyz + playerPos;
         
-        float fog = getFogLevelDeferred(-screenPosition.z, fogMinIn, fogDensityIn, absWorldPos.y);
+        float fog = getFogLevelDeferred(length(screenPosition), fogMinIn, fogDensityIn, absWorldPos.y);
         color = applyOverexposedFogAndShadowDeferred(worldPosition, color, fog, worldNormal.xyz,
             1, intensity, fogDensityIn, glowVec.b, glowVec.r);
     }
     
+    glowVec.z = 0.0;
     outColor = color;
     outGlow = glowVec;
 }

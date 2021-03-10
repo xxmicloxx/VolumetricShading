@@ -23,7 +23,8 @@ namespace VolumetricShading.Gui
             {
                 SwitchKey = "softShadowsEnabled",
                 Text = "Soft shadows (slow)",
-                Tooltip = "Preliminary, bad, and slow implementation of soft shadows. Will be improved in the future.",
+                Tooltip = "Soft shadows based on occluder distance to shadow surface. Can be very slow in difficult " +
+                          "scenes, highly recommended to use in combination with deferred lighting.",
                 ToggleAction = OnSoftShadowsToggled
             });
             

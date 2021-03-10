@@ -128,7 +128,7 @@ void main(void) {
         outColor.rgb *= pow(texture(gTint, texcoord).rgb, vec3(VSMOD_SSR_TINT_INFLUENCE));
 
         vec4 positionFromWorldSpace = invModelViewMatrix * vec4(positionFrom.xyz, 1.0);
-        float fogLevel = getFogLevelDeferred(-positionFrom.z, fogMinIn, fogDensityIn, positionFromWorldSpace.y);
+        float fogLevel = getFogLevelDeferred(length(positionFrom), fogMinIn, fogDensityIn, positionFromWorldSpace.y);
         outColor = applyFog(outColor, fogLevel);
 
         outColor.a *= (1.0f - positionFrom.w) * fresnel;
