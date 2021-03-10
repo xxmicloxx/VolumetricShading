@@ -1,0 +1,85 @@
+- type: token
+  filename: chunktopsoil.fsh
+  tokens: outColor = applyFogAndShadowWithNormal(outColor, fogAmount, normal, 1, intensity);
+  content: |
+    float glow = 0.0;
+    #if VSMOD_DEFERREDLIGHTING == 0
+    outColor = applyOverexposedFogAndShadow(outColor, fogAmount, normal, 1.0, intensity, vertexPosition, fogDensityIn, glow);
+    #endif
+
+# TODO get rid of this by deferring godrays
+- type: token
+  filename: chunktopsoil.vsh
+  tokens: calcShadowMapCoords(modelViewMatrix, worldPos);
+  content: |
+    #if GODRAYS > 0 || VSMOD_DEFERREDLIGHTING == 0
+    calcShadowMapCoords(modelViewMatrix, worldPos);
+    #endif
+
+- type: token
+  filename: chunkopaque.fsh
+  tokens: outColor = applyFogAndShadowWithNormal(texColor, fogAmount, normal, 1, intensity);
+  content: |
+    float glow = 0.0;
+    #if VSMOD_DEFERREDLIGHTING > 0
+    outColor = texColor;
+    #else
+    outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1.0, intensity, vertexPosition, fogDensityIn, glow);
+    #endif
+
+- type: token
+  filename: chunkopaque.vsh
+  tokens: calcShadowMapCoords(modelViewMatrix, worldPos);
+  content: |
+    #if GODRAYS > 0 || VSMOD_DEFERREDLIGHTING == 0
+    calcShadowMapCoords(modelViewMatrix, worldPos);
+    #endif
+
+- type: token
+  filename: entityanimated.fsh
+  tokens: outColor = applyFogAndShadowWithNormal(texColor, fogAmount, normal, 1, intensity);
+  content: |
+    float glow = 0.0;
+    #if VSMOD_DEFERREDLIGHTING > 0
+    outColor = texColor;
+    #else
+    outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1.0, intensity, vertexPosition, fogDensityIn, glow);
+    #endif
+
+- type: token
+  filename: entityanimated.vsh
+  tokens: calcShadowMapCoords(viewMatrix, worldPos);
+  content: |
+    #if GODRAYS > 0 || VSMOD_DEFERREDLIGHTING == 0
+    calcShadowMapCoords(viewMatrix, worldPos);
+    #endif
+
+- type: token
+  filename: standard.fsh
+  tokens: outColor = applyFogAndShadow(outColor, fogAmount);
+  content: |
+    float glow = 0.0;
+    #if VSMOD_DEFERREDLIGHTING == 0
+    outColor = applyOverexposedFogAndShadowFlat(outColor, fogAmount, normal, vertexPosition.xyz, fogDensityIn, glow);
+    #endif
+
+- type: token
+  filename: standard.vsh
+  tokens: calcShadowMapCoords(viewMatrix, worldPos);
+  content: |
+    #if VSMOD_DEFERREDLIGHTING == 0
+    calcShadowMapCoords(viewMatrix, worldPos);
+    #endif
+
+# output blockBrightness
+- type: token
+  filename: chunkopaque.fsh
+  tokens: vec4(glowLevel + glow, godrayLevel, 0, outColor.a);
+  content: vec4(glowLevel + glow, godrayLevel, blockBrightness, outColor.a);
+
+- type: token
+  filename: standard.fsh
+  tokens: vec4(glowLevel + glow, extraGodray - fogAmount, 0, outColor.a);
+  content: vec4(glowLevel + glow, extraGodray - fogAmount, blockBrightness, outColor.a);
+
+# topsoil, entityanimated patched in volumetriclighting.yaml

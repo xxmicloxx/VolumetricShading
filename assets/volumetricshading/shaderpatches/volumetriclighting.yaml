@@ -104,7 +104,7 @@
 - type: token
   filename: chunktopsoil.fsh
   tokens: vec4(glowLevel + glow, 0, 0, outColor.a);
-  content: vec4(glowLevel + glow, scatterAmt, 0, outColor.a);
+  content: vec4(glowLevel + glow, scatterAmt, blockBrightness, outColor.a);
 
 - type: start
   filename: chunktopsoil.vsh
@@ -186,7 +186,7 @@
 - type: token
   filename: entityanimated.fsh
   tokens: vec4(glowLevel + glow, 0, 0, color.a);
-  content: vec4(glowLevel + glow, scatterAmt, 0, color.a);
+  content: vec4(glowLevel + glow, scatterAmt, blockBrightness, color.a);
 
 - type: start
   filename: entityanimated.vsh

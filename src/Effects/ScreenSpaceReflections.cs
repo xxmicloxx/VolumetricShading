@@ -207,6 +207,9 @@ namespace VolumetricShading.Effects
             // create new framebuffer
             _fbWidth = (int) (_platform.window.Width * ClientSettings.SSAA);
             _fbHeight = (int) (_platform.window.Height * ClientSettings.SSAA);
+            if (_fbWidth == 0 || _fbHeight == 0)
+                return;
+            
             var framebuffer = new FrameBufferRef
             {
                 FboId = GL.GenFramebuffer(), Width = _fbWidth, Height = _fbHeight, DepthTextureId = GL.GenTexture()
@@ -345,12 +348,6 @@ namespace VolumetricShading.Effects
             var uniforms = _mod.CApi.Render.ShaderUniforms;
             var ambient = _mod.CApi.Ambient;
 
-            // thanks for declaring this internal btw
-            var dayLight = 1.25f *
-                           GameMath.Max(
-                               _mod.CApi.World.Calendar.DayLightStrength -
-                               _mod.CApi.World.Calendar.MoonLightStrength / 2f, 0.05f);
-
             var shader = ssrOutShader;
             shader.Use();
 
@@ -366,7 +363,7 @@ namespace VolumetricShading.Effects
             shader.Uniform("zNear", uniforms.ZNear);
             shader.Uniform("zFar", uniforms.ZNear);
             shader.Uniform("sunPosition", _mod.CApi.World.Calendar.SunPositionNormalized);
-            shader.Uniform("dayLight", dayLight);
+            shader.Uniform("dayLight", myUniforms.DayLight);
             shader.Uniform("horizonFog", ambient.BlendedCloudDensity);
             shader.Uniform("fogDensityIn", ambient.BlendedFogDensity);
             shader.Uniform("fogMinIn", ambient.BlendedFogMin);
@@ -389,7 +386,7 @@ namespace VolumetricShading.Effects
                 shader.BindTexture2D("gNormal", ssrFB.ColorTextureIds[1], 1);
                 shader.UniformMatrix("invProjectionMatrix", myUniforms.InvProjectionMatrix);
                 shader.UniformMatrix("invModelViewMatrix", myUniforms.InvModelViewMatrix);
-                shader.Uniform("dayLight", dayLight);
+                shader.Uniform("dayLight", myUniforms.DayLight);
                 shader.Uniform("playerPos", uniforms.PlayerPos);
                 shader.Uniform("sunPosition", uniforms.SunPosition3D);
                 shader.Uniform("waterFlowCounter", uniforms.WaterFlowCounter);

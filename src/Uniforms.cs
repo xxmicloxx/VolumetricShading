@@ -13,6 +13,7 @@ namespace VolumetricShading
         public readonly float[] InvProjectionMatrix = Mat4f.Create();
         public readonly float[] InvModelViewMatrix = Mat4f.Create();
         public readonly Vec4f CameraWorldPosition = new Vec4f();
+        public float DayLight { get; private set; }
         
         public Uniforms(VolumetricShadingMod mod)
         {
@@ -29,6 +30,10 @@ namespace VolumetricShading
 
             _tempVec4f.Set(0, 0, 0, 1);
             Mat4f.MulWithVec4(InvModelViewMatrix, _tempVec4f, CameraWorldPosition);
+            
+            DayLight = 1.25f * GameMath.Max(
+                           _mod.CApi.World.Calendar.DayLightStrength -
+                           _mod.CApi.World.Calendar.MoonLightStrength / 2f, 0.05f);
         }
 
         public void Dispose()

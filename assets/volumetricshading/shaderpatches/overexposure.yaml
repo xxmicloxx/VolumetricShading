@@ -11,12 +11,13 @@
   tokens: float getFogLevel
   snippet: overexposureapply.txt
 
-- type: token
-  filename: chunkopaque.fsh
-  tokens: outColor = applyFogAndShadowWithNormal(texColor, fogAmount, normal, 1, intensity);
-  content: |
-    float glow = 0.0;
-    outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1.0, intensity, vertexPosition, fogDensityIn, glow);
+# handled in deferredlighting.yaml
+#- type: token
+#  filename: chunkopaque.fsh
+#  tokens: outColor = applyFogAndShadowWithNormal(texColor, fogAmount, normal, 1, intensity);
+#  content: |
+#    float glow = 0.0;
+#    outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1.0, intensity, vertexPosition, fogDensityIn, glow);
 
 - type: token
   filename: chunkopaque.fsh
@@ -32,12 +33,12 @@
   filename: chunktopsoil.fsh
   content: uniform float fogDensityIn;
 
-- type: token
-  filename: chunktopsoil.fsh
-  tokens: outColor = applyFogAndShadowWithNormal(outColor, fogAmount, normal, 1, intensity);
-  content: |
-    float glow = 0.0;
-    outColor = applyOverexposedFogAndShadow(outColor, fogAmount, normal, 1.0, intensity, vertexPosition, fogDensityIn, glow);
+#- type: token
+#  filename: chunktopsoil.fsh
+#  tokens: outColor = applyFogAndShadowWithNormal(outColor, fogAmount, normal, 1, intensity);
+#  content: |
+#    float glow = 0.0;
+#    outColor = applyOverexposedFogAndShadow(outColor, fogAmount, normal, 1.0, intensity, vertexPosition, fogDensityIn, glow);
 
 - type: token
   filename: chunktopsoil.fsh
@@ -80,12 +81,12 @@
   content: uniform float fogDensityIn;
 
 # vertexPosition in entityanimated.vsh is injected in volumetriclighting.yaml...
-- type: token
-  filename: entityanimated.fsh
-  tokens: outColor = applyFogAndShadowWithNormal(texColor, fogAmount, normal, 1, intensity);
-  content: |
-    float glow = 0.0;
-    outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1.0, intensity, vertexPosition, fogDensityIn, glow);
+#- type: token
+#  filename: entityanimated.fsh
+#  tokens: outColor = applyFogAndShadowWithNormal(texColor, fogAmount, normal, 1, intensity);
+#  content: |
+#    float glow = 0.0;
+#    outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1.0, intensity, vertexPosition, fogDensityIn, glow);
 
 - type: token
   filename: entityanimated.fsh
@@ -98,12 +99,6 @@
   content: glow += pow
 
 # vertexPosition in entityanimated.vsh is injected in volumetriclighting.yaml...
-- type: token
-  filename: entityanimated.vsh
-  tokens: worldPos = applyVertexWarping(flags | addRenderFlags, worldPos);
-  content: |
-    worldPos = applyVertexWarping(flags | addRenderFlags, worldPos);
-    vertexPosition = worldPos.xyz;
 
 - type: start
   filename: standard.fsh
@@ -118,13 +113,13 @@
     in vec3 normal;
     in vec4 vertexPosition;
 
-- type: token
-  filename: standard.fsh
-  tokens: outColor = applyFogAndShadow(outColor, fogAmount);
-  content: |
-    float glow = 0.0;
-    outColor = applyOverexposedFogAndShadowFlat(outColor, fogAmount, normal, vertexPosition.xyz, fogDensityIn, glow);
-
+#- type: token
+#  filename: standard.fsh
+#  tokens: outColor = applyFogAndShadow(outColor, fogAmount);
+#  content: |
+#    float glow = 0.0;
+#    outColor = applyOverexposedFogAndShadowFlat(outColor, fogAmount, normal, vertexPosition.xyz, fogDensityIn, glow);
+#
 - type: token
   filename: standard.fsh
   tokens: float glow = 0;

@@ -44,7 +44,7 @@
     #if VSMOD_SOFTSHADOWS > 0
     float totalNear = 1.0;
     if (shadowCoordsNear.z < 0.999 && shadowCoordsNear.w > 0) {
-        totalNear = 1.0 - vsmod_pcss();
+        totalNear = 1.0 - vsmod_pcss(shadowCoordsNear.xyz);
     }
     #else
     float totalNear = 0.0;

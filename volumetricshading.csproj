@@ -60,10 +60,10 @@
     <Content Include="assets\game\shaders\godrays.fsh" />
     <Content Include="assets\game\shaders\godrays.vsh" />
     <Content Include="assets\game\shaders\ssao.fsh" />
-    <Content Include="assets\volumetricshading\shaderincludes\deferredfog.fsh" />
-    <Content Include="assets\volumetricshading\shaderincludes\shadow.fsh" />
+    <Content Include="assets\volumetricshading\shaderincludes\deferredfogandlight.fsh" />
     <Content Include="assets\volumetricshading\shaderincludes\wavenoise.ash" />
     <Content Include="assets\volumetricshading\shaderpatches\blur.yaml" />
+    <Content Include="assets\volumetricshading\shaderpatches\deferredlighting.yaml" />
     <Content Include="assets\volumetricshading\shaderpatches\overexposure.yaml" />
     <Content Include="assets\volumetricshading\shaderpatches\screenspacereflections.yaml" />
     <Content Include="assets\volumetricshading\shaderpatches\shadowtweaks.yaml" />
@@ -77,6 +77,8 @@
     <Content Include="assets\volumetricshading\shadersnippets\volumetriclightposition.txt" />
     <Content Include="assets\volumetricshading\shadersnippets\volumetricscatter.txt" />
     <Content Include="assets\volumetricshading\shadersnippets\volumetricshadowcoords.txt" />
+    <Content Include="assets\volumetricshading\shaders\deferredlighting.fsh" />
+    <Content Include="assets\volumetricshading\shaders\deferredlighting.vsh" />
     <Content Include="assets\volumetricshading\shaders\ssrcausticsout.fsh" />
     <Content Include="assets\volumetricshading\shaders\ssrcausticsout.vsh" />
     <Content Include="assets\volumetricshading\shaders\ssrtopsoil.fsh" />
@@ -90,6 +92,7 @@
     <Content Include="assets\volumetricshading\shaders\ssrout.fsh" />
     <Content Include="assets\volumetricshading\shaders\ssrout.vsh" />
     <Content Include="modinfo.json" />
+    <Compile Include="src\Effects\DeferredLighting.cs" />
     <Compile Include="src\Effects\OverexposureEffect.cs" />
     <Compile Include="src\Effects\ScreenSpaceDirectionalOcclusion.cs" />
     <Compile Include="src\Effects\ScreenSpaceReflections.cs" />

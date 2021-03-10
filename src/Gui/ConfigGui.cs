@@ -155,6 +155,14 @@ namespace VolumetricShading.Gui
             
             RegisterOption(new ConfigOption
             {
+                SwitchKey = "toggleDeferred",
+                Text = "Defer Lighting",
+                Tooltip = "Aims to improve lighting performance by deferring lighting operations. Requires SSAO.",
+                ToggleAction = ToggleDeferredLighting
+            });
+            
+            RegisterOption(new ConfigOption
+            {
                 SwitchKey = "toggleSSDO",
                 Text = "Improve SSAO",
                 Tooltip = "Replaces SSAO with SSDO. Results in marginally faster and better looking occlusions.",
@@ -175,12 +183,21 @@ namespace VolumetricShading.Gui
             SingleComposer.GetSwitch("toggleSSDO").On = ModSettings.SSDOEnabled;
             SingleComposer.GetSwitch("toggleOverexposure").On = ModSettings.OverexposureIntensity > 0;
             SingleComposer.GetSwitch("toggleUnderwater").On = ModSettings.UnderwaterTweaksEnabled;
+            SingleComposer.GetSwitch("toggleDeferred").On = ModSettings.DeferredLightingEnabled;
         }
 
         private void ToggleUnderwater(bool enabled)
         {
             ModSettings.UnderwaterTweaksEnabled = enabled;
             
+            RefreshValues();
+        }
+
+        private void ToggleDeferredLighting(bool enabled)
+        {
+            ModSettings.DeferredLightingEnabled = enabled;
+            capi.GetClientPlatformAbstract().RebuildFrameBuffers();
+            capi.Shader.ReloadShaders();
             RefreshValues();
         }
         

@@ -25,6 +25,7 @@ namespace VolumetricShading
         public OverexposureEffect OverexposureEffect { get; private set; }
         public ScreenSpaceDirectionalOcclusion ScreenSpaceDirectionalOcclusion { get; private set; }
         public ShadowTweaks ShadowTweaks { get; private set; }
+        public DeferredLighting DeferredLighting { get; private set; }
         public UnderwaterTweaks UnderwaterTweaks { get; private set; }
 
         public ConfigGui ConfigGui;
@@ -67,6 +68,7 @@ namespace VolumetricShading
             OverexposureEffect = new OverexposureEffect(this);
             ScreenSpaceDirectionalOcclusion = new ScreenSpaceDirectionalOcclusion(this);
             ShadowTweaks = new ShadowTweaks(this);
+            DeferredLighting = new DeferredLighting(this);
             UnderwaterTweaks = new UnderwaterTweaks(this);
 
             ShaderInjector.Debug = Debug;

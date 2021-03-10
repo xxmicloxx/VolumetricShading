@@ -20,8 +20,7 @@ uniform vec4 rgbaFog;
 #include noise3d.ash
 #include wavenoise.ash
 #include fogandlight.fsh
-#include shadow.fsh
-#include deferredfog.fsh
+#include deferredfogandlight.fsh
 
 void main(void)
 {
@@ -38,7 +37,7 @@ void main(void)
 
     vec3 absWorldPos = worldPosition.xyz + playerPos;
     
-    float shadowBrightness = getShadowBrightnessAt(worldPosition) * 0.5 + 0.5;
+    float shadowBrightness = getPCFBrightnessAt(worldPosition);
     float shadowStrength = clamp(pow(shadowIntensity, 2.0f), 0.2f, 1.0f);
     //float shadowStrength = 1.0f;
 

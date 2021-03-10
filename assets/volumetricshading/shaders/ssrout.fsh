@@ -24,7 +24,7 @@ out vec4 outColor;
 #include dither.fsh
 #include fogandlight.fsh
 #include skycolor.fsh
-#include deferredfog.fsh
+#include deferredfogandlight.fsh
 
 float comp = 1.0-zNear/zFar/zFar;
 

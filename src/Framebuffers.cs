@@ -1,6 +1,7 @@
 using System;
 using OpenTK.Graphics.OpenGL;
 using Vintagestory.API.Client;
+using Vintagestory.Client.NoObf;
 
 namespace VolumetricShading
 {
@@ -49,9 +50,9 @@ namespace VolumetricShading
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8,
                 fbRef.Width, fbRef.Height, 0, PixelFormat.Rgba, PixelType.UnsignedShort, IntPtr.Zero);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
-                (int) TextureMinFilter.Linear);
+                (int) TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
-                (int) TextureMagFilter.Linear);
+                (int) TextureMagFilter.Nearest);
             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer,
                 FramebufferAttachment.ColorAttachment0 + textureId,
                 TextureTarget.Texture2D, fbRef.ColorTextureIds[textureId], 0);
@@ -63,9 +64,9 @@ namespace VolumetricShading
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.R8,
                 fbRef.Width, fbRef.Height, 0, PixelFormat.Red, PixelType.UnsignedShort, IntPtr.Zero);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
-                (int) TextureMinFilter.Linear);
+                (int) TextureMinFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter,
-                (int) TextureMagFilter.Linear);
+                (int) TextureMagFilter.Nearest);
             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer,
                 FramebufferAttachment.ColorAttachment0 + textureId,
                 TextureTarget.Texture2D, fbRef.ColorTextureIds[textureId], 0);
@@ -78,6 +79,15 @@ namespace VolumetricShading
             {
                 throw new Exception("Could not create framebuffer: " + errorCode);
             }
+        }
+        
+        public static void Blit(this ClientPlatformWindows platform, MeshRef quad, int source)
+        {
+            var blit = ShaderPrograms.Blit;
+            blit.Use();
+            blit.Scene2D = source;
+            platform.RenderFullscreenTriangle(quad);
+            blit.Stop();
         }
     }
 }
