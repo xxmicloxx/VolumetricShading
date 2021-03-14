@@ -30,12 +30,12 @@ float vsmod_interleavedGradientNoise()
     return fract(magic.z * fract(dot(gl_FragCoord.xy, magic.xy)));
 }
 
-void vsmod_findBlocker(vec3 coords, float seed, out float avgBlockerDepth, out float numBlockers) {
+void vsmod_findBlocker(vec3 coords, float seed, float bias, out float avgBlockerDepth, out float numBlockers) {
     const int samples = 12;
     float samplesSqrt = sqrt(samples);
 
-    float clipNear = coords.z - 0.0005;
     float searchWidth = VSMOD_LIGHT_SIZE / shadowRangeNear * (coords.z - VSMOD_NEAR_PLANE) / coords.z;
+    float clipNear = coords.z - bias * abs(searchWidth);
     float blockerSum = 0;
     float myNumBlockers = 0;
 
@@ -64,12 +64,12 @@ float vsmod_pcf(vec3 coords, float filterRadius, float seed) {
     return sum / VSMOD_SOFTSHADOWSAMPLES;
 }
 
-float vsmod_pcss(vec3 coords) {
+float vsmod_pcss_impl(vec3 coords, float bias) {
     float avgBlockerDepth = 0;
     float numBlockers = 0;
     float seed = vsmod_interleavedGradientNoise() * 3.14159265f * 2.0f;
 
-    vsmod_findBlocker(coords, seed, avgBlockerDepth, numBlockers);
+    vsmod_findBlocker(coords, seed, bias, avgBlockerDepth, numBlockers);
     if (numBlockers < 1)
         return 1.0f;
 
@@ -77,5 +77,20 @@ float vsmod_pcss(vec3 coords) {
     float filterRadiusUV = penumbraRatio * VSMOD_LIGHT_SIZE / shadowRangeNear * VSMOD_NEAR_PLANE / coords.z;
 
     return vsmod_pcf(coords, filterRadiusUV, seed);
+}
+
+float vsmod_pcss(vec3 coords) {
+    return vsmod_pcss_impl(coords, 0.0005);
+}
+
+float vsmod_pcss_sloped(vec3 coords, vec3 normal) {
+    float cosTheta = dot(normal, lightPosition);
+    if (cosTheta < 0)
+        return 0.0f;
+    
+    float bias = 0.2 * tan(acos(cosTheta));
+    bias = clamp(bias, 0.0, 0.15);
+
+    return vsmod_pcss_impl(coords, bias);
 }
 #endif

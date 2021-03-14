@@ -91,7 +91,7 @@ float getPCFBrightness(vec4 shadowCoordsNear, vec4 shadowCoordsFar) {
     return 1.0;
 }
 
-float getPCSSBrightness(vec4 shadowCoordsNear, vec4 shadowCoordsFar, float blockBrightness) {
+float getPCSSBrightness(vec4 shadowCoordsNear, vec4 shadowCoordsFar, float blockBrightness, vec3 normal) {
     #if SHADOWQUALITY > 0
 
     float totalFar = 0.0;
@@ -115,7 +115,7 @@ float getPCSSBrightness(vec4 shadowCoordsNear, vec4 shadowCoordsFar, float block
     #if VSMOD_SOFTSHADOWS > 0
     float totalNear = 1.0;
     if (shadowCoordsNear.z < 0.999 && shadowCoordsNear.w > 0) {
-        totalNear = 1.0 - vsmod_pcss(shadowCoordsNear.xyz);
+        totalNear = 1.0 - vsmod_pcss_sloped(shadowCoordsNear.xyz, normal);
     }
     #else
     float totalNear = 0.0;
@@ -151,18 +151,18 @@ float getPCFBrightnessAt(vec4 worldPos) {
     return getPCFBrightness(shadowCoordNear, shadowCoordFar);
 }
 
-float getPCSSBrightnessAt(vec4 worldPos, float blockBrightness) {
+float getPCSSBrightnessAt(vec4 worldPos, float blockBrightness, vec3 normal) {
     vec4 shadowCoordNear = vec4(0);
     vec4 shadowCoordFar = vec4(0);
 
     calcShadowMapCoords(worldPos, shadowCoordNear, shadowCoordFar);
-    return getPCSSBrightness(shadowCoordNear, shadowCoordFar, blockBrightness);
+    return getPCSSBrightness(shadowCoordNear, shadowCoordFar, blockBrightness, normal);
 }
 
 vec4 applyOverexposedFogAndShadowDeferred(vec4 worldPos, vec4 rgbaPixel, float fogWeight, vec3 normal,
     float normalShadeIntensity, float minNormalShade, float fogDensity, float blockBrightness, inout float glow) {
 
-    float b = getPCSSBrightnessAt(worldPos, blockBrightness);
+    float b = getPCSSBrightnessAt(worldPos, blockBrightness, normal);
     float nb = getBrightnessFromNormal(normal, normalShadeIntensity, minNormalShade);
 
     float outB = min(b, nb);
@@ -193,4 +193,34 @@ float getFogLevelDeferred(float depth, float fogMin, float fogDensity, float wor
     val += fogMin;
 
     return clamp(val, 0, 1);
+}
+
+float calculateVolumetricScatterDeferred(vec4 worldPos, vec4 cameraPos) {
+    #if GODRAYS > 0
+    vec4 shadowCoordsFar = toShadowMapSpaceMatrixFar * worldPos;
+    vec4 shadowRayStart = toShadowMapSpaceMatrixFar * cameraPos;
+    vec4 shadowLightPos = toShadowMapSpaceMatrixFar * vec4(lightPosition, 0.0);
+    
+    float dither = fract(0.75487765 * gl_FragCoord.x + 0.56984026 * gl_FragCoord.y);
+
+    const int maxSamples = 6;
+
+    vec3 dV = (shadowCoordsFar.xyz-shadowRayStart.xyz)/maxSamples;
+
+    vec3 progress = shadowRayStart.xyz + dV*dither;
+
+    float vL = 0.0f;
+
+    for (int i = 0; i < maxSamples; ++i) {
+        vL += texture(shadowMapFar, vec3(progress.xy, progress.z - 0.0009));
+        progress += dV;
+    }
+
+    float normalOut = min(1, vL * length(worldPos) / 1000.0f / maxSamples);
+    float intensity = dot(normalize(dV), normalize(shadowLightPos.xyz));
+    //float phase = 2.5+exp(intensity*3.0)/3.0;
+    float phase = 2.0+exp(intensity*4.0)/4.0;
+    return min(0.9f, pow(phase * normalOut, VOLUMETRIC_FLATNESS));
+    #endif
+    return 0.0f;
 }

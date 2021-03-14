@@ -66,7 +66,11 @@
   filename: chunkopaque.fsh
   tokens: "#if SSAOLEVEL > 0 outGPosition"
   content: |
+    #if VSMOD_DEFERREDLIGHTING == 0
     godrayLevel = calculateVolumetricScatter(vertexPosition);
+    #else
+    godrayLevel = 0.0;
+    #endif
     #if SSAOLEVEL > 0
     outGPosition
     
@@ -84,7 +88,7 @@
   tokens: normal = unpackNormal(renderFlags >> 7);
   content: |
     normal = unpackNormal(renderFlags >> 7);
-    #if GODRAYS > 0
+    #if GODRAYS > 0 && VSMOD_DEFERREDLIGHTING == 0
     prepareVolumetricLighting(lightPosition, rgbaLightIn);
     #endif
 
@@ -92,7 +96,11 @@
   filename: chunktopsoil.fsh
   tokens: "#if SSAOLEVEL > 0 outGPosition"
   content: |
+    #if VSMOD_DEFERREDLIGHTING == 0
     float scatterAmt = calculateVolumetricScatter(vertexPosition);
+    #else
+    float scatterAmt = 0.0;
+    #endif
     #if SSAOLEVEL > 0
     outGPosition
 
@@ -120,7 +128,7 @@
   tokens: normal = unpackNormal(renderFlags >> 7);
   content: |
     normal = unpackNormal(renderFlags >> 7);
-    #if GODRAYS > 0
+    #if GODRAYS > 0 && VSMOD_DEFERREDLIGHTING == 0
     prepareVolumetricLighting(lightPosition, rgbaLightIn);
     #endif
 
@@ -179,7 +187,11 @@
   filename: entityanimated.fsh
   tokens: "#if SSAOLEVEL > 0 outGPosition"
   content: |
+    #if VSMOD_DEFERREDLIGHTING == 0
     float scatterAmt = calculateVolumetricScatter(vertexPosition);
+    #else
+    float scatterAmt = 0.0;
+    #endif
     #if SSAOLEVEL > 0
     outGPosition
 
@@ -217,7 +229,7 @@
   filename: entityanimated.vsh
   tokens: "#if SSAOLEVEL > 0 fragPosition"
   content: |
-    #if GODRAYS > 0
+    #if GODRAYS > 0 && VSMOD_DEFERREDLIGHTING == 0
     prepareVolumetricLighting(lightPosition, rgbaLightIn);
     #endif
     #if SSAOLEVEL > 0
@@ -261,7 +273,11 @@
   filename: mechpower.fsh
   tokens: outGlow = vec4(glowLevel, 0, 0, outColor.a);
   content: |
+    #if VSMOD_DEFERREDLIGHTING == 0
     float scatterAmt = calculateVolumetricScatter(vertPos);
+    #else
+    float scatterAmt = 0.0;
+    #endif
     outGlow = vec4(glowLevel, scatterAmt, 0, outColor.a);
 
 - type: start
@@ -278,6 +294,6 @@
   content: |
     vertPos = worldPos.xyz;
     calcShadowMapCoords(modelViewMatrix, worldPos);
-    #if GODRAYS > 0
+    #if GODRAYS > 0 && VSMOD_DEFERREDLIGHTING == 0
     prepareVolumetricLighting(lightPosition, rgbaBlockIn);
     #endif

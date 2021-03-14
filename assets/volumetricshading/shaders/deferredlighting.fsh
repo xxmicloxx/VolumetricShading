@@ -50,6 +50,8 @@ void main(void)
         float fog = getFogLevelDeferred(length(screenPosition), fogMinIn, fogDensityIn, absWorldPos.y);
         color = applyOverexposedFogAndShadowDeferred(worldPosition, color, fog, worldNormal.xyz,
             1, intensity, fogDensityIn, glowVec.b, glowVec.r);
+        
+        glowVec.y = calculateVolumetricScatterDeferred(worldPosition, cameraWorldPos);
     }
     
     glowVec.z = 0.0;
