@@ -156,7 +156,7 @@
   filename: clouds.fsh
   tokens: outGlow = vec4(glow, 0
   content: |
-    float actOut = 0f;
+    float actOut = 0.0f;
     #if GODRAYS > 0
     	float normalOut = 0.1f;
     	float intensity = dot(normalize(shadowCoordsFar.xyz-shadowRayStart.xyz),  normalize(shadowLightPos.xyz-shadowRayStart.xyz));
