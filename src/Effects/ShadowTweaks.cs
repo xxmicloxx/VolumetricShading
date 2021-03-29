@@ -17,7 +17,7 @@ namespace VolumetricShading.Effects
         public ShadowTweaks(VolumetricShadingMod mod)
         {
             _mod = mod;
-            ExcludedShaders = new HashSet<string> { "sky", "clouds" };
+            ExcludedShaders = new HashSet<string> { "sky", "clouds", "gui", "guigear", "guitopsoil" };
 
             _mod.CApi.Settings.AddWatcher<int>("volumetricshading_nearShadowBaseWidth", OnNearShadowBaseWidthChanged);
             _mod.CApi.Settings.AddWatcher<bool>("volumetricshading_softShadows", OnSoftShadowsChanged);
