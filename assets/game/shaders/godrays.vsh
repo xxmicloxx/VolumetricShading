@@ -55,7 +55,7 @@ void main(void)
 
     vec3 moonColor = vec3(0.2, 0.4, 0.7) * moonLightStrength;
 
-    float height = pow(min(max(sunPos3dIn.y*1.5f, 0.0f), 1f), 2.5f);
+    float height = pow(min(max(sunPos3dIn.y*1.5f, 0.0f), 1.0f), 2.5f);
     float actualScale = height * NumDayColors;
     float cmpH = min(floor(actualScale), NumDayColors-1.0f);
     float cmpH1 = min(floor(actualScale)+1.0f, NumDayColors-1.0f);

@@ -42,6 +42,9 @@ namespace VolumetricShading
             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer,
                 FramebufferAttachment.ColorAttachment0 + textureId,
                 TextureTarget.Texture2D, fbRef.ColorTextureIds[textureId], 0);
+            GL.BindTexture(TextureTarget.Texture2D, 0);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int) TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int) TextureMinFilter.Nearest);
         }
         
         public static void SetupColorTexture(this FrameBufferRef fbRef, int textureId)
