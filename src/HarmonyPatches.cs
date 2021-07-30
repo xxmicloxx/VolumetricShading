@@ -437,7 +437,7 @@ namespace VolumetricShading
             if (vars.block.BlockMaterial == EnumBlockMaterial.Ice ||
                 vars.block.BlockMaterial == EnumBlockMaterial.Glass)
             {
-                vars.VertexFlags.Reflective = true;
+                vars.VertexFlags |= VertexFlags.ReflectiveBitMask;
             }
         }
     }
