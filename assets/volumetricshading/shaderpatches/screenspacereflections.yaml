@@ -1,8 +1,8 @@
 - type: token
   filename: chunkliquid.fsh
-  tokens: texColor.a += max(0, diff/16 + noise/4);
+  tokens: texColor.a += max(0, diff/16 + noise/4) + vn / 4;
   content: |
-    texColor.a += max(0, diff/16 + noise/4);
+    texColor.a += max(0, diff/16 + noise/4) + vn / 4;
     #if VSMOD_SSR > 0
     texColor.a *= VSMOD_SSR_WATER_TRANSPARENCY;
     #endif
