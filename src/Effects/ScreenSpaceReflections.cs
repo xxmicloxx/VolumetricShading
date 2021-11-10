@@ -475,11 +475,13 @@ namespace VolumetricShading.Effects
             for (var i = 0; i < textureIds.Length; ++i)
             {
                 shader.BindTexture2D("terrainTex", textureIds[i], 0);
-                shader.BindTexture2D("terrainTexLinear", textureIds[i], 0);
+                shader.BindTexture2D("terrainTexLinear", textureIds[i], 1);
                 pools[i].Render(cameraPos, "origin");
             }
 
             shader.Stop();
+            GL.BindSampler(0, 0);
+            GL.BindSampler(1, 0);
 
             if (_rainEnabled)
             {
