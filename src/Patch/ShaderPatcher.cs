@@ -15,9 +15,9 @@ namespace VolumetricShading.Patch
         
         private readonly YamlPatchLoader _yamlPatchLoader;
 
-        public ShaderPatcher(ICoreClientAPI capi)
+        public ShaderPatcher(ICoreClientAPI capi, string domain)
         {
-            _yamlPatchLoader = new YamlPatchLoader(this, "volumetricshading", capi);
+            _yamlPatchLoader = new YamlPatchLoader(this, domain, capi);
         }
 
         public void Reload()

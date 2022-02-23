@@ -61,7 +61,7 @@ namespace VolumetricShading
             if (Debug)
                 Mod.Logger.Event("Debugging activated");
 
-            ShaderPatcher = new ShaderPatcher(CApi);
+            ShaderPatcher = new ShaderPatcher(CApi, Mod.Info.ModID);
             ShaderInjector = new ShaderInjector(CApi, Mod.Info.ModID);
             VolumetricLighting = new VolumetricLighting(this);
             ScreenSpaceReflections = new ScreenSpaceReflections(this);
