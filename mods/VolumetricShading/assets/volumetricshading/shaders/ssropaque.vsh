@@ -56,7 +56,7 @@ void main(void)
 	// Lower 8 bit is glow level
 	renderFlags = renderFlagsIn >> 8;  
 	
-	vec3 normal = unpackNormal(renderFlags >> 7);	
+	vec3 normal = unpackNormal(renderFlagsIn);	
     worldPos.xyz += normal * 0.001;
 	
 	fragPosition = cameraPos;

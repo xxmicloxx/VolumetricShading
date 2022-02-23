@@ -58,6 +58,6 @@ void main(void)
 		gl_Position.w += (renderFlags & 7) * 0.00025 / max(0.1, gl_Position.z);
 	}
 	
-	gnormal = modelViewMatrix * vec4(unpackNormal(renderFlags >> 7).xyz, 0);
+	gnormal = modelViewMatrix * vec4(unpackNormal(renderFlagsIn).xyz, 0);
 	gposition = cameraPos;
 }

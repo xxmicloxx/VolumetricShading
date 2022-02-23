@@ -48,7 +48,7 @@ void main(void)
 	uv = uvIn;
 
 	renderFlags = renderFlagsIn >> 8;
-	normal = unpackNormal(renderFlags >> 7);
+	normal = unpackNormal(renderFlagsIn);
 	
 	fragPosition = cameraPos;
 	gnormal = modelViewMatrix * vec4(normal, 0);
