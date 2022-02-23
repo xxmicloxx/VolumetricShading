@@ -46,6 +46,7 @@ flat out int waterFlags;
 flat out float alpha;
 flat out int skyExposed;
 
+#include vertexflagbits.ash
 #include vertexwarp.vsh
 #include fogandlight.vsh
 #include colormap.vsh
