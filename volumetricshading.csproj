@@ -63,40 +63,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="assets\game\shaders\godrays.fsh" />
-    <Content Include="assets\game\shaders\godrays.vsh" />
-    <Content Include="assets\game\shaders\ssao.fsh" />
-    <Content Include="assets\volumetricshading\shaderincludes\deferredfogandlight.fsh" />
-    <Content Include="assets\volumetricshading\shaderincludes\wavenoise.ash" />
-    <Content Include="assets\volumetricshading\shaderpatches\blur.yaml" />
-    <Content Include="assets\volumetricshading\shaderpatches\deferredlighting.yaml" />
-    <Content Include="assets\volumetricshading\shaderpatches\overexposure.yaml" />
-    <Content Include="assets\volumetricshading\shaderpatches\screenspacereflections.yaml" />
-    <Content Include="assets\volumetricshading\shaderpatches\shadowtweaks.yaml" />
-    <Content Include="assets\volumetricshading\shaderpatches\volumetriclighting.yaml" />
-    <Content Include="assets\volumetricshading\shadersnippets\overexposureapply.txt" />
-    <Content Include="assets\volumetricshading\shadersnippets\softshadows.txt" />
-    <Content Include="assets\volumetricshading\shadersnippets\ssrfinalcomposite.txt" />
-    <Content Include="assets\volumetricshading\shadersnippets\ssrfinalheader.txt" />
-    <Content Include="assets\volumetricshading\shadersnippets\ssrfinalrefract.txt" />
-    <Content Include="assets\volumetricshading\shadersnippets\volumetricfinal.txt" />
-    <Content Include="assets\volumetricshading\shadersnippets\volumetriclightposition.txt" />
-    <Content Include="assets\volumetricshading\shadersnippets\volumetricscatter.txt" />
-    <Content Include="assets\volumetricshading\shadersnippets\volumetricshadowcoords.txt" />
-    <Content Include="assets\volumetricshading\shaders\deferredlighting.fsh" />
-    <Content Include="assets\volumetricshading\shaders\deferredlighting.vsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrcausticsout.fsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrcausticsout.vsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrtopsoil.fsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrtopsoil.vsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrtransparent.fsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrtransparent.vsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrliquid.fsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrliquid.vsh" />
-    <Content Include="assets\volumetricshading\shaders\ssropaque.fsh" />
-    <Content Include="assets\volumetricshading\shaders\ssropaque.vsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrout.fsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrout.vsh" />
     <Content Include="modinfo.json" />
     <Compile Include="src\Effects\DeferredLighting.cs" />
     <Compile Include="src\Effects\OverexposureEffect.cs" />

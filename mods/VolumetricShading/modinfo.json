@@ -2,11 +2,8 @@
   "type": "code",
   "modid": "volumetricshading",
   "name": "Volumetric Shading",
-  "authors": [ "xxmicloxx" ],
+  "authors": [ "xxmicloxx", "Novocain" ],
   "description": "Adds multiple shader changes to the game.",
-  "version": "0.6.1",
-  "side":  "Client",
-  "dependency": {
-    "game": ""
-  }
+  "version": "0.6.2",
+  "side":  "client"
 }
