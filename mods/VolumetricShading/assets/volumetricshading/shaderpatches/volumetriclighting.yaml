@@ -85,9 +85,9 @@
 
 - type: token
   filename: chunkopaque.vsh
-  tokens: normal = unpackNormal(renderFlags >> 7);
+  tokens: normal = unpackNormal(renderFlagsIn);
   content: |
-    normal = unpackNormal(renderFlags >> 7);
+    normal = unpackNormal(renderFlagsIn);
     #if GODRAYS > 0 && VSMOD_DEFERREDLIGHTING == 0
     prepareVolumetricLighting(lightPosition, rgbaLightIn);
     #endif
@@ -125,9 +125,9 @@
 
 - type: token
   filename: chunktopsoil.vsh
-  tokens: normal = unpackNormal(renderFlags >> 7);
+  tokens: normal = unpackNormal(renderFlags);
   content: |
-    normal = unpackNormal(renderFlags >> 7);
+    normal = unpackNormal(renderFlags);
     #if GODRAYS > 0 && VSMOD_DEFERREDLIGHTING == 0
     prepareVolumetricLighting(lightPosition, rgbaLightIn);
     #endif

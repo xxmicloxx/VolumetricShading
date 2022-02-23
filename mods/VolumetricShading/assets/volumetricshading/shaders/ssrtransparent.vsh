@@ -6,7 +6,6 @@ layout(location = 1) in vec2 uvIn;
 // rgb = block light, a=sun light level
 layout(location = 2) in vec4 rgbaLightIn;
 layout(location = 3) in int renderFlagsIn;
-layout(location = 4) in vec2 uv2In;
 
 // Bits 0..7 = season map index
 // Bits 8..11 = climate map index
@@ -14,41 +13,51 @@ layout(location = 4) in vec2 uv2In;
 // Bits 13, 14, 15 = free \o/
 // Bits 16-23 = temperature
 // Bits 24-31 = rainfall
-layout(location = 5) in int colormapData;
+layout(location = 4) in int colormapData;
 
 
 uniform vec3 origin;
 uniform mat4 projectionMatrix;
 uniform mat4 modelViewMatrix;
 
-out vec3 worldPosition;
-out vec4 fragPosition;
-out vec4 gnormal;
-out vec3 normal;
 out vec2 uv;
+out vec4 gposition;
+out vec3 fragWorldPos;
 
 flat out int renderFlags;
+out vec4 gnormal;
 
+#include vertexflagbits.ash
+#include shadowcoords.vsh
 #include fogandlight.vsh
 #include vertexwarp.vsh
+#include colormap.vsh
 
 void main(void)
 {
 	vec4 worldPos = vec4(vertexPositionIn + origin, 1.0);
 	
 	worldPos = applyVertexWarping(renderFlagsIn, worldPos);
-	worldPosition = worldPos.xyz + playerpos;
-	
+
 	vec4 cameraPos = modelViewMatrix * worldPos;
-	cameraPos.w += 0.01;
 	
 	gl_Position = projectionMatrix * cameraPos;
 	
-	uv = uvIn;
-
-	renderFlags = renderFlagsIn >> 8;
-	normal = unpackNormal(renderFlags >> 7);
+	fragWorldPos = worldPos.xyz + playerpos;
 	
-	fragPosition = cameraPos;
-	gnormal = modelViewMatrix * vec4(normal, 0);
+	calcColorMapUvs(colormapData, vec4(vertexPositionIn + origin, 1.0) + vec4(playerpos, 1), rgbaLightIn.a, false);
+	
+	uv = uvIn;
+	
+	// Lower 8 bit is glow level
+	renderFlags = renderFlagsIn >> 8;  
+	
+	// Now the lowest 3 bits are used as an unsigned number 
+	// to fix Z-Fighting on blocks over certain other blocks. 
+	if (renderFlags > 0 && gl_Position.z > 0) {
+		gl_Position.w += (renderFlags & 7) * 0.00025 / max(0.1, gl_Position.z);
+	}
+	
+	gnormal = modelViewMatrix * vec4(unpackNormal(renderFlagsIn).xyz, 0);
+	gposition = cameraPos;
 }

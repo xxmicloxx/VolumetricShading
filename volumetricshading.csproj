@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -9,14 +9,15 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>volumetricshading</RootNamespace>
     <AssemblyName>volumetricshading</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin/</OutputPath>
+    <OutputPath>mods\VolumetricShading\</OutputPath>
     <IntermediateOutputPath>..\..\obj\Debug\volumetricshading\</IntermediateOutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -25,7 +26,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin/</OutputPath>
+    <OutputPath>mods\VolumetricShading\</OutputPath>
     <IntermediateOutputPath>..\..\obj\Release\volumetricshading\</IntermediateOutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -33,10 +34,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony, Version=2.0.4.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\0Harmony.dll</HintPath>
+      <HintPath>..\..\Lib\0Harmony.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="OpenTK, Version=3.3.1.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4">
-      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\OpenTK.dll</HintPath>
+    <Reference Include="OpenTK">
+      <HintPath>..\..\Lib\OpenTK.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -47,50 +50,19 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="Vintagestory, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\Vintagestory.exe</HintPath>
+      <HintPath>..\..\Vintagestory.exe</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="VintagestoryAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\VintagestoryAPI.dll</HintPath>
+      <HintPath>..\..\VintagestoryAPI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="VintagestoryLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\VintagestoryLib.dll</HintPath>
+      <HintPath>..\..\VintagestoryLib.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="assets\game\shaders\godrays.fsh" />
-    <Content Include="assets\game\shaders\godrays.vsh" />
-    <Content Include="assets\game\shaders\ssao.fsh" />
-    <Content Include="assets\volumetricshading\shaderincludes\deferredfogandlight.fsh" />
-    <Content Include="assets\volumetricshading\shaderincludes\wavenoise.ash" />
-    <Content Include="assets\volumetricshading\shaderpatches\blur.yaml" />
-    <Content Include="assets\volumetricshading\shaderpatches\deferredlighting.yaml" />
-    <Content Include="assets\volumetricshading\shaderpatches\overexposure.yaml" />
-    <Content Include="assets\volumetricshading\shaderpatches\screenspacereflections.yaml" />
-    <Content Include="assets\volumetricshading\shaderpatches\shadowtweaks.yaml" />
-    <Content Include="assets\volumetricshading\shaderpatches\volumetriclighting.yaml" />
-    <Content Include="assets\volumetricshading\shadersnippets\overexposureapply.txt" />
-    <Content Include="assets\volumetricshading\shadersnippets\softshadows.txt" />
-    <Content Include="assets\volumetricshading\shadersnippets\ssrfinalcomposite.txt" />
-    <Content Include="assets\volumetricshading\shadersnippets\ssrfinalheader.txt" />
-    <Content Include="assets\volumetricshading\shadersnippets\ssrfinalrefract.txt" />
-    <Content Include="assets\volumetricshading\shadersnippets\volumetricfinal.txt" />
-    <Content Include="assets\volumetricshading\shadersnippets\volumetriclightposition.txt" />
-    <Content Include="assets\volumetricshading\shadersnippets\volumetricscatter.txt" />
-    <Content Include="assets\volumetricshading\shadersnippets\volumetricshadowcoords.txt" />
-    <Content Include="assets\volumetricshading\shaders\deferredlighting.fsh" />
-    <Content Include="assets\volumetricshading\shaders\deferredlighting.vsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrcausticsout.fsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrcausticsout.vsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrtopsoil.fsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrtopsoil.vsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrtransparent.fsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrtransparent.vsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrliquid.fsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrliquid.vsh" />
-    <Content Include="assets\volumetricshading\shaders\ssropaque.fsh" />
-    <Content Include="assets\volumetricshading\shaders\ssropaque.vsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrout.fsh" />
-    <Content Include="assets\volumetricshading\shaders\ssrout.vsh" />
     <Content Include="modinfo.json" />
     <Compile Include="src\Effects\DeferredLighting.cs" />
     <Compile Include="src\Effects\OverexposureEffect.cs" />

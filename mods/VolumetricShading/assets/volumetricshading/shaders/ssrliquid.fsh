@@ -134,7 +134,7 @@ void main()
     
 	outGPosition = vec4(fragPosition.xyz, 0);
 	outGNormal = vec4(normalize(camNormalMap*2 + myGNormal), 1.0 - playerUnderwater * caustics);
-    outTint = vec4(getColorMapping(terrainTex).rgb, 0);
+    outTint = vec4(getColorMapped(terrainTex, texture(terrainTex, uv)).rgb, 0);
     #if VSMOD_REFRACT > 0
     outRefraction = vec4((-camNormalMap.xy*1.2) / fragPosition.z, 0, 0);
     #endif

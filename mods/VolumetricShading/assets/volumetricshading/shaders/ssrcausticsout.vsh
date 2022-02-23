@@ -2,6 +2,7 @@
 
 out vec2 texcoord;
 
+#include vertexflagbits.ash
 #include vertexwarp.vsh
 
 void main(void)

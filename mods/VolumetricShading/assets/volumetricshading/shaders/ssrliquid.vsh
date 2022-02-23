@@ -46,6 +46,7 @@ flat out int waterFlags;
 flat out float alpha;
 flat out int skyExposed;
 
+#include vertexflagbits.ash
 #include vertexwarp.vsh
 #include fogandlight.vsh
 #include colormap.vsh
@@ -63,7 +64,7 @@ void main(void)
 	
 	gl_Position = projectionMatrix * cameraPos;
 	
-	vec3 fragNormal = unpackNormal(renderFlags >> 15);
+	vec3 fragNormal = unpackNormal(renderFlags);
 
 	fragWorldPos = worldPos.xyz + playerpos;
     fragPosition = cameraPos;

@@ -111,7 +111,7 @@ namespace VolumetricShading
 
         [HarmonyPatch("HandleIncludes")]
         [HarmonyReversePatch]
-        public static string HandleIncludes(ShaderProgram program, string code, List<IAsset> assets)
+        public static string HandleIncludes(ShaderProgram program, string code)
         {
             throw new InvalidOperationException("Stub, replaced by Harmony");
         }
@@ -126,7 +126,7 @@ namespace VolumetricShading
                 if (instruction.Calls(HandleIncludesMethod))
                 {
                     found = true;
-                    // current stack: ShaderProgram, string (shader code), List<IAsset> (include assets, unused)
+                    // current stack: ShaderProgram, string (shader code)
                     // load EnumShaderType to stack
                     yield return new CodeInstruction(OpCodes.Ldarg_1);
                     // call our own instead of original, signature needs to match stack!
@@ -144,8 +144,7 @@ namespace VolumetricShading
             }
         }
 
-        public static string LoadShaderCallsite(ShaderProgram shader, string code, List<IAsset> includes,
-            EnumShaderType type)
+        public static string LoadShaderCallsite(ShaderProgram shader, string code, EnumShaderType type)
         {
             var ext = ".unknown";
             switch (type)
@@ -163,7 +162,7 @@ namespace VolumetricShading
 
             var filename = shader.PassName + ext;
             code = VolumetricShadingMod.Instance.ShaderPatcher.Patch(filename, code);
-            return HandleIncludes(shader, code, includes);
+            return HandleIncludes(shader, code);
         }
 
         private static readonly FieldInfo IncludesField = typeof(ShaderRegistry)
@@ -272,12 +271,20 @@ namespace VolumetricShading
         public static IEnumerable<CodeInstruction> OnRenderShadowNearBaseWidthTranspiler(
             IEnumerable<CodeInstruction> instructions)
         {
-            var first = true;
+            bool found = false;
+            bool done = false;
+
             foreach (var instruction in instructions)
             {
-                if (first)
+                if (!found && instruction.opcode == OpCodes.Ret)
                 {
-                    first = false;
+                    found = true;
+                    yield return instruction;
+                }
+
+                if (found && !done)
+                {
+                    done = true;
                     // replace constant offset
                     yield return new CodeInstruction(OpCodes.Call, OnRenderShadowNearBaseWidthCallsiteMethod);
                 }
