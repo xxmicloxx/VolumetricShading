@@ -260,7 +260,6 @@ namespace VolumetricShading
         }
     }
 
-    /*
     [HarmonyPatch(typeof(SystemRenderShadowMap))]
     internal class SystemRenderShadowMapPatches
     {
@@ -272,12 +271,20 @@ namespace VolumetricShading
         public static IEnumerable<CodeInstruction> OnRenderShadowNearBaseWidthTranspiler(
             IEnumerable<CodeInstruction> instructions)
         {
-            var first = true;
+            bool found = false;
+            bool done = false;
+
             foreach (var instruction in instructions)
             {
-                if (first)
+                if (!found && instruction.opcode == OpCodes.Ret)
                 {
-                    first = false;
+                    found = true;
+                    yield return instruction;
+                }
+
+                if (found && !done)
+                {
+                    done = true;
                     // replace constant offset
                     yield return new CodeInstruction(OpCodes.Call, OnRenderShadowNearBaseWidthCallsiteMethod);
                 }
@@ -327,7 +334,6 @@ namespace VolumetricShading
             }
         }
     }
-    */
 
     [HarmonyPatch(typeof(SystemRenderSunMoon))]
     internal class SunMoonPatches
