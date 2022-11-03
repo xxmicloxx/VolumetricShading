@@ -1,8 +1,8 @@
 - type: token
   filename: chunkliquid.fsh
-  tokens: texColor.a += max(0, diff/16 + noise/4) + vn / 4;
+  tokens: texColor.a += (max(0, diff/16 + noise/4) + vn / 4) / clamp(fresnel, 0.5, 1);
   content: |
-    texColor.a += max(0, diff/16 + noise/4) + vn / 4;
+    texColor.a += (max(0, diff/16 + noise/4) + vn / 4) / clamp(fresnel, 0.5, 1);
     #if VSMOD_SSR > 0
     texColor.a *= VSMOD_SSR_WATER_TRANSPARENCY;
     #endif
@@ -18,11 +18,12 @@
 
 - type: token
   filename: chunkliquid.fsh
-  tokens: if (skyExposed > 0) { vec3 noisepos
+  tokens: "#if SHADOWQUALITY == 0 if (skyExposed > 0) { #endif"
   content: |
     #if VSMOD_SSR == 0
+    #if SHADOWQUALITY == 0
     if (skyExposed > 0) {
-    vec3 noisepos
+    #endif
 
 - type: token
   filename: chunkliquid.fsh

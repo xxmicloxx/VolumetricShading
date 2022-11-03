@@ -111,7 +111,7 @@ namespace VolumetricShading
 
         [HarmonyPatch("HandleIncludes")]
         [HarmonyReversePatch]
-        public static string HandleIncludes(ShaderProgram program, string code, List<IAsset> assets)
+        public static string HandleIncludes(ShaderProgram program, string code, HashSet<string> filenames)
         {
             throw new InvalidOperationException("Stub, replaced by Harmony");
         }
@@ -126,7 +126,7 @@ namespace VolumetricShading
                 if (instruction.Calls(HandleIncludesMethod))
                 {
                     found = true;
-                    // current stack: ShaderProgram, string (shader code), List<IAsset> (include assets, unused)
+                    // current stack: ShaderProgram, string (shader code), HashSet<string> (already included filenames, always null)
                     // load EnumShaderType to stack
                     yield return new CodeInstruction(OpCodes.Ldarg_1);
                     // call our own instead of original, signature needs to match stack!
@@ -144,10 +144,9 @@ namespace VolumetricShading
             }
         }
 
-        public static string LoadShaderCallsite(ShaderProgram shader, string code, List<IAsset> includes,
-            EnumShaderType type)
+        public static string LoadShaderCallsite(ShaderProgram shader, string code, HashSet<string> filenames, EnumShaderType type)
         {
-            var ext = ".unknown";
+            string ext;
             switch (type)
             {
                 case EnumShaderType.FragmentShader:
@@ -159,11 +158,14 @@ namespace VolumetricShading
                 case EnumShaderType.GeometryShader:
                     ext = ".gsh";
                     break;
+                default:
+                    ext = ".unknown";
+                    break;
             }
 
             var filename = shader.PassName + ext;
             code = VolumetricShadingMod.Instance.ShaderPatcher.Patch(filename, code);
-            return HandleIncludes(shader, code, includes);
+            return HandleIncludes(shader, code, filenames);
         }
 
         private static readonly FieldInfo IncludesField = typeof(ShaderRegistry)
@@ -214,53 +216,8 @@ namespace VolumetricShading
                 includes[entry.Key] = value;
             }
         }
-        
-        private static readonly MethodInfo RegisterShaderProgramCallsiteMethod =
-            typeof(ShaderRegistryPatches).GetMethod("RegisterShaderProgramCallsite");
-
-        [HarmonyPatch("RegisterShaderProgram")]
-        [HarmonyPatch(new[] {typeof(string), typeof(ShaderProgram)})]
-        [HarmonyTranspiler]
-        public static IEnumerable<CodeInstruction> RegisterShaderProgramTranspiler(
-            IEnumerable<CodeInstruction> instructions)
-        {
-            var found = false;
-            var generated = false;
-            foreach (var instruction in instructions)
-            {
-                if (found && !generated)
-                {
-                    generated = true; 
-                    yield return new CodeInstruction(OpCodes.Ldsfld, IncludesField)
-                        .WithLabels(instruction.labels);
-                    yield return new CodeInstruction(OpCodes.Call, RegisterShaderProgramCallsiteMethod);
-                    
-                    instruction.labels.Clear();
-                }
-                
-                yield return instruction;
-                if (instruction.opcode != OpCodes.Endfinally) continue;
-                
-                found = true;
-            }
-
-            if (!found)
-            {
-                throw new Exception("Could not patch RegisterShaderProgram");
-            }
-        }
-        
-        public static void RegisterShaderProgramCallsite(Dictionary<string, string> includes)
-        {
-            foreach (var entry in includes.ToList())
-            {
-                var value = VolumetricShadingMod.Instance.ShaderPatcher
-                    .Patch(entry.Key, entry.Value, true);
-                includes[entry.Key] = value;
-            }
-        }
     }
-
+    
     [HarmonyPatch(typeof(SystemRenderShadowMap))]
     internal class SystemRenderShadowMapPatches
     {
@@ -272,18 +229,15 @@ namespace VolumetricShading
         public static IEnumerable<CodeInstruction> OnRenderShadowNearBaseWidthTranspiler(
             IEnumerable<CodeInstruction> instructions)
         {
-            var first = true;
+            var found = false;
             foreach (var instruction in instructions)
             {
-                if (first)
+                yield return instruction;
+                
+                if (!found && instruction.opcode == OpCodes.Ret)
                 {
-                    first = false;
-                    // replace constant offset
+                    found = true;
                     yield return new CodeInstruction(OpCodes.Call, OnRenderShadowNearBaseWidthCallsiteMethod);
-                }
-                else
-                {
-                    yield return instruction;                    
                 }
             }
         }

@@ -1,10 +1,10 @@
 - type: token
   filename: fogandlight.fsh
-  tokens: nb = max(nb, dot(normalize(normal), vec3(0, 1, 0)) * 0.95);
+  tokens: nb = max(nb, dot(normal, vec3(0, 1, 0)) * 0.95);
   content: |
     float factor = 0.95f;
     factor = clamp(factor - 0.35f * VSMOD_OVEREXPOSURE, 0.0f, 1.0f);
-    nb = max(nb, dot(normalize(normal), vec3(0, 1, 0)) * factor);
+    nb = max(nb, dot(normal, vec3(0, 1, 0)) * factor);
 
 - type: token
   filename: fogandlight.fsh
@@ -23,11 +23,6 @@
   filename: chunkopaque.fsh
   tokens: float glow = 0;
   content: ''
-
-- type: token
-  filename: chunkopaque.fsh
-  tokens: glow = pow
-  content: glow += pow
 
 - type: start
   filename: chunktopsoil.fsh
@@ -93,11 +88,6 @@
   tokens: float glow = 0;
   content: ''
 
-- type: token
-  filename: entityanimated.fsh
-  tokens: glow = pow
-  content: glow += pow
-
 # vertexPosition in entityanimated.vsh is injected in volumetriclighting.yaml...
 
 - type: start
@@ -106,20 +96,14 @@
     uniform float extraOutGlow = 0.0;
     uniform float fogDensityIn;
 
-- type: token
-  filename: standard.fsh
-  tokens: in vec3 normal;
-  content: |
-    in vec3 normal;
-    in vec4 vertexPosition;
-
+# injected in deferredlighting.yaml...
 #- type: token
 #  filename: standard.fsh
 #  tokens: outColor = applyFogAndShadow(outColor, fogAmount);
 #  content: |
 #    float glow = 0.0;
-#    outColor = applyOverexposedFogAndShadowFlat(outColor, fogAmount, normal, vertexPosition.xyz, fogDensityIn, glow);
-#
+#    outColor = applyOverexposedFogAndShadowFlat(outColor, fogAmount, normal, worldPos.xyz, fogDensityIn, glow);
+
 - type: token
   filename: standard.fsh
   tokens: float glow = 0;
@@ -136,17 +120,3 @@
   content: |
     glow += extraOutGlow;
     outGlow = vec4
-
-- type: token
-  filename: standard.vsh
-  tokens: out vec3 normal;
-  content: |
-    out vec3 normal;
-    out vec4 vertexPosition;
-
-- type: token
-  filename: standard.vsh
-  tokens: vec4 camPos =
-  content: |
-    vertexPosition = worldPos;
-    vec4 camPos =

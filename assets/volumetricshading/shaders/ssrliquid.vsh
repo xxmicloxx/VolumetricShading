@@ -34,6 +34,7 @@ layout(location = 6) in int colormapData;
 uniform vec3 origin;
 uniform mat4 projectionMatrix;
 uniform mat4 modelViewMatrix;
+uniform vec4 rgbaFogIn;
 
 out vec2 flowVectorf;
 out vec4 worldPos;
@@ -46,6 +47,8 @@ flat out int waterFlags;
 flat out float alpha;
 flat out int skyExposed;
 
+
+#include vertexflagbits.ash
 #include vertexwarp.vsh
 #include fogandlight.vsh
 #include colormap.vsh
@@ -63,7 +66,7 @@ void main(void)
 	
 	gl_Position = projectionMatrix * cameraPos;
 	
-	vec3 fragNormal = unpackNormal(renderFlags >> 15);
+	vec3 fragNormal = unpackNormal(renderFlags);
 
 	fragWorldPos = worldPos.xyz + playerpos;
     fragPosition = cameraPos;

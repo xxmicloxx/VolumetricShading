@@ -18,8 +18,8 @@ uniform float fogMinIn;
 uniform vec4 rgbaFog;
 
 #include noise3d.ash
-#include wavenoise.ash
 #include fogandlight.fsh
+#include wavenoise.ash
 #include deferredfogandlight.fsh
 
 void main(void)

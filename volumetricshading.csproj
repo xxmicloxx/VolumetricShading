@@ -32,11 +32,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony, Version=2.0.4.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\0Harmony.dll</HintPath>
+    <Reference Include="0Harmony">
+      <HintPath>..\..\..\..\AppData\Roaming\Vintagestory\Lib\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="OpenTK, Version=3.3.1.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4">
-      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\Lib\OpenTK.dll</HintPath>
+    <Reference Include="OpenTK">
+      <HintPath>..\..\..\..\AppData\Roaming\Vintagestory\Lib\OpenTK.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -46,14 +46,14 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="Vintagestory, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\Vintagestory.exe</HintPath>
+    <Reference Include="Vintagestory">
+      <HintPath>..\..\..\..\AppData\Roaming\Vintagestory\Vintagestory.exe</HintPath>
     </Reference>
-    <Reference Include="VintagestoryAPI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\VintagestoryAPI.dll</HintPath>
+    <Reference Include="VintagestoryAPI">
+      <HintPath>..\..\..\..\AppData\Roaming\Vintagestory\VintagestoryAPI.dll</HintPath>
     </Reference>
-    <Reference Include="VintagestoryLib, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\..\..\AppData\Roaming\Vintagestory\VintagestoryLib.dll</HintPath>
+    <Reference Include="VintagestoryLib">
+      <HintPath>..\..\..\..\AppData\Roaming\Vintagestory\VintagestoryLib.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

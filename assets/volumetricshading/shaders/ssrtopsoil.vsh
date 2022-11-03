@@ -29,6 +29,7 @@ out vec2 uv;
 
 flat out int renderFlags;
 
+#include vertexflagbits.ash
 #include fogandlight.vsh
 #include vertexwarp.vsh
 
@@ -47,7 +48,7 @@ void main(void)
 	uv = uvIn;
 
 	renderFlags = renderFlagsIn >> 8;
-	normal = unpackNormal(renderFlags >> 7);
+	normal = unpackNormal(renderFlagsIn);
 	
 	fragPosition = cameraPos;
 	gnormal = modelViewMatrix * vec4(normal, 0);

@@ -17,19 +17,21 @@ layout(location = 2) out vec4 outTint;
 layout(location = 3) out vec4 outRefraction;
 #endif
 
+#include vertexflagbits.ash
 #include colormap.fsh
 
 
 void main()
 {
     // read shiny flag
-    if (((renderFlags >> 5) & 1) == 0) discard;
+    if ((renderFlags & ReflectiveBitMask) == 0) discard;
     vec4 color = texture(terrainTex, uv);
     if (color.a < 0.5) discard;
 
 	outGPosition = vec4(fragPosition.xyz, 0);
 	outGNormal = vec4(normalize(gnormal.xyz), playerUnderwater);
-    outTint = vec4(pow(color.rgb, vec3(2.2)) * getColorMapping(terrainTexLinear).rgb, 0);
+	color = vec4(pow(color.rgb, vec3(2.2)), 1.0);
+    outTint = vec4(getColorMapped(terrainTexLinear, color).rgb, 0);
     #if VSMOD_REFRACT > 0
     outRefraction = vec4(0, 0, 0, 1);
     #endif

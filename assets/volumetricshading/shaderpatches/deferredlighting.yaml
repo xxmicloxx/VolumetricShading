@@ -4,7 +4,7 @@
   content: |
     float glow = 0.0;
     #if VSMOD_DEFERREDLIGHTING == 0
-    outColor = applyOverexposedFogAndShadow(outColor, fogAmount, normal, 1.0, intensity, vertexPosition, fogDensityIn, glow);
+    outColor = applyOverexposedFogAndShadow(outColor, fogAmount, normal, 1.0, intensity, worldPos.xyz, fogDensityIn, glow);
     #endif
 
 # TODO get rid of this by deferring godrays
@@ -24,7 +24,7 @@
     #if VSMOD_DEFERREDLIGHTING > 0
     outColor = texColor;
     #else
-    outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1.0, intensity, vertexPosition, fogDensityIn, glow);
+    outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1.0, intensity, worldPos.xyz, fogDensityIn, glow);
     #endif
 
 - type: token
@@ -43,7 +43,7 @@
     #if VSMOD_DEFERREDLIGHTING > 0
     outColor = texColor;
     #else
-    outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1.0, intensity, vertexPosition, fogDensityIn, glow);
+    outColor = applyOverexposedFogAndShadow(texColor, fogAmount, normal, 1.0, intensity, worldPos.xyz, fogDensityIn, glow);
     #endif
 
 - type: token
@@ -60,7 +60,7 @@
   content: |
     float glow = 0.0;
     #if VSMOD_DEFERREDLIGHTING == 0
-    outColor = applyOverexposedFogAndShadowFlat(outColor, fogAmount, normal, vertexPosition.xyz, fogDensityIn, glow);
+    outColor = applyOverexposedFogAndShadowFlat(outColor, fogAmount, normal, worldPos.xyz, fogDensityIn, glow);
     #endif
 
 - type: token
@@ -74,12 +74,12 @@
 # output blockBrightness
 - type: token
   filename: chunkopaque.fsh
-  tokens: vec4(glowLevel + glow, godrayLevel, 0, outColor.a);
+  tokens: vec4(glowLevel + glow, godrayLevel, 0, min(1, fogAmount + outColor.a));
   content: "\n
     #if SHADOWQUALITY > 0\n
-    vec4(glowLevel + glow, godrayLevel, blockBrightness, outColor.a);\n
+    vec4(glowLevel + glow, godrayLevel, blockBrightness, min(1, fogAmount + outColor.a));\n
     #else\n
-    vec4(glowLevel + glow, godrayLevel, 0, outColor.a);\n
+    vec4(glowLevel + glow, godrayLevel, 0, min(1, fogAmount + outColor.a));\n
     #endif\n"
 
 - type: token

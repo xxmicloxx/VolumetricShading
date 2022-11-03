@@ -186,7 +186,7 @@ float getFogLevelDeferred(float depth, float fogMin, float fogDensity, float wor
     float flatFog = 1 - 1 / exp(heightDiff * flatFogDensity);
 
     float val = max(flatFog, distanceFog);
-    float nearnessToPlayer = clamp((8-depth)/16, 0, 0.8);
+    float nearnessToPlayer = clamp((8-depth)/8, 0, 0.9);
     val = max(min(0.04, val), val - nearnessToPlayer);
 
     // Needs to be added after so that underwater fog still gets applied. 

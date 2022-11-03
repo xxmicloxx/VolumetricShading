@@ -46,7 +46,7 @@ namespace VolumetricShading
 
         public override void StartPre(ICoreAPI api)
         {
-            if (!(api is ICoreClientAPI))
+            if (!(api is ICoreClientAPI clientApi))
             {
                 return;
             }
@@ -54,14 +54,14 @@ namespace VolumetricShading
             SetConfigDefaults();
             
             Instance = this;
-            CApi = (ICoreClientAPI) api;
+            CApi = clientApi;
             Events = new Events();
             Uniforms = new Uniforms(this);
             Debug = Environment.GetEnvironmentVariable("VOLUMETRICSHADING_DEBUG").ToBool();
             if (Debug)
                 Mod.Logger.Event("Debugging activated");
 
-            ShaderPatcher = new ShaderPatcher(CApi);
+            ShaderPatcher = new ShaderPatcher(CApi, Mod.Info.ModID);
             ShaderInjector = new ShaderInjector(CApi, Mod.Info.ModID);
             VolumetricLighting = new VolumetricLighting(this);
             ScreenSpaceReflections = new ScreenSpaceReflections(this);

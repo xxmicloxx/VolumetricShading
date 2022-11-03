@@ -67,7 +67,7 @@
   tokens: "#if SSAOLEVEL > 0 outGPosition"
   content: |
     #if VSMOD_DEFERREDLIGHTING == 0
-    godrayLevel = calculateVolumetricScatter(vertexPosition);
+    godrayLevel = calculateVolumetricScatter(worldPos.xyz);
     #else
     godrayLevel = 0.0;
     #endif
@@ -76,8 +76,8 @@
     
 - type: token
   filename: chunkopaque.fsh
-  tokens: vec4(fragPosition.xyz, fogAmount + glowLevel);
-  content: vec4(fragPosition.xyz, fogAmount + glowLevel + godrayLevel * VOLUMETRIC_SSAO_DECLINE);
+  tokens: vec4(camPos.xyz, fogAmount * 2 + glowLevel);
+  content: vec4(camPos.xyz, fogAmount * 2 + glowLevel + godrayLevel * VOLUMETRIC_SSAO_DECLINE);
 
 - type: start
   filename: chunkopaque.vsh
@@ -85,9 +85,9 @@
 
 - type: token
   filename: chunkopaque.vsh
-  tokens: normal = unpackNormal(renderFlags >> 7);
+  tokens: normal = unpackNormal(renderFlagsIn);
   content: |
-    normal = unpackNormal(renderFlags >> 7);
+    normal = unpackNormal(renderFlagsIn);
     #if GODRAYS > 0 && VSMOD_DEFERREDLIGHTING == 0
     prepareVolumetricLighting(lightPosition, rgbaLightIn);
     #endif
@@ -97,7 +97,7 @@
   tokens: "#if SSAOLEVEL > 0 outGPosition"
   content: |
     #if VSMOD_DEFERREDLIGHTING == 0
-    float scatterAmt = calculateVolumetricScatter(vertexPosition);
+    float scatterAmt = calculateVolumetricScatter(worldPos.xyz);
     #else
     float scatterAmt = 0.0;
     #endif
@@ -106,8 +106,8 @@
 
 - type: token
   filename: chunktopsoil.fsh
-  tokens: vec4(fragPosition.xyz, fogAmount + glowLevel);
-  content: vec4(fragPosition.xyz, fogAmount + glowLevel + scatterAmt * VOLUMETRIC_SSAO_DECLINE);
+  tokens: vec4(fragPosition.xyz, fogAmount * 2 + glowLevel);
+  content: vec4(fragPosition.xyz, fogAmount * 2 + glowLevel + scatterAmt * VOLUMETRIC_SSAO_DECLINE);
 
 - type: token
   filename: chunktopsoil.fsh
@@ -125,9 +125,9 @@
 
 - type: token
   filename: chunktopsoil.vsh
-  tokens: normal = unpackNormal(renderFlags >> 7);
+  tokens: normal = unpackNormal(renderFlags);
   content: |
-    normal = unpackNormal(renderFlags >> 7);
+    normal = unpackNormal(renderFlags);
     #if GODRAYS > 0 && VSMOD_DEFERREDLIGHTING == 0
     prepareVolumetricLighting(lightPosition, rgbaLightIn);
     #endif
@@ -171,24 +171,20 @@
 
 - type: token
   filename: clouds.vsh
-  tokens: rgbaCloud.a = clamp(rgbaCloud.a, 0, 1);
+  tokens: rgbaCloud.a = alpha * clamp(rgbaCloud.a, 0, 1);
   content: |
-    rgbaCloud.a = clamp(rgbaCloud.a, 0, 1);
+    rgbaCloud.a = alpha * clamp(rgbaCloud.a, 0, 1);
     #if GODRAYS > 0
     prepareVolumetricLightingFlat(lightPosition);
     #endif
     calcShadowMapCoords(modelViewMatrix, vec4(vexPos, 1.0));
-
-- type: start
-  filename: entityanimated.fsh
-  content: in vec3 vertexPosition;
 
 - type: token
   filename: entityanimated.fsh
   tokens: "#if SSAOLEVEL > 0 outGPosition"
   content: |
     #if VSMOD_DEFERREDLIGHTING == 0
-    float scatterAmt = calculateVolumetricScatter(vertexPosition);
+    float scatterAmt = calculateVolumetricScatter(worldPos.xyz);
     #else
     float scatterAmt = 0.0;
     #endif
@@ -213,17 +209,9 @@
 - type: start
   filename: entityanimated.vsh
   content: |
-    out vec3 vertexPosition;
     #if GODRAYS > 0
     uniform vec3 lightPosition;
     #endif
-
-- type: token
-  filename: entityanimated.vsh
-  tokens: worldPos = applyVertexWarping(flags | addRenderFlags, worldPos);
-  content: |
-    worldPos = applyVertexWarping(flags | addRenderFlags, worldPos);
-    vertexPosition = worldPos.xyz;
 
 - type: token
   filename: entityanimated.vsh

@@ -6,6 +6,7 @@ uniform mat4 modelViewMatrix;
 uniform float dropletIntensity = 0;
 uniform float playerUnderwater;
 uniform vec4 cameraWorldPosition;
+const vec4 rgbaFog = vec4(0);
 
 in vec4 worldPos;
 in vec4 fragPosition;
@@ -26,6 +27,7 @@ layout(location = 3) out vec4 outRefraction;
 #endif
 
 #include colormap.fsh
+#include fogandlight.fsh
 #include noise3d.ash
 #include wavenoise.ash
 #generated dropletnoise
@@ -134,7 +136,7 @@ void main()
     
 	outGPosition = vec4(fragPosition.xyz, 0);
 	outGNormal = vec4(normalize(camNormalMap*2 + myGNormal), 1.0 - playerUnderwater * caustics);
-    outTint = vec4(getColorMapping(terrainTex).rgb, 0);
+    outTint = vec4(getColorMapped(terrainTex, vec4(1)).rgb, 0);
     #if VSMOD_REFRACT > 0
     outRefraction = vec4((-camNormalMap.xy*1.2) / fragPosition.z, 0, 0);
     #endif
