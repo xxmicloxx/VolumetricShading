@@ -178,8 +178,8 @@ namespace VolumetricShading.Effects
             GL.ClearBuffer(ClearBuffer.Color, 0, new [] { 0f, 0f, 0f, 1f });
             GL.ClearBuffer(ClearBuffer.Color, 1, new [] { 0f, 0f, 0f, 1f });
 
-            var ambient = _mod.CApi.Ambient;
-            var uniforms = _mod.CApi.Render.ShaderUniforms;
+            var render = _mod.CApi.Render;
+            var uniforms = render.ShaderUniforms;
             var myUniforms = _mod.Uniforms;
             
             var fb = _frameBuffer;
@@ -199,10 +199,8 @@ namespace VolumetricShading.Effects
             s.UniformMatrix("invProjectionMatrix", myUniforms.InvProjectionMatrix);
             s.UniformMatrix("invModelViewMatrix", myUniforms.InvModelViewMatrix);
             s.Uniform("dayLight", myUniforms.DayLight);
-            s.Uniform("playerPos", uniforms.PlayerPos);
             s.Uniform("sunPosition", uniforms.SunPosition3D);
-            
-            
+
             if (ShaderProgramBase.shadowmapQuality > 0)
             {
                 s.Uniform("shadowRangeFar", uniforms.ShadowRangeFar);
@@ -211,9 +209,13 @@ namespace VolumetricShading.Effects
                 s.UniformMatrix("toShadowMapSpaceMatrixNear", uniforms.ToShadowMapSpaceMatrixNear);
             }
             
-            s.Uniform("fogDensityIn", ambient.BlendedFogDensity);
-            s.Uniform("fogMinIn", ambient.BlendedFogMin);
-            s.Uniform("rgbaFog", ambient.BlendedFogColor);
+            s.Uniform("fogDensityIn", render.FogDensity);
+            s.Uniform("fogMinIn", render.FogMin);
+            s.Uniform("rgbaFog", render.FogColor);
+            s.Uniform("flatFogDensity", uniforms.FlagFogDensity);
+            s.Uniform("flatFogStart", uniforms.FlatFogStartYPos - uniforms.PlayerPos.Y);
+            s.Uniform("viewDistance", ClientSettings.ViewDistance);
+            s.Uniform("viewDistanceLod0", ClientSettings.ViewDistance * ClientSettings.LodBias);
 
             _platform.RenderFullscreenTriangle(_screenQuad);
             s.Stop();

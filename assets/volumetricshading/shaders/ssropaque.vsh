@@ -45,7 +45,6 @@ void main(void)
 	
 	calcColorMapUvs(colormapData, worldPos + vec4(playerpos,1), rgbaLightIn.a, isLeaves);
 	
-	// Lower 8 bit is glow level
 	renderFlags = renderFlagsIn;  
 	vec3 normal = unpackNormal(renderFlagsIn);	
     worldPos.xyz += normal * 0.001;

@@ -458,7 +458,8 @@ namespace VolumetricShading.Effects
 
             var climateAt =
                 _game.BlockAccessor.GetClimateAt(_game.EntityPlayer.Pos.AsBlockPos, EnumGetClimateMode.NowValues);
-            var curRainFall = climateAt.Rainfall;
+            var num = GameMath.Clamp((float) ((climateAt.Temperature + 1.0) / 4.0), 0.0f, 1f);
+            var curRainFall = climateAt.Rainfall * num;
 
             var cameraPos = _game.EntityPlayer.CameraPos;
 

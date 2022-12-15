@@ -61,7 +61,7 @@ void generateNoiseParallax(inout vec3 normalMap, vec3 viewVector, float div, out
 float generateSplash(vec3 pos)
 {
     vec3 localPos = fract(pos.xyz / 512.0) * 512.0;
-    vec2 uv = 6.0 * localPos.xz;
+    vec2 uv = 5.0 * pos.xz;
     
     return dropletnoise(uv, waterWaveCounter);
 }
@@ -120,7 +120,7 @@ void main()
     vec3 viewTangent = normalize(invTbn * (worldPos.xyz - cameraWorldPosition.xyz));
     generateNoiseParallax(normalMap, viewTangent, div, parallaxPos);
 
-    if (skyExposed > 0 && dropletIntensity > 0.001) {
+    if (dropletIntensity > 0.001) {
         //generateSplash(fragWorldPos.xyz);
         generateSplashBump(normalMap, parallaxPos);
     }

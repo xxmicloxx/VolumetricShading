@@ -60,8 +60,13 @@
   content: |
     float glow = 0.0;
     #if VSMOD_DEFERREDLIGHTING == 0
-    outColor = applyOverexposedFogAndShadowFlat(outColor, fogAmount, normal, worldPos.xyz, fogDensityIn, glow);
+    outColor = applyOverexposedFogAndShadow(outColor, fogAmount, normal, 1.0, 0.45, worldPos.xyz, fogDensityIn, glow);
     #endif
+
+- type: token
+  filename: standard.fsh
+  tokens: if (normalShaded > 0) {
+  content: if (1 != 1) {
 
 - type: token
   filename: standard.vsh
@@ -93,3 +98,20 @@
     #endif\n"
 
 # topsoil, entityanimated patched in volumetriclighting.yaml
+
+- type: token
+  filename: instanced.fsh
+  tokens: outColor = applyFogAndShadowWithNormal(outColor, fogAmount, normal, 1, 0.45);
+  content: |
+    float glow = 0.0;
+    #if VSMOD_DEFERREDLIGHTING == 0
+    outColor = applyOverexposedFogAndShadow(outColor, fogAmount, normal, 1.0, 0.45, worldPos.xyz, fogDensityIn, glow);
+    #endif
+    
+- type: token
+  filename: instanced.vsh
+  tokens: calcShadowMapCoords(modelViewMatrix, worldPos);
+  content: |
+    #if VSMOD_DEFERREDLIGHTING == 0
+    calcShadowMapCoords(modelViewMatrix, worldPos);
+    #endif

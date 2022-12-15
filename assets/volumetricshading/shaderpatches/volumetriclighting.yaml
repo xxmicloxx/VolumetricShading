@@ -285,3 +285,18 @@
     #if GODRAYS > 0 && VSMOD_DEFERREDLIGHTING == 0
     prepareVolumetricLighting(lightPosition, rgbaBlockIn);
     #endif
+
+- type: start
+  filename: instanced.fsh
+  content: |
+    in vec4 worldPos;
+    uniform float fogDensityIn;
+    
+- type: start
+  filename: instanced.vsh
+  content: out vec4 worldPos;
+
+- type: token
+  filename: instanced.vsh
+  tokens: vec4 worldPos =
+  content: worldPos =

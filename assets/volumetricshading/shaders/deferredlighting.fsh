@@ -10,7 +10,6 @@ uniform mat4 invModelViewMatrix;
 
 uniform float dayLight;
 uniform vec3 sunPosition;
-uniform vec3 playerPos;
 
 in vec2 texcoord;
 out vec4 outColor;
@@ -44,10 +43,8 @@ void main(void)
         vec4 worldPosition = invModelViewMatrix * screenPosition;
         vec4 cameraWorldPos = invModelViewMatrix * vec4(0, 0, 0, 1);
         vec4 worldNormal = invModelViewMatrix * vec4(normal.xyz, 0);
-
-        vec3 absWorldPos = worldPosition.xyz + playerPos;
         
-        float fog = getFogLevelDeferred(length(screenPosition), fogMinIn, fogDensityIn, absWorldPos.y);
+        float fog = getFogLevelDeferred(length(screenPosition), fogMinIn, fogDensityIn, worldPosition.y);
         color = applyOverexposedFogAndShadowDeferred(worldPosition, color, fog, worldNormal.xyz,
             1, intensity, fogDensityIn, glowVec.b, glowVec.r);
         

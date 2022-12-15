@@ -18,6 +18,12 @@ namespace VolumetricShading
 
         private static readonly MethodInfo GodrayCallsiteMethod = typeof(PlatformPatches).GetMethod("GodrayCallsite");
 
+
+        private static readonly MethodInfo PrimaryScene2DSetter =
+            typeof(ShaderProgramFinal).GetProperty("PrimaryScene2D")?.SetMethod;
+
+        private static readonly MethodInfo FinalCallsiteMethod = typeof(PlatformPatches).GetMethod("FinalCallsite");
+
         [HarmonyPatch("RenderPostprocessingEffects")]
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> PostprocessingTranspiler(IEnumerable<CodeInstruction> instructions)
@@ -34,22 +40,13 @@ namespace VolumetricShading
                 found = true;
             }
 
-            if (found is false)
-            {
-                throw new Exception("Could not patch RenderPostprocessingEffects!");
-            }
+            if (found is false) throw new Exception("Could not patch RenderPostprocessingEffects!");
         }
 
         public static void GodrayCallsite(ShaderProgramGodrays rays)
         {
             VolumetricShadingMod.Instance.Events.EmitPreGodraysRender(rays);
         }
-
-
-        private static readonly MethodInfo PrimaryScene2DSetter =
-            typeof(ShaderProgramFinal).GetProperty("PrimaryScene2D")?.SetMethod;
-
-        private static readonly MethodInfo FinalCallsiteMethod = typeof(PlatformPatches).GetMethod("FinalCallsite");
 
         [HarmonyPatch("RenderFinalComposition")]
         [HarmonyTranspiler]
@@ -72,10 +69,7 @@ namespace VolumetricShading
                 found = true;
             }
 
-            if (found is false)
-            {
-                throw new Exception("Could not patch RenderFinalComposition!");
-            }
+            if (found is false) throw new Exception("Could not patch RenderFinalComposition!");
         }
 
         public static void FinalCallsite(ShaderProgramFinal final)
@@ -96,6 +90,18 @@ namespace VolumetricShading
     [HarmonyPatch(typeof(ShaderRegistry))]
     internal class ShaderRegistryPatches
     {
+        private static readonly MethodInfo HandleIncludesMethod = typeof(ShaderRegistry)
+            .GetMethod("HandleIncludes", BindingFlags.Static | BindingFlags.NonPublic);
+
+        private static readonly MethodInfo LoadShaderCallsiteMethod =
+            typeof(ShaderRegistryPatches).GetMethod("LoadShaderCallsite");
+
+        private static readonly FieldInfo IncludesField = typeof(ShaderRegistry)
+            .GetField("includes", BindingFlags.Static | BindingFlags.NonPublic);
+
+        private static readonly MethodInfo LoadRegisteredCallsiteMethod =
+            typeof(ShaderRegistryPatches).GetMethod("LoadRegisteredCallsite");
+
         [HarmonyPatch("LoadShader")]
         [HarmonyPostfix]
         public static void LoadShaderPostfix(ShaderProgram program, EnumShaderType shaderType)
@@ -103,26 +109,19 @@ namespace VolumetricShading
             VolumetricShadingMod.Instance.ShaderInjector.OnShaderLoaded(program, shaderType);
         }
 
-        private static readonly MethodInfo HandleIncludesMethod = typeof(ShaderRegistry)
-            .GetMethod("HandleIncludes", BindingFlags.Static | BindingFlags.NonPublic);
-
-        private static readonly MethodInfo LoadShaderCallsiteMethod =
-            typeof(ShaderRegistryPatches).GetMethod("LoadShaderCallsite");
-
         [HarmonyPatch("HandleIncludes")]
         [HarmonyReversePatch]
         public static string HandleIncludes(ShaderProgram program, string code, HashSet<string> filenames)
         {
             throw new InvalidOperationException("Stub, replaced by Harmony");
         }
-        
+
         [HarmonyPatch("LoadShader")]
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> LoadShaderTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             var found = false;
             foreach (var instruction in instructions)
-            {
                 if (instruction.Calls(HandleIncludesMethod))
                 {
                     found = true;
@@ -136,15 +135,12 @@ namespace VolumetricShading
                 {
                     yield return instruction;
                 }
-            }
 
-            if (!found)
-            {
-                throw new Exception("Could not transpile LoadShader");
-            }
+            if (!found) throw new Exception("Could not transpile LoadShader");
         }
 
-        public static string LoadShaderCallsite(ShaderProgram shader, string code, HashSet<string> filenames, EnumShaderType type)
+        public static string LoadShaderCallsite(ShaderProgram shader, string code, HashSet<string> filenames,
+            EnumShaderType type)
         {
             string ext;
             switch (type)
@@ -168,12 +164,6 @@ namespace VolumetricShading
             return HandleIncludes(shader, code, filenames);
         }
 
-        private static readonly FieldInfo IncludesField = typeof(ShaderRegistry)
-            .GetField("includes", BindingFlags.Static | BindingFlags.NonPublic);
-        
-        private static readonly MethodInfo LoadRegisteredCallsiteMethod =
-            typeof(ShaderRegistryPatches).GetMethod("LoadRegisteredCallsite");
-
         [HarmonyPatch("loadRegisteredShaderPrograms")]
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> LoadRegisteredShaderProgramsTranspiler(
@@ -185,30 +175,27 @@ namespace VolumetricShading
             {
                 if (found && !generated)
                 {
-                    generated = true; 
+                    generated = true;
                     yield return new CodeInstruction(OpCodes.Ldsfld, IncludesField)
                         .WithLabels(instruction.labels);
                     yield return new CodeInstruction(OpCodes.Call, LoadRegisteredCallsiteMethod);
-                    
+
                     instruction.labels.Clear();
                 }
-                
+
                 yield return instruction;
                 if (instruction.opcode != OpCodes.Endfinally) continue;
-                
+
                 found = true;
             }
 
-            if (!found)
-            {
-                throw new Exception("Could not patch loadRegisteredShaderPrograms");
-            }
+            if (!found) throw new Exception("Could not patch loadRegisteredShaderPrograms");
         }
 
         public static void LoadRegisteredCallsite(Dictionary<string, string> includes)
         {
             VolumetricShadingMod.Instance.ShaderPatcher.Reload();
-            
+
             foreach (var entry in includes.ToList())
             {
                 var value = VolumetricShadingMod.Instance.ShaderPatcher
@@ -217,38 +204,48 @@ namespace VolumetricShading
             }
         }
     }
-    
+
     [HarmonyPatch(typeof(SystemRenderShadowMap))]
     internal class SystemRenderShadowMapPatches
     {
         private static readonly MethodInfo OnRenderShadowNearBaseWidthCallsiteMethod =
             typeof(SystemRenderShadowMapPatches).GetMethod("OnRenderShadowNearBaseWidthCallsite");
-        
+
+        private static readonly MethodInfo PrepareForShadowRenderingMethod = typeof(SystemRenderShadowMap)
+            .GetMethod("PrepareForShadowRendering", BindingFlags.Instance | BindingFlags.NonPublic);
+
         [HarmonyPatch("OnRenderShadowNear")]
         [HarmonyTranspiler]
         public static IEnumerable<CodeInstruction> OnRenderShadowNearBaseWidthTranspiler(
             IEnumerable<CodeInstruction> instructions)
         {
             var found = false;
+            var replaceNext = false;
             foreach (var instruction in instructions)
             {
+                if (replaceNext)
+                {
+                    replaceNext = false;
+                    yield return new CodeInstruction(OpCodes.Call, OnRenderShadowNearBaseWidthCallsiteMethod)
+                        .WithLabels(instruction.labels);
+                    
+                    continue;
+                }
+
                 yield return instruction;
-                
+
                 if (!found && instruction.opcode == OpCodes.Ret)
                 {
                     found = true;
-                    yield return new CodeInstruction(OpCodes.Call, OnRenderShadowNearBaseWidthCallsiteMethod);
+                    replaceNext = true;
                 }
             }
         }
-        
+
         public static int OnRenderShadowNearBaseWidthCallsite()
         {
             return VolumetricShadingMod.Instance.ShadowTweaks.NearShadowBaseWidth;
         }
-
-        private static readonly MethodInfo PrepareForShadowRenderingMethod = typeof(SystemRenderShadowMap)
-            .GetMethod("PrepareForShadowRendering", BindingFlags.Instance | BindingFlags.NonPublic);
 
         [HarmonyPatch("OnRenderShadowNear")]
         [HarmonyTranspiler]
@@ -261,24 +258,21 @@ namespace VolumetricShading
                 if (instruction.Calls(PrepareForShadowRenderingMethod))
                 {
                     found = true;
-                    
+
                     // fixes some shadow glitches by increasing the extra culling range for shadows
-                    yield return new CodeInstruction(OpCodes.Ldc_R4, (float) 32);
+                    yield return new CodeInstruction(OpCodes.Ldc_R4, (float)32);
                 }
                 else if (previousInstruction != null)
                 {
                     yield return previousInstruction;
                 }
-                
+
                 previousInstruction = instruction;
             }
-            
+
             yield return previousInstruction;
 
-            if (!found)
-            {
-                throw new Exception("Could not patch OnRenderShadowNear for further Z extension");
-            }
+            if (!found) throw new Exception("Could not patch OnRenderShadowNear for further Z extension");
         }
     }
 
@@ -311,10 +305,7 @@ namespace VolumetricShading
                 found = true;
             }
 
-            if (found is false)
-            {
-                throw new Exception("Could not patch RenderPostprocessingEffects!");
-            }
+            if (found is false) throw new Exception("Could not patch RenderPostprocessingEffects!");
         }
 
         [HarmonyPatch("OnRenderFrame3DPost")]
@@ -353,10 +344,7 @@ namespace VolumetricShading
                 found = true;
             }
 
-            if (found is false)
-            {
-                throw new Exception("Could not patch RenderFinalComposition!");
-            }
+            if (found is false) throw new Exception("Could not patch RenderFinalComposition!");
         }
 
         public static void RenderCallsite(ShaderProgramStandard standard)
@@ -368,31 +356,53 @@ namespace VolumetricShading
     [HarmonyPatch]
     internal class IceAndGlassPatches
     {
-        [HarmonyPatch(typeof(CubeTesselator), "Tesselate")][HarmonyPrefix]
-        public static void CubeTesselator(ref TCTCache vars) => Tesselate(ref vars);
+        [HarmonyPatch(typeof(CubeTesselator), "Tesselate")]
+        [HarmonyPrefix]
+        public static void CubeTesselator(ref TCTCache vars)
+        {
+            Tesselate(ref vars);
+        }
 
-        [HarmonyPatch(typeof(LiquidTesselator), "Tesselate")][HarmonyPrefix]
-        public static void LiquidTesselator(ref TCTCache vars) => Tesselate(ref vars);
+        [HarmonyPatch(typeof(LiquidTesselator), "Tesselate")]
+        [HarmonyPrefix]
+        public static void LiquidTesselator(ref TCTCache vars)
+        {
+            Tesselate(ref vars);
+        }
 
-        [HarmonyPatch(typeof(TopsoilTesselator), "Tesselate")][HarmonyPrefix]
-        public static void TopsoilTesselator(ref TCTCache vars) => Tesselate(ref vars);
+        [HarmonyPatch(typeof(TopsoilTesselator), "Tesselate")]
+        [HarmonyPrefix]
+        public static void TopsoilTesselator(ref TCTCache vars)
+        {
+            Tesselate(ref vars);
+        }
 
-        [HarmonyPatch(typeof(JsonTesselator), "Tesselate")][HarmonyPrefix]
-        public static void JsonTesselator(ref TCTCache vars) => Tesselate(ref vars);
+        [HarmonyPatch(typeof(JsonTesselator), "Tesselate")]
+        [HarmonyPrefix]
+        public static void JsonTesselator(ref TCTCache vars)
+        {
+            Tesselate(ref vars);
+        }
 
-        [HarmonyPatch(typeof(JsonAndSnowLayerTesselator), "Tesselate")][HarmonyPrefix]
-        public static void JsonAndSnowLayerTesselator(ref TCTCache vars) => Tesselate(ref vars);
+        [HarmonyPatch(typeof(JsonAndSnowLayerTesselator), "Tesselate")]
+        [HarmonyPrefix]
+        public static void JsonAndSnowLayerTesselator(ref TCTCache vars)
+        {
+            Tesselate(ref vars);
+        }
 
-        [HarmonyPatch(typeof(JsonAndLiquidTesselator), "Tesselate")][HarmonyPrefix]
-        public static void JsonAndLiquidTesselator(ref TCTCache vars) => Tesselate(ref vars);
+        [HarmonyPatch(typeof(JsonAndLiquidTesselator), "Tesselate")]
+        [HarmonyPrefix]
+        public static void JsonAndLiquidTesselator(ref TCTCache vars)
+        {
+            Tesselate(ref vars);
+        }
 
         public static void Tesselate(ref TCTCache vars)
         {
             if (vars.block.BlockMaterial == EnumBlockMaterial.Ice ||
                 vars.block.BlockMaterial == EnumBlockMaterial.Glass)
-            {
                 vars.VertexFlags |= VertexFlags.ReflectiveBitMask;
-            }
         }
     }
 

@@ -182,7 +182,7 @@ float getFogLevelDeferred(float depth, float fogMin, float fogDensity, float wor
 
     float extraDistanceFog = max(-flatFogDensity * clampedDepth * (flatFogStart) / 60, 0); // div 60 was 160 before, at 160 thick flat fog looks broken when looking at trees
 
-    float distanceFog = 1 - 1 / exp(clampedDepth * (fogDensity + extraDistanceFog));
+    float distanceFog = 1 - 1 / exp(clampedDepth * fogDensity + extraDistanceFog);
     float flatFog = 1 - 1 / exp(heightDiff * flatFogDensity);
 
     float val = max(flatFog, distanceFog);
@@ -193,6 +193,32 @@ float getFogLevelDeferred(float depth, float fogMin, float fogDensity, float wor
     val += fogMin;
 
     return clamp(val, 0, 1);
+}
+
+uint volumetricHash( uint x, uint y )
+{
+    x += x >> 11;
+    x ^= x << 7;
+    x += y;
+    x ^= x << 6;
+    x += x >> 15;
+    x ^= x << 5;
+    x += x >> 12;
+    x ^= x << 9;
+    return x;
+}
+
+float volumetricRandom( uvec2 v ) {
+    const uint mantissaMask = 0x007FFFFFu;
+    const uint one          = 0x3F800000u;
+   
+    uvec2 uv = floatBitsToUint(v);
+    uint h = volumetricHash( uv.x, uv.y );
+    h &= mantissaMask;
+    h |= one;
+    
+    float  r2 = uintBitsToFloat( h );
+    return r2 - 1.0;
 }
 
 float calculateVolumetricScatterDeferred(vec4 worldPos, vec4 cameraPos) {

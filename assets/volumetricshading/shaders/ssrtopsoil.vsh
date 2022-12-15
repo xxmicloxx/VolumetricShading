@@ -47,7 +47,7 @@ void main(void)
 	
 	uv = uvIn;
 
-	renderFlags = renderFlagsIn >> 8;
+	renderFlags = renderFlagsIn;
 	normal = unpackNormal(renderFlagsIn);
 	
 	fragPosition = cameraPos;

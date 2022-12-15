@@ -8,21 +8,9 @@ namespace VolumetricShading.Gui
 {
     public abstract class MainConfigDialog : GuiDialog
     {
-        public class ConfigOption
-        {
-            public string SwitchKey;
-
-            public string Text;
-
-            public string Tooltip;
-
-            public Action<bool> ToggleAction;
-
-            public ActionConsumable AdvancedAction;
-        }
+        private bool _isSetup;
 
         protected List<ConfigOption> ConfigOptions = new List<ConfigOption>();
-        private bool _isSetup;
 
         protected MainConfigDialog(ICoreClientAPI capi) : base(capi)
         {
@@ -36,20 +24,20 @@ namespace VolumetricShading.Gui
         protected void SetupDialog()
         {
             _isSetup = true;
-            
+
             var dialogBounds = ElementStdBounds.AutosizedMainDialog.WithAlignment(EnumDialogArea.RightBottom)
                 .WithFixedAlignmentOffset(-GuiStyle.DialogToScreenPadding, -GuiStyle.DialogToScreenPadding);
-            
+
             const int switchSize = 20;
             const int switchPadding = 10;
             var font = CairoFont.WhiteSmallText();
 
             var switchBounds = ElementBounds.Fixed(210.0, GuiStyle.TitleBarHeight,
                 switchSize, switchSize);
-            
+
             var textBounds = ElementBounds.Fixed(0, GuiStyle.TitleBarHeight + 1.0,
                 200.0, switchSize);
-            
+
             var advancedButtonBounds = ElementBounds.Fixed(240.0, GuiStyle.TitleBarHeight,
                 110.0, switchSize);
 
@@ -64,21 +52,14 @@ namespace VolumetricShading.Gui
             foreach (var option in ConfigOptions)
             {
                 composer.AddStaticText(option.Text, font, textBounds);
-                if (option.Tooltip != null)
-                {
-                    composer.AddHoverText(option.Tooltip, font, 250, textBounds.FlatCopy());
-                }
+                if (option.Tooltip != null) composer.AddHoverText(option.Tooltip, font, 250, textBounds.FlatCopy());
 
                 if (option.SwitchKey != null)
-                {
                     composer.AddSwitch(option.ToggleAction, switchBounds, option.SwitchKey, switchSize);
-                }
 
                 if (option.AdvancedAction != null)
-                {
                     composer.AddSmallButton("Advanced...", option.AdvancedAction, advancedButtonBounds);
-                }
-                
+
                 switchBounds = switchBounds.BelowCopy(fixedDeltaY: switchPadding);
                 textBounds = textBounds.BelowCopy(fixedDeltaY: switchPadding);
                 advancedButtonBounds = advancedButtonBounds.BelowCopy(fixedDeltaY: switchPadding);
@@ -91,7 +72,7 @@ namespace VolumetricShading.Gui
         {
             if (!_isSetup) SetupDialog();
 
-                var success = base.TryOpen();
+            var success = base.TryOpen();
             if (!success) return false;
 
             RefreshValues();
@@ -104,10 +85,22 @@ namespace VolumetricShading.Gui
         {
             TryClose();
         }
-        
+
         protected abstract void RefreshValues();
+
+        public class ConfigOption
+        {
+            public ActionConsumable AdvancedAction;
+            public string SwitchKey;
+
+            public string Text;
+
+            public Action<bool> ToggleAction;
+
+            public string Tooltip;
+        }
     }
-    
+
     public class ConfigGui : MainConfigDialog
     {
         public ConfigGui(ICoreClientAPI capi) : base(capi)
@@ -120,7 +113,7 @@ namespace VolumetricShading.Gui
                 ToggleAction = ToggleVolumetricLighting,
                 AdvancedAction = OnVolumetricAdvancedClicked
             });
-            
+
             RegisterOption(new ConfigOption
             {
                 SwitchKey = "toggleSSR",
@@ -129,7 +122,7 @@ namespace VolumetricShading.Gui
                 ToggleAction = ToggleScreenSpaceReflections,
                 AdvancedAction = OnSSRAdvancedClicked
             });
-            
+
             RegisterOption(new ConfigOption
             {
                 SwitchKey = "toggleOverexposure",
@@ -138,14 +131,14 @@ namespace VolumetricShading.Gui
                 ToggleAction = ToggleOverexposure,
                 AdvancedAction = OnOverexposureAdvancedClicked
             });
-            
+
             RegisterOption(new ConfigOption
             {
                 Text = "Shadow Tweaks",
                 Tooltip = "Allows for some shadow tweaks that might make them look better",
                 AdvancedAction = OnShadowTweaksAdvancedClicked
             });
-            
+
             RegisterOption(new ConfigOption
             {
                 SwitchKey = "toggleUnderwater",
@@ -153,7 +146,7 @@ namespace VolumetricShading.Gui
                 Tooltip = "Better underwater looks",
                 ToggleAction = ToggleUnderwater
             });
-            
+
             RegisterOption(new ConfigOption
             {
                 SwitchKey = "toggleDeferred",
@@ -161,7 +154,7 @@ namespace VolumetricShading.Gui
                 Tooltip = "Aims to improve lighting performance by deferring lighting operations. Requires SSAO.",
                 ToggleAction = ToggleDeferredLighting
             });
-            
+
             RegisterOption(new ConfigOption
             {
                 SwitchKey = "toggleSSDO",
@@ -174,6 +167,8 @@ namespace VolumetricShading.Gui
 
             capi.Settings.AddWatcher<int>("godRays", _ => RefreshValues());
         }
+
+        public override string ToggleKeyCombinationCode => "volumetriclightingconfigure";
 
         protected override void RefreshValues()
         {
@@ -190,7 +185,7 @@ namespace VolumetricShading.Gui
         private void ToggleUnderwater(bool enabled)
         {
             ModSettings.UnderwaterTweaksEnabled = enabled;
-            
+
             RefreshValues();
         }
 
@@ -201,14 +196,12 @@ namespace VolumetricShading.Gui
             capi.Shader.ReloadShaders();
             RefreshValues();
         }
-        
+
         private void ToggleVolumetricLighting(bool on)
         {
             if (on && ClientSettings.ShadowMapQuality == 0)
-            {
                 // need shadowmapping
                 ClientSettings.ShadowMapQuality = 1;
-            }
 
             ClientSettings.GodRayQuality = on ? 1 : 0;
 
@@ -240,14 +233,8 @@ namespace VolumetricShading.Gui
 
         private void ToggleOverexposure(bool on)
         {
-            if (on && ModSettings.OverexposureIntensity <= 0)
-            {
-                ModSettings.OverexposureIntensity = 100;
-            }
-            else if (!on && ModSettings.OverexposureIntensity > 0)
-            {
-                ModSettings.OverexposureIntensity = 0;
-            }
+            if (on && ModSettings.OverexposureIntensity <= 0) ModSettings.OverexposureIntensity = 50;
+            else if (!on && ModSettings.OverexposureIntensity > 0) ModSettings.OverexposureIntensity = 0;
 
             capi.Shader.ReloadShaders();
             RefreshValues();
@@ -284,7 +271,5 @@ namespace VolumetricShading.Gui
             shadowTweaksGui.TryOpen();
             return true;
         }
-        
-        public override string ToggleKeyCombinationCode => "volumetriclightingconfigure";
     }
 }

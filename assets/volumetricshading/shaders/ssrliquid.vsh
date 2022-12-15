@@ -5,11 +5,7 @@ layout(location = 0) in vec3 vertexPositionIn;
 layout(location = 1) in vec2 uvIn;
 // rgb = block light, a=sun light level
 layout(location = 2) in vec4 rgbaLightIn;
-// Bits 0-7: Glow level
-// Bits 8-10: Z-Offset
-// Bit 11: Wind waving yes/no
-// Bit 12: Water waving yes/no
-// Bit 13: Exposed to sky
+// Check out chunkvertexflags.ash for understanding the contents of this data
 layout(location = 3) in int renderFlags;
 
 layout(location = 4) in vec2 flowVector;
@@ -73,7 +69,7 @@ void main(void)
 	gnormal = modelViewMatrix * vec4(fragNormal.xyz, 0);
 	worldNormal = fragNormal;
     waterFlags = waterFlagsIn;
-	skyExposed = (renderFlags >> 13) & 1;
+	skyExposed = renderFlags & LiquidExposedToSkyBitMask;
 
 	flowVectorf = flowVector;
 	uv = uvIn;

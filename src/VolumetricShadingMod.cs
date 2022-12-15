@@ -1,7 +1,7 @@
 using System;
+using HarmonyLib;
 using Vintagestory.API.Client;
 using Vintagestory.API.Common;
-using HarmonyLib;
 using Vintagestory.API.Util;
 using VolumetricShading.Effects;
 using VolumetricShading.Gui;
@@ -11,6 +11,10 @@ namespace VolumetricShading
 {
     public class VolumetricShadingMod : ModSystem
     {
+        private Harmony _harmony;
+
+        public ConfigGui ConfigGui;
+        public GuiDialog CurrentDialog;
         public static VolumetricShadingMod Instance { get; private set; }
 
         public ICoreClientAPI CApi { get; private set; }
@@ -28,11 +32,6 @@ namespace VolumetricShading
         public DeferredLighting DeferredLighting { get; private set; }
         public UnderwaterTweaks UnderwaterTweaks { get; private set; }
 
-        public ConfigGui ConfigGui;
-        public GuiDialog CurrentDialog;
-
-        private Harmony _harmony;
-
         public override bool ShouldLoad(EnumAppSide forSide)
         {
             return forSide == EnumAppSide.Client;
@@ -46,13 +45,10 @@ namespace VolumetricShading
 
         public override void StartPre(ICoreAPI api)
         {
-            if (!(api is ICoreClientAPI clientApi))
-            {
-                return;
-            }
+            if (!(api is ICoreClientAPI clientApi)) return;
 
             SetConfigDefaults();
-            
+
             Instance = this;
             CApi = clientApi;
             Events = new Events();
@@ -89,98 +85,33 @@ namespace VolumetricShading
             _harmony.PatchAll();
 
             var myOriginalMethods = _harmony.GetPatchedMethods();
-            foreach (var method in myOriginalMethods)
-            {
-                Mod.Logger.Event("Patched " + method.FullDescription());
-            }
-            
+            foreach (var method in myOriginalMethods) Mod.Logger.Event("Patched " + method.FullDescription());
+
             ShaderPatcher.Reload();
         }
 
         private static void SetConfigDefaults()
         {
-            if (ModSettings.VolumetricLightingFlatness == 0)
-            {
-                ModSettings.VolumetricLightingFlatness = 140;
-            }
-
-            if (ModSettings.VolumetricLightingIntensity == 0)
-            {
-                ModSettings.VolumetricLightingIntensity = 50;
-            }
-
-            if (!ModSettings.SSRWaterTransparencySet)
-            {
-                ModSettings.SSRWaterTransparency = 25;
-            }
-
-            if (ModSettings.SSRReflectionDimming == 0)
-            {
-                ModSettings.SSRReflectionDimming = 110;
-            }
-
-            if (!ModSettings.SSRTintInfluenceSet)
-            {
-                ModSettings.SSRTintInfluence = 35;
-            }
-
-            if (!ModSettings.SSRSkyMixinSet)
-            {
-                ModSettings.SSRSkyMixin = 0;
-            }
-
-            if (!ModSettings.SSRSplashTransparencySet)
-            {
-                ModSettings.SSRSplashTransparency = 65;
-            }
-
-            if (ModSettings.NearShadowBaseWidth == 0)
-            {
-                ModSettings.NearShadowBaseWidth = 15;
-            }
-
-            if (ModSettings.SoftShadowSamples == 0)
-            {
-                ModSettings.SoftShadowSamples = 16;
-            }
-
-            if (!ModSettings.NearPeterPanningAdjustmentSet)
-            {
-                ModSettings.NearPeterPanningAdjustment = 2;
-            }
-
-            if (!ModSettings.FarPeterPanningAdjustmentSet)
-            {
-                ModSettings.FarPeterPanningAdjustment = 5;
-            }
-
-            if (!ModSettings.SSRRainReflectionsEnabledSet)
-            {
-                ModSettings.SSRRainReflectionsEnabled = true;
-            }
-
-            if (!ModSettings.SSRRefractionsEnabledSet)
-            {
-                ModSettings.SSRRefractionsEnabled = true;
-            }
-
-            if (!ModSettings.SSRCausticsEnabledSet)
-            {
-                ModSettings.SSRCausticsEnabled = true;
-            }
-
-            if (!ModSettings.UnderwaterTweaksEnabledSet)
-            {
-                ModSettings.UnderwaterTweaksEnabled = true;
-            }
+            if (ModSettings.VolumetricLightingFlatness == 0) ModSettings.VolumetricLightingFlatness = 140;
+            if (ModSettings.VolumetricLightingIntensity == 0) ModSettings.VolumetricLightingIntensity = 50;
+            if (!ModSettings.SSRWaterTransparencySet) ModSettings.SSRWaterTransparency = 25;
+            if (ModSettings.SSRReflectionDimming == 0) ModSettings.SSRReflectionDimming = 110;
+            if (!ModSettings.SSRTintInfluenceSet) ModSettings.SSRTintInfluence = 35;
+            if (!ModSettings.SSRSkyMixinSet) ModSettings.SSRSkyMixin = 0;
+            if (!ModSettings.SSRSplashTransparencySet) ModSettings.SSRSplashTransparency = 65;
+            if (ModSettings.NearShadowBaseWidth == 0) ModSettings.NearShadowBaseWidth = 15;
+            if (ModSettings.SoftShadowSamples == 0) ModSettings.SoftShadowSamples = 16;
+            if (!ModSettings.NearPeterPanningAdjustmentSet) ModSettings.NearPeterPanningAdjustment = 2;
+            if (!ModSettings.FarPeterPanningAdjustmentSet) ModSettings.FarPeterPanningAdjustment = 5;
+            if (!ModSettings.SSRRainReflectionsEnabledSet) ModSettings.SSRRainReflectionsEnabled = true;
+            if (!ModSettings.SSRRefractionsEnabledSet) ModSettings.SSRRefractionsEnabled = true;
+            if (!ModSettings.SSRCausticsEnabledSet) ModSettings.SSRCausticsEnabled = true;
+            if (!ModSettings.UnderwaterTweaksEnabledSet) ModSettings.UnderwaterTweaksEnabled = true;
         }
 
         private bool OnConfigurePressed(KeyCombination cb)
         {
-            if (ConfigGui == null)
-            {
-                ConfigGui = new ConfigGui(CApi);
-            }
+            if (ConfigGui == null) ConfigGui = new ConfigGui(CApi);
 
             if (CurrentDialog != null && CurrentDialog.IsOpened())
             {
@@ -195,7 +126,7 @@ namespace VolumetricShading
         public override void Dispose()
         {
             if (CApi == null) return;
-            
+
             ShadowTweaks.Dispose();
             _harmony?.UnpatchAll();
 
